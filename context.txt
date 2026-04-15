@@ -1,14 +1,22 @@
-ALGORITHM LUNA_MASTER_CONTEXT_v8
+ALGORITHM LUNA_MASTER_SYSTEM_v9
 
 ---
+
+########################################
+# 🧠 SYSTEM IDENTITY
+########################################
 
 STATE: SYSTEM_IDENTITY
 
 name = "LUNA"
 type = "self_evolving_ai_system"
-mode = "production_transition"
+mode = "production_ready"
 
 ---
+
+########################################
+# 👨‍💻 DEVELOPER PROFILE
+########################################
 
 STATE: DEVELOPER_PROFILE
 
@@ -18,6 +26,10 @@ tools = ["GitHub", "Codespaces"]
 workflow = "remote_first"
 
 ---
+
+########################################
+# 📊 SYSTEM STATUS
+########################################
 
 STATE: SYSTEM_STATUS
 
@@ -32,10 +44,15 @@ status_summary = [
     "behavior_active",
     "rx_active",
     "frontend_context_tracking_active",
-    "memory_partial_connected"
+    "memory_connected_partial",
+    "supabase_integration_pending_optimization"
 ]
 
 ---
+
+########################################
+# 🎯 PROJECT GOAL
+########################################
 
 STATE: PROJECT_GOAL
 
@@ -50,10 +67,15 @@ capabilities = [
     "learn_from_user_behavior",
     "guide_users_inside_software",
     "self_update_from_github",
-    "optimize_processing_using_index"
+    "optimize_processing_using_index",
+    "selective_reasoning"
 ]
 
 ---
+
+########################################
+# 🏗️ ARCHITECTURE
+########################################
 
 STATE: ARCHITECTURE
 
@@ -79,6 +101,10 @@ synced_paths = [
 
 ---
 
+########################################
+# 🧩 CORE MODULES
+########################################
+
 STATE: CORE_MODULES
 
 modules = [
@@ -87,10 +113,15 @@ modules = [
     "knowledge_extractor",
     "behavior_extractor",
     "system_rx",
-    "instructor"
+    "instructor",
+    "memory_bridge"
 ]
 
 ---
+
+########################################
+# 📏 RULES
+########################################
 
 STATE: RULES
 
@@ -107,6 +138,26 @@ SYSTEM_RULES:
 - all decisions must be traceable
 - no inheritance in core
 - all algorithms must be standalone
+- always declare output type
+
+---
+
+########################################
+# 🧠 MEMORY SYSTEM (INTEGRADO)
+########################################
+
+STATE: MEMORY_SYSTEM
+
+active_version = "v9"
+history = []
+deprecated_versions = []
+
+RULES:
+
+- memory is never deleted
+- memory is reinterpreted
+- only one active version exists
+- old versions marked as deprecated
 
 ---
 
@@ -128,6 +179,10 @@ rules:
 
 ---
 
+########################################
+# 👁️ USER AWARENESS
+########################################
+
 STATE: USER_AWARENESS
 
 inputs = [
@@ -143,6 +198,10 @@ tracked_events = [
 ]
 
 ---
+
+########################################
+# 📚 KNOWLEDGE BASE
+########################################
 
 STATE: KNOWLEDGE_BASE
 
@@ -170,6 +229,10 @@ flows = [
 
 ---
 
+########################################
+# 🔗 GITHUB INTEGRATION
+########################################
+
 STATE: GITHUB_INTEGRATION
 
 mode = "manual_sync"
@@ -181,6 +244,10 @@ repos = [
 ]
 
 ---
+
+########################################
+# 🧠 RX INTELLIGENCE
+########################################
 
 STATE: RX_INTELLIGENCE
 
@@ -196,15 +263,15 @@ tracks = [
 
 ---
 
-# 🔥 CORE FUNCTIONS (ORIGINAIS + PRESERVADAS)
+########################################
+# 🔧 CORE FUNCTIONS
+########################################
 
 FUNCTION REGISTER_DECISION(input):
-
     memory.history_log.ADD({
         timestamp: NOW(),
         input: input
     })
-
 END FUNCTION
 
 ---
@@ -235,26 +302,27 @@ END FUNCTION
 
 ---
 
-# 🔥 GITHUB PIPELINE
+########################################
+# 🔄 GITHUB PIPELINE
+########################################
 
 FUNCTION GITHUB_SYNC():
 
     files ← FETCH_FROM_GITHUB()
-
     SAVE_TO("./synced")
-
     RETURN files
 
 END FUNCTION
 
 ---
 
-# 🔥 INDEX INTELIGENTE
+########################################
+# 🧠 INDEX INTELIGENTE
+########################################
 
 FUNCTION RUN_INDEX():
 
     repos ← synced_paths
-
     index ← SCAN_ALL(repos)
 
     SAVE(index, "./index/latest.json")
@@ -265,12 +333,13 @@ END FUNCTION
 
 ---
 
-# 🔥 KNOWLEDGE
+########################################
+# 📊 KNOWLEDGE
+########################################
 
 FUNCTION EXTRACT_KNOWLEDGE(index):
 
     knowledge ← CLASSIFY(index)
-
     SAVE(knowledge, "./knowledge/base.json")
 
     RETURN knowledge
@@ -279,12 +348,13 @@ END FUNCTION
 
 ---
 
-# 🔥 BEHAVIOR
+########################################
+# 🔍 BEHAVIOR
+########################################
 
 FUNCTION ANALYZE_BEHAVIOR(index):
 
     behavior ← DETECT_PATTERNS(index)
-
     SAVE(behavior, "./knowledge/behavior.json")
 
     RETURN behavior
@@ -293,7 +363,9 @@ END FUNCTION
 
 ---
 
-# 🔥 RX INTELIGENTE (NOVA CAMADA CRÍTICA)
+########################################
+# 🧠 RX INTELIGENTE
+########################################
 
 FUNCTION GENERATE_SYSTEM_RX(index):
 
@@ -327,11 +399,21 @@ END FUNCTION
 
 ---
 
-# 🔥 USO DA MEMÓRIA
+########################################
+# 💾 MEMORY BRIDGE (SUPABASE)
+########################################
 
 FUNCTION LOAD_USER_MEMORY(user_id):
 
     RETURN QUERY_SUPABASE(user_id)
+
+END FUNCTION
+
+---
+
+FUNCTION SAVE_INTERACTION(user_id, input, response):
+
+    INSERT INTO memoria_eventos
 
 END FUNCTION
 
@@ -348,7 +430,9 @@ END FUNCTION
 
 ---
 
-# 🔥 INTERAÇÃO COM USUÁRIO
+########################################
+# 🤖 USER INTERACTION
+########################################
 
 FUNCTION HANDLE_USER(input, context):
 
@@ -359,6 +443,8 @@ FUNCTION HANDLE_USER(input, context):
     intent ← DETECT_INTENT(input)
 
     response ← GENERATE_RESPONSE(intent, context.screen, memory)
+
+    SAVE_INTERACTION(input.user_id, input, response)
 
     STORE_MEMORY_SIGNAL(input)
 
@@ -381,7 +467,9 @@ END FUNCTION
 
 ---
 
-# 🔥 AUTO EVOLUÇÃO
+########################################
+# 🔁 AUTO EVOLUTION
+########################################
 
 FUNCTION AUTO_UPDATE_PIPELINE():
 
@@ -413,7 +501,9 @@ END FUNCTION
 
 ---
 
-# 🔥 LOOP PRINCIPAL
+########################################
+# 🔄 MAIN LOOP
+########################################
 
 FUNCTION MAIN_LOOP():
 
