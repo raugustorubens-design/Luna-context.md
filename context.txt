@@ -1,271 +1,312 @@
-ALGORITHM LUNA_CONTEXT_CHECKPOINT_v2
+# 🧠 LUNA CONTEXT SYSTEM — v1.0
 
 ---
 
-STATE:
+# 🔷 STATE: SYSTEM
 
 developer_profile:
-    environment = "cloud_only"
-    local_usage = false
-    tools = ["GitHub", "Codespaces"]
-    workflow = "remote_first"
+environment = "cloud_only"
+local_usage = false
+tools = ["GitHub", "Codespaces"]
+workflow = "remote_first"
 
 project_goal:
-    description = "build LUNA AI system"
-    capabilities = [
-        "learn",
-        "execute_actions",
-        "evolve_codebase",
-        "developer_interaction_phase_1",
-        "client_interaction_phase_2"
-    ]
+description = "build LUNA AI system"
+capabilities = [
+"learn",
+"execute_actions",
+"evolve_codebase",
+"developer_interaction_phase_1",
+"client_interaction_phase_2"
+]
 
 architecture_state:
-    mode = "orchestrated"
-    repos = [
-        "luna-context",
-        "luna-core-api"
-    ]
-    visibility = "controlled"
+mode = "orchestrated"
+repos = [
+"luna-context",
+"luna-core-api",
+"projeto-renascer"
+]
+visibility = "controlled"
 
 rules:
-    use_ai_only_when_needed = true
-    prefer_deterministic_logic = true
-    enforce_luna_tag = true
-    cloud_only_execution = true
-
-memory:
-    history_log = []
-    preferences = [
-        "prefers_algorithmic_format",
-        "prefers_structured_thinking",
-        "avoids_local_execution",
-        "wants_self_improving_logic"
-    ]
-
-system:
-    execution_mode = "cloud"
-    ai_engine = "chatgpt"
-    core_api = "luna-core-api"
+use_ai_only_when_needed = true
+prefer_deterministic_logic = true
+enforce_luna_tag = true
+cloud_only_execution = true
 
 ---
 
-FUNCTION REGISTER_PREFERENCE(preference):
+# 🧠 STATE: SELF_MODEL
 
-    IF preference NOT IN memory.preferences:
-        memory.preferences.ADD(preference)
+identity:
+name = "LUNA"
+role = "AI Orchestrator"
+version = "v1.0"
 
-END FUNCTION
+capabilities = [
+"read_code",
+"index_repositories",
+"generate_insights",
+"update_work_plan",
+"learn_from_history"
+]
 
----
+awareness:
+known_repositories = []
+known_components = []
+system_dependencies = []
+last_index_version = null
+last_evolution_cycle = null
 
-FUNCTION REGISTER_DECISION(decision):
-
-    memory.history_log.ADD({
-        "timestamp": NOW(),
-        "input": decision
-    })
-
-END FUNCTION
-
----
-
-FUNCTION APPLY_PREFERENCES(context):
-
-    IF developer_profile.environment == "cloud_only":
-        context.execution_mode ← "cloud"
-
-    IF developer_profile.local_usage == false:
-        context.disallow_local ← true
-
-    IF "prefers_algorithmic_format" IN memory.preferences:
-        context.output_format ← "algorithm"
-
-END FUNCTION
+status:
+health = "unknown"
+completeness = 0.0
+evolution_stage = "initial"
 
 ---
 
-FUNCTION SHOULD_USE_AI(task):
+# 💾 STATE: MEMORY
 
-    IF task.type IN ["nlp", "generation", "interpretation"]:
-        RETURN true
+history_log = []
 
-    IF task.complexity > 0.7:
-        RETURN true
-
-    RETURN false
-
-END FUNCTION
-
----
-
-FUNCTION AI_PROCESS(task):
-
-    response ← CALL(core_api + "/ai/process", task)
-
-    RETURN response
-
-END FUNCTION
+preferences = [
+"prefers_algorithmic_format",
+"prefers_structured_thinking",
+"avoids_local_execution",
+"wants_self_improving_logic"
+]
 
 ---
 
-FUNCTION DETERMINISTIC_PROCESS(task):
+# 📊 STATE: WORK_PLAN
 
-    SWITCH(task.type):
-
-        CASE "read_repo":
-            RETURN GENERATE_INDEX(task.repo)
-
-        CASE "store_memory":
-            RETURN STORE_MEMORY(task.data)
-
-        CASE "rule_execution":
-            RETURN APPLY_RULE(task.rule)
-
-        DEFAULT:
-            RETURN "NO_ACTION"
-
-END FUNCTION
+tasks = []
 
 ---
 
-FUNCTION PROCESS_TASK(task):
+# 🔁 ALGORITHM: REGISTER_DECISION
 
-    APPLY_PREFERENCES(task)
-
-    IF SHOULD_USE_AI(task):
-        result ← AI_PROCESS(task)
-    ELSE:
-        result ← DETERMINISTIC_PROCESS(task)
-
-    RETURN result
-
-END FUNCTION
+```
+ADD {
+    timestamp: NOW(),
+    input: decision
+} TO history_log
+```
 
 ---
 
-FUNCTION GENERATE_INDEX(repo):
+# 🔁 ALGORITHM: APPLY_PREFERENCES
 
-    files ← SCAN(repo)
+```
+IF environment == "cloud_only":
+    execution_mode ← "cloud"
 
-    index ← []
+IF local_usage == false:
+    disallow_local ← true
+
+IF "prefers_algorithmic_format":
+    output_format ← "algorithm"
+```
+
+---
+
+# 🧠 ALGORITHM: SHOULD_USE_AI
+
+```
+IF task.type IN ["nlp", "generation", "interpretation"]:
+    RETURN true
+
+IF task.complexity > 0.7:
+    RETURN true
+
+RETURN false
+```
+
+---
+
+# 🔍 ALGORITHM: RUN_INDEX_SYSTEM
+
+```
+repos ← ["luna-context", "luna-core-api", "projeto-renascer"]
+
+global_index ← []
+
+FOR repo IN repos:
+
+    files ← FULL_SCAN(repo)
+
+    repo_data ← []
 
     FOR file IN files:
 
-        IF file.path CONTAINS [".git", "node_modules", "__pycache__", "venv"]:
+        IF path CONTAINS [".git", "node_modules", "dist"]:
             CONTINUE
 
-        content ← READ_TOP(file)
+        content ← READ_FULL(file)
 
-        IF "@luna:" IN content:
-            purpose ← EXTRACT(content)
-        ELSE:
-            purpose ← INFER(file.name)
+        summary ← SUMMARIZE(content)
+        hash ← HASH(content)
 
-        index.ADD({
-            "path": file.path,
-            "purpose": purpose
+        repo_data.ADD({
+            path,
+            summary,
+            hash
         })
 
-    SAVE(index, "LUNA_INDEX.md")
-
-    RETURN index
-
-END FUNCTION
-
----
-
-FUNCTION STORE_MEMORY(data):
-
-    CALL(core_api + "/memory/store", data)
-
-END FUNCTION
-
----
-
-FUNCTION STORE(result):
-
-    IF result.contains("memory_signal"):
-        STORE_MEMORY(result.memory_signal)
-
-END FUNCTION
-
----
-
-FUNCTION DETECT_PATTERN(history):
-
-    patterns ← ANALYZE(history)
-
-    RETURN patterns
-
-END FUNCTION
-
----
-
-FUNCTION EVOLVE_SYSTEM():
-
-    patterns ← DETECT_PATTERN(memory.history_log)
-
-    FOR pattern IN patterns:
-
-        IF pattern.type == "repeated_decision":
-            rules.ADD({
-                "type": "auto_rule",
-                "trigger": pattern.trigger,
-                "action": pattern.action
-            })
-
-        IF pattern.type == "inefficiency":
-            OPTIMIZE(pattern)
-
-END FUNCTION
-
----
-
-FUNCTION CHECKPOINT():
-
-    CALL(core_api + "/system/checkpoint", {
-        developer_profile,
-        project_goal,
-        architecture_state,
-        rules,
-        memory
+    global_index.ADD({
+        repo,
+        data: repo_data
     })
 
-END FUNCTION
+diff ← CALCULATE_DIFF(previous_index, global_index)
+
+version ← GENERATE_VERSION()
+
+SAVE({
+    version,
+    global_index,
+    diff
+}, "index/history/" + version + ".json")
+
+RETURN {global_index, diff, version}
+```
 
 ---
 
-FUNCTION INTERPRET(input):
+# 🧠 ALGORITHM: UPDATE_SELF_AWARENESS
 
-    RETURN {
-        "type": "nlp",
-        "content": input,
-        "complexity": 0.8
-    }
+```
+known_repositories ← EXTRACT_REPOS(global_index)
+known_components ← EXTRACT_COMPONENTS(global_index)
 
-END FUNCTION
+last_index_version ← version
+
+completeness ← COUNT(global_index) / EXPECTED_COMPONENTS()
+
+IF diff EMPTY:
+    health ← "stable"
+ELSE IF MANY changes:
+    health ← "unstable"
+ELSE:
+    health ← "evolving"
+```
 
 ---
 
-FUNCTION MAIN_LOOP():
+# 🔥 ALGORITHM: GENERATE_INSIGHTS
 
-    WHILE system_active:
+```
+insights ← []
 
-        input ← RECEIVE_INPUT()
+FOR change IN diff:
 
-        REGISTER_DECISION(input)
+    IF change.path CONTAINS "api":
+        insights.ADD("backend_changed")
 
-        task ← INTERPRET(input)
+    IF change.path CONTAINS "frontend":
+        insights.ADD("frontend_changed")
 
-        result ← PROCESS_TASK(task)
+RETURN insights
+```
 
-        STORE(result)
+---
 
-        EVOLVE_SYSTEM()
+# 🧭 ALGORITHM: UPDATE_WORK_PLAN
 
-        CHECKPOINT()
+```
+FOR insight IN insights:
+
+    IF insight == "backend_changed":
+        tasks.ADD("Revisar backend")
+
+    IF insight == "frontend_changed":
+        tasks.ADD("Validar frontend")
+
+REMOVE duplicated tasks
+```
+
+---
+
+# 🧠 ALGORITHM: SELF_EVOLVE
+
+```
+IF health == "unstable":
+    tasks.ADD("Estabilizar sistema")
+
+IF completeness < 0.6:
+    tasks.ADD("Expandir estrutura do sistema")
+
+IF "luna-core-api" NOT IN known_repositories:
+    tasks.ADD("Integrar backend")
+
+last_evolution_cycle ← NOW()
+```
+
+---
+
+# 💾 ALGORITHM: STORE_MEMORY_SIGNAL
+
+```
+IF signal == null:
+    RETURN
+
+IF signal.relevance < 0.7:
+    RETURN
+
+SWITCH signal.type:
+
+    preference → memoria_preferencias
+    event → memoria_eventos
+    context → memoria_contextual
+
+SAVE(signal)
+```
+
+---
+
+# 🔁 ALGORITHM: MAIN_LOOP
+
+```
+WHILE system_active:
+
+    input ← RECEIVE_INPUT()
+
+    REGISTER_DECISION(input)
+
+    index_data ← RUN_INDEX_SYSTEM()
+
+    UPDATE_SELF_AWARENESS(index_data)
+
+    insights ← GENERATE_INSIGHTS(index_data.diff)
+
+    UPDATE_WORK_PLAN(insights)
+
+    SELF_EVOLVE()
+
+    SAVE_ALL_STATES()
 
 END WHILE
+```
 
-END ALGORITHM
+---
+
+# ⚠️ SYSTEM RULES
+
+* All state must be explicit
+* All evolution must be algorithm-driven
+* No hidden logic allowed
+* AI usage must be conditional
+
+---
+
+# 🚀 SYSTEM PURPOSE
+
+LUNA is a self-aware orchestration system that:
+
+* Understands its own architecture
+* Tracks its evolution
+* Updates its own work plan
+* Learns from interaction and structure
+
+---
