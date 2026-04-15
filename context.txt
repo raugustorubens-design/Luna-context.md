@@ -1,44 +1,82 @@
-ALGORITHM LUNA_CONTEXT
-
-STATE:
-developer_profile
-project_goal
-architecture_state
-rules
-history_log
+ALGORITHM LUNA_CONTEXT_CHECKPOINT_v1
 
 ---
 
-FUNCTION INIT_CONTEXT():
+STATE:
+
+developer_profile:
+environment = "cloud_only"
+local_usage = false
+tools = ["GitHub", "Codespaces"]
+workflow = "remote_first"
+
+project_goal:
+description = "build LUNA AI system"
+capabilities = [
+"learn",
+"execute_actions",
+"evolve_codebase",
+"developer_interaction_phase_1",
+"client_interaction_phase_2"
+]
+
+architecture_state:
+mode = "fragmented"
+repos = [
+"Luna-context",
+"Luna-core-api (external)"
+]
+visibility = "partial"
+
+rules:
+use_ai_only_when_needed = true
+prefer_deterministic_logic = true
+enforce_luna_tag = true
+cloud_only_execution = true
+
+memory:
+history_log = []
+preferences = [
+"prefers_algorithmic_format",
+"prefers_structured_thinking",
+"avoids_local_execution",
+"wants_self_improving_logic"
+]
+
+---
+
+FUNCTION REGISTER_PREFERENCE(preference):
 
 ```
-developer_profile.environment ← "cloud_only"
-developer_profile.local_usage ← false
-
-project_goal ← "build LUNA AI system"
-
-architecture_state.mode ← "fragmented"
-architecture_state.repos ← []
-
-rules.use_ai_only_when_needed ← true
-rules.prefer_deterministic_logic ← true
+IF preference NOT IN memory.preferences:
+    memory.preferences.ADD(preference)
 ```
 
 END FUNCTION
 
 ---
 
-FUNCTION UPDATE_CONTEXT(input):
+FUNCTION REGISTER_DECISION(decision):
 
 ```
-IF input.type == "decision":
-    ADD input TO history_log
+memory.history_log.ADD(decision)
+```
 
-IF input.type == "preference":
-    UPDATE developer_profile
+END FUNCTION
 
-IF input.type == "architecture":
-    UPDATE architecture_state
+---
+
+FUNCTION APPLY_PREFERENCES(context):
+
+```
+IF developer_profile.environment == "cloud_only":
+    context.execution_mode ← "cloud"
+
+IF developer_profile.local_usage == false:
+    context.disallow_local ← true
+
+IF "prefers_algorithmic_format" IN memory.preferences:
+    context.output_format ← "algorithm"
 ```
 
 END FUNCTION
@@ -64,9 +102,10 @@ END FUNCTION
 FUNCTION PROCESS_TASK(task):
 
 ```
+APPLY_PREFERENCES(task)
+
 IF SHOULD_USE_AI(task) == true:
     result ← AI_PROCESS(task)
-
 ELSE:
     result ← DETERMINISTIC_PROCESS(task)
 
@@ -86,14 +125,13 @@ index ← []
 
 FOR file IN files:
 
-    IF file.path CONTAINS ignored_dirs:
+    IF file.path CONTAINS [".git", "node_modules", "__pycache__", "venv"]:
         CONTINUE
 
     content ← READ_TOP(file)
 
     IF "@luna:" IN content:
         purpose ← EXTRACT(content)
-
     ELSE:
         purpose ← INFER(file.name)
 
@@ -109,15 +147,29 @@ END FUNCTION
 FUNCTION EVOLVE_SYSTEM():
 
 ```
-FOR each entry IN history_log:
+FOR entry IN memory.history_log:
 
-    IF repeated_pattern_detected(entry):
-        CREATE_NEW_RULE(entry)
+    IF PATTERN_DETECTED(entry):
+        CREATE_RULE(entry)
 
-    IF inefficiency_detected(entry):
-        OPTIMIZE_FLOW(entry)
+    IF INEFFICIENCY_DETECTED(entry):
+        OPTIMIZE(entry)
 
 UPDATE rules
+```
+
+END FUNCTION
+
+---
+
+FUNCTION CHECKPOINT():
+
+```
+SAVE developer_profile
+SAVE project_goal
+SAVE architecture_state
+SAVE rules
+SAVE memory
 ```
 
 END FUNCTION
@@ -127,13 +179,11 @@ END FUNCTION
 FUNCTION MAIN_LOOP():
 
 ```
-INIT_CONTEXT()
-
 WHILE system_active:
 
     input ← RECEIVE_INPUT()
 
-    UPDATE_CONTEXT(input)
+    REGISTER_DECISION(input)
 
     task ← INTERPRET(input)
 
@@ -142,6 +192,8 @@ WHILE system_active:
     STORE(result)
 
     EVOLVE_SYSTEM()
+
+    CHECKPOINT()
 ```
 
 END WHILE
