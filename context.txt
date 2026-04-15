@@ -1,56 +1,59 @@
-ALGORITHM LUNA_CONTEXT_CHECKPOINT_v1
+ALGORITHM LUNA_CONTEXT_CHECKPOINT_v2
 
 ---
 
 STATE:
 
 developer_profile:
-environment = "cloud_only"
-local_usage = false
-tools = ["GitHub", "Codespaces"]
-workflow = "remote_first"
+    environment = "cloud_only"
+    local_usage = false
+    tools = ["GitHub", "Codespaces"]
+    workflow = "remote_first"
 
 project_goal:
-description = "build LUNA AI system"
-capabilities = [
-"learn",
-"execute_actions",
-"evolve_codebase",
-"developer_interaction_phase_1",
-"client_interaction_phase_2"
-]
+    description = "build LUNA AI system"
+    capabilities = [
+        "learn",
+        "execute_actions",
+        "evolve_codebase",
+        "developer_interaction_phase_1",
+        "client_interaction_phase_2"
+    ]
 
 architecture_state:
-mode = "fragmented"
-repos = [
-"Luna-context",
-"Luna-core-api (external)"
-]
-visibility = "partial"
+    mode = "orchestrated"
+    repos = [
+        "luna-context",
+        "luna-core-api"
+    ]
+    visibility = "controlled"
 
 rules:
-use_ai_only_when_needed = true
-prefer_deterministic_logic = true
-enforce_luna_tag = true
-cloud_only_execution = true
+    use_ai_only_when_needed = true
+    prefer_deterministic_logic = true
+    enforce_luna_tag = true
+    cloud_only_execution = true
 
 memory:
-history_log = []
-preferences = [
-"prefers_algorithmic_format",
-"prefers_structured_thinking",
-"avoids_local_execution",
-"wants_self_improving_logic"
-]
+    history_log = []
+    preferences = [
+        "prefers_algorithmic_format",
+        "prefers_structured_thinking",
+        "avoids_local_execution",
+        "wants_self_improving_logic"
+    ]
+
+system:
+    execution_mode = "cloud"
+    ai_engine = "chatgpt"
+    core_api = "luna-core-api"
 
 ---
 
 FUNCTION REGISTER_PREFERENCE(preference):
 
-```
-IF preference NOT IN memory.preferences:
-    memory.preferences.ADD(preference)
-```
+    IF preference NOT IN memory.preferences:
+        memory.preferences.ADD(preference)
 
 END FUNCTION
 
@@ -58,9 +61,10 @@ END FUNCTION
 
 FUNCTION REGISTER_DECISION(decision):
 
-```
-memory.history_log.ADD(decision)
-```
+    memory.history_log.ADD({
+        "timestamp": NOW(),
+        "input": decision
+    })
 
 END FUNCTION
 
@@ -68,16 +72,14 @@ END FUNCTION
 
 FUNCTION APPLY_PREFERENCES(context):
 
-```
-IF developer_profile.environment == "cloud_only":
-    context.execution_mode ← "cloud"
+    IF developer_profile.environment == "cloud_only":
+        context.execution_mode ← "cloud"
 
-IF developer_profile.local_usage == false:
-    context.disallow_local ← true
+    IF developer_profile.local_usage == false:
+        context.disallow_local ← true
 
-IF "prefers_algorithmic_format" IN memory.preferences:
-    context.output_format ← "algorithm"
-```
+    IF "prefers_algorithmic_format" IN memory.preferences:
+        context.output_format ← "algorithm"
 
 END FUNCTION
 
@@ -85,15 +87,43 @@ END FUNCTION
 
 FUNCTION SHOULD_USE_AI(task):
 
-```
-IF task.requires_language_understanding == true:
-    RETURN true
+    IF task.type IN ["nlp", "generation", "interpretation"]:
+        RETURN true
 
-IF task.requires_complex_decision == true:
-    RETURN true
+    IF task.complexity > 0.7:
+        RETURN true
 
-RETURN false
-```
+    RETURN false
+
+END FUNCTION
+
+---
+
+FUNCTION AI_PROCESS(task):
+
+    response ← CALL(core_api + "/ai/process", task)
+
+    RETURN response
+
+END FUNCTION
+
+---
+
+FUNCTION DETERMINISTIC_PROCESS(task):
+
+    SWITCH(task.type):
+
+        CASE "read_repo":
+            RETURN GENERATE_INDEX(task.repo)
+
+        CASE "store_memory":
+            RETURN STORE_MEMORY(task.data)
+
+        CASE "rule_execution":
+            RETURN APPLY_RULE(task.rule)
+
+        DEFAULT:
+            RETURN "NO_ACTION"
 
 END FUNCTION
 
@@ -101,16 +131,14 @@ END FUNCTION
 
 FUNCTION PROCESS_TASK(task):
 
-```
-APPLY_PREFERENCES(task)
+    APPLY_PREFERENCES(task)
 
-IF SHOULD_USE_AI(task) == true:
-    result ← AI_PROCESS(task)
-ELSE:
-    result ← DETERMINISTIC_PROCESS(task)
+    IF SHOULD_USE_AI(task):
+        result ← AI_PROCESS(task)
+    ELSE:
+        result ← DETERMINISTIC_PROCESS(task)
 
-RETURN result
-```
+    RETURN result
 
 END FUNCTION
 
@@ -118,27 +146,57 @@ END FUNCTION
 
 FUNCTION GENERATE_INDEX(repo):
 
-```
-files ← SCAN(repo)
+    files ← SCAN(repo)
 
-index ← []
+    index ← []
 
-FOR file IN files:
+    FOR file IN files:
 
-    IF file.path CONTAINS [".git", "node_modules", "__pycache__", "venv"]:
-        CONTINUE
+        IF file.path CONTAINS [".git", "node_modules", "__pycache__", "venv"]:
+            CONTINUE
 
-    content ← READ_TOP(file)
+        content ← READ_TOP(file)
 
-    IF "@luna:" IN content:
-        purpose ← EXTRACT(content)
-    ELSE:
-        purpose ← INFER(file.name)
+        IF "@luna:" IN content:
+            purpose ← EXTRACT(content)
+        ELSE:
+            purpose ← INFER(file.name)
 
-    index.ADD(file.path, purpose)
+        index.ADD({
+            "path": file.path,
+            "purpose": purpose
+        })
 
-SAVE(index, "LUNA_INDEX.md")
-```
+    SAVE(index, "LUNA_INDEX.md")
+
+    RETURN index
+
+END FUNCTION
+
+---
+
+FUNCTION STORE_MEMORY(data):
+
+    CALL(core_api + "/memory/store", data)
+
+END FUNCTION
+
+---
+
+FUNCTION STORE(result):
+
+    IF result.contains("memory_signal"):
+        STORE_MEMORY(result.memory_signal)
+
+END FUNCTION
+
+---
+
+FUNCTION DETECT_PATTERN(history):
+
+    patterns ← ANALYZE(history)
+
+    RETURN patterns
 
 END FUNCTION
 
@@ -146,17 +204,19 @@ END FUNCTION
 
 FUNCTION EVOLVE_SYSTEM():
 
-```
-FOR entry IN memory.history_log:
+    patterns ← DETECT_PATTERN(memory.history_log)
 
-    IF PATTERN_DETECTED(entry):
-        CREATE_RULE(entry)
+    FOR pattern IN patterns:
 
-    IF INEFFICIENCY_DETECTED(entry):
-        OPTIMIZE(entry)
+        IF pattern.type == "repeated_decision":
+            rules.ADD({
+                "type": "auto_rule",
+                "trigger": pattern.trigger,
+                "action": pattern.action
+            })
 
-UPDATE rules
-```
+        IF pattern.type == "inefficiency":
+            OPTIMIZE(pattern)
 
 END FUNCTION
 
@@ -164,13 +224,25 @@ END FUNCTION
 
 FUNCTION CHECKPOINT():
 
-```
-SAVE developer_profile
-SAVE project_goal
-SAVE architecture_state
-SAVE rules
-SAVE memory
-```
+    CALL(core_api + "/system/checkpoint", {
+        developer_profile,
+        project_goal,
+        architecture_state,
+        rules,
+        memory
+    })
+
+END FUNCTION
+
+---
+
+FUNCTION INTERPRET(input):
+
+    RETURN {
+        "type": "nlp",
+        "content": input,
+        "complexity": 0.8
+    }
 
 END FUNCTION
 
@@ -178,23 +250,21 @@ END FUNCTION
 
 FUNCTION MAIN_LOOP():
 
-```
-WHILE system_active:
+    WHILE system_active:
 
-    input ← RECEIVE_INPUT()
+        input ← RECEIVE_INPUT()
 
-    REGISTER_DECISION(input)
+        REGISTER_DECISION(input)
 
-    task ← INTERPRET(input)
+        task ← INTERPRET(input)
 
-    result ← PROCESS_TASK(task)
+        result ← PROCESS_TASK(task)
 
-    STORE(result)
+        STORE(result)
 
-    EVOLVE_SYSTEM()
+        EVOLVE_SYSTEM()
 
-    CHECKPOINT()
-```
+        CHECKPOINT()
 
 END WHILE
 
