@@ -372,6 +372,223 @@ FUNCTION MAIN_LOOP():
 
         STORE(response)
 
+ALGORITHM LUNA_MASTER_INDEX_v4
+
+---
+
+# 🔒 PRESERVAÇÃO TOTAL DO CORE ORIGINAL
+
+INHERITS: LUNA_MASTER_INDEX_v2
+
+---
+
+STATE: SYSTEM_STATUS
+
+phase = "active_development"
+mode = "self_evolving"
+last_checkpoint = NOW()
+
+---
+
+STATE: ARCHITECTURE_EXTENDED
+
+source_of_truth = "github_synced"
+
+synced_paths = [
+    "./synced/luna-api",
+    "./synced/luna-frontend",
+    "./synced/luna-core"
+]
+
+---
+
+STATE: CORE_MODULES
+
+modules = [
+    "index_runner",
+    "knowledge_extractor",
+    "behavior_extractor",
+    "system_rx",
+    "github_sync",
+    "instructor"
+]
+
+---
+
+STATE: USER_AWARENESS
+
+inputs = [
+    "screen_context",
+    "user_events",
+    "user_messages"
+]
+
+tracked_events = [
+    "click",
+    "submit",
+    "error"
+]
+
+---
+
+STATE: GITHUB_INTEGRATION
+
+mode = "manual_sync"
+
+repos = [
+    "luna-api",
+    "luna-frontend",
+    "luna-core"
+]
+
+---
+
+# 🔥 NOVAS FUNÇÕES (SEM REMOVER AS ANTIGAS)
+
+FUNCTION GITHUB_SYNC():
+
+    files ← FETCH_FROM_GITHUB()
+
+    SAVE_TO("./synced")
+
+    RETURN files
+
+END FUNCTION
+
+---
+
+FUNCTION RUN_INDEX_FROM_SYNC():
+
+    repos = synced_paths
+
+    index ← SCAN_ALL(repos)
+
+    SAVE(index, "./index/latest.json")
+
+    RETURN index
+
+END FUNCTION
+
+---
+
+FUNCTION EXTRACT_KNOWLEDGE_FROM_INDEX(index):
+
+    knowledge ← CLASSIFY(index)
+
+    SAVE(knowledge, "./knowledge/base.json")
+
+    RETURN knowledge
+
+END FUNCTION
+
+---
+
+FUNCTION ANALYZE_BEHAVIOR_FROM_INDEX(index):
+
+    behavior ← DETECT_PATTERNS(index)
+
+    SAVE(behavior, "./knowledge/behavior.json")
+
+    RETURN behavior
+
+END FUNCTION
+
+---
+
+FUNCTION GENERATE_SYSTEM_RX(index):
+
+    rx ← DESCRIBE_SYSTEM(index)
+
+    SAVE(rx, "./knowledge/system_rx.json")
+
+    RETURN rx
+
+END FUNCTION
+
+---
+
+FUNCTION HANDLE_USER_WITH_CONTEXT(input, context):
+
+    APPLY_PREFERENCES(context)
+
+    memory ← LOAD_USER_MEMORY()
+
+    intent ← DETECT_INTENT(input)
+
+    response ← GENERATE_RESPONSE(intent, context.screen, memory)
+
+    STORE_MEMORY_SIGNAL(input)
+
+    RETURN response
+
+END FUNCTION
+
+---
+
+FUNCTION TRACK_USER_EVENT(event):
+
+    SAVE(event)
+
+    insight ← INTERPRET_EVENT(event)
+
+    IF insight:
+        TRIGGER_ASSISTANCE(insight)
+
+END FUNCTION
+
+---
+
+FUNCTION AUTO_UPDATE_PIPELINE():
+
+    files ← GITHUB_SYNC()
+
+    index ← RUN_INDEX_FROM_SYNC()
+
+    knowledge ← EXTRACT_KNOWLEDGE_FROM_INDEX(index)
+
+    behavior ← ANALYZE_BEHAVIOR_FROM_INDEX(index)
+
+    rx ← GENERATE_SYSTEM_RX(index)
+
+    UPDATE_SELF_AWARENESS(index)
+
+END FUNCTION
+
+---
+
+# 🔥 NOVO MAIN LOOP (SEM PERDER O ORIGINAL)
+
+FUNCTION EXTENDED_MAIN_LOOP():
+
+    WHILE system_active:
+
+        input ← RECEIVE_INPUT()
+
+        REGISTER_DECISION(input)
+
+        AUTO_UPDATE_PIPELINE()
+
+        insights ← GENERATE_INSIGHTS()
+
+        UPDATE_WORK_PLAN(insights)
+
+        SELF_EVOLVE()
+
+        IF input.source == "client":
+            response ← HANDLE_USER_WITH_CONTEXT(input, input.context)
+        ELSE:
+            response ← PROCESS_TASK(input)
+
+        STORE(response)
+
+END WHILE
+
+END FUNCTION
+
+---
+
+END ALGORITHM
+
 END WHILE
 
 END FUNCTION
