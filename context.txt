@@ -1,0 +1,72 @@
+# 🧠 LUNA CONTEXT
+
+## 👤 Perfil do Desenvolvedor
+
+* Trabalha 100% em cloud
+* Não utiliza ambiente local
+* Prefere GitHub / Codespaces
+
+---
+
+## 🎯 Objetivo do Projeto
+
+Criar a LUNA:
+
+* IA estilo Jarvis
+* Capaz de aprender
+* Capaz de executar ações
+* Evolução contínua
+
+---
+
+## ⚙️ Preferências Técnicas
+
+### Ambiente
+
+* Cloud-first (obrigatório)
+* Nada rodando local
+
+### Backend
+
+* Python (FastAPI)
+
+### Banco
+
+* Supabase
+
+### Execução
+
+* Scripts devem rodar em ambiente cloud
+
+---
+
+## 🧠 Regras de Decisão
+
+* Sempre priorizar soluções cloud
+* Evitar dependência de máquina local
+* Preferir automação via GitHub Actions
+* Preferir scripts simples antes de IA
+
+---
+
+## 🚫 Evitar
+
+* Soluções locais
+* Complexidade desnecessária
+* Multi-agente prematuro
+
+---
+
+## 🔥 Direção do Projeto
+
+Fase atual:
+
+* Estruturação
+* Índice automático
+* Base da LUNA
+
+Próximo:
+
+* Orquestração
+* Memória
+* Execução de ações
