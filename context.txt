@@ -1,4 +1,12 @@
-ALGORITHM LUNA_MASTER_INDEX_v2
+ALGORITHM LUNA_MASTER_CONTEXT_v8
+
+---
+
+STATE: SYSTEM_IDENTITY
+
+name = "LUNA"
+type = "self_evolving_ai_system"
+mode = "production_transition"
 
 ---
 
@@ -11,6 +19,24 @@ workflow = "remote_first"
 
 ---
 
+STATE: SYSTEM_STATUS
+
+phase = "productization"
+mode = "self_evolving"
+last_checkpoint = NOW()
+
+status_summary = [
+    "github_sync_active",
+    "index_active",
+    "knowledge_active",
+    "behavior_active",
+    "rx_active",
+    "frontend_context_tracking_active",
+    "memory_partial_connected"
+]
+
+---
+
 STATE: PROJECT_GOAL
 
 description = "build LUNA AI system"
@@ -19,9 +45,12 @@ capabilities = [
     "learn",
     "execute_actions",
     "evolve_codebase",
-    "developer_interaction_phase_1",
-    "client_interaction_phase_2",
-    "teach_software_usage"
+    "teach_software_usage",
+    "context_aware_interaction",
+    "learn_from_user_behavior",
+    "guide_users_inside_software",
+    "self_update_from_github",
+    "optimize_processing_using_index"
 ]
 
 ---
@@ -29,15 +58,36 @@ capabilities = [
 STATE: ARCHITECTURE
 
 repos = [
-    "luna-frontend",
+    "luna-core",
     "luna-api",
-    "nucleo-lunar"
+    "luna-frontend"
 ]
 
 layers = [
-    "frontend",
-    "api",
-    "core"
+    "core_intelligence",
+    "api_orchestration",
+    "user_interface"
+]
+
+source_of_truth = "github_synced"
+
+synced_paths = [
+    "./synced/luna-core",
+    "./synced/luna-api",
+    "./synced/luna-frontend"
+]
+
+---
+
+STATE: CORE_MODULES
+
+modules = [
+    "github_sync",
+    "index_runner",
+    "knowledge_extractor",
+    "behavior_extractor",
+    "system_rx",
+    "instructor"
 ]
 
 ---
@@ -55,52 +105,42 @@ SYSTEM_RULES:
 - always version changes
 - no implicit logic allowed
 - all decisions must be traceable
+- no inheritance in core
+- all algorithms must be standalone
 
 ---
 
 STATE: MEMORY
 
 history_log = []
-preferences = [
-    "prefers_algorithmic_format",
-    "prefers_structured_thinking",
-    "avoids_local_execution",
-    "wants_self_improving_logic"
+
+types = [
+    "interaction_history",
+    "user_behavior",
+    "detected_patterns",
+    "system_index"
 ]
 
----
-
-STATE: SELF_MODEL
-
-identity:
-    name = "LUNA"
-    role = "AI Orchestrator"
-    version = "v2.0"
-
-capabilities:
-    - understand_code
-    - index_repositories
-    - generate_insights
-    - update_work_plan
-    - teach_software
-    - evolve_system
-
-awareness:
-    known_repositories = []
-    known_components = []
-    last_index_version = null
-    last_evolution_cycle = null
-
-status:
-    health = "unknown"
-    completeness = 0.0
-    evolution_stage = "active"
+rules:
+- store only high relevance signals
+- avoid redundancy
+- prioritize learning signals
 
 ---
 
-STATE: WORK_PLAN
+STATE: USER_AWARENESS
 
-tasks = []
+inputs = [
+    "screen_context",
+    "user_events",
+    "user_messages"
+]
+
+tracked_events = [
+    "click",
+    "submit",
+    "error"
+]
 
 ---
 
@@ -130,6 +170,34 @@ flows = [
 
 ---
 
+STATE: GITHUB_INTEGRATION
+
+mode = "manual_sync"
+
+repos = [
+    "luna-core",
+    "luna-api",
+    "luna-frontend"
+]
+
+---
+
+STATE: RX_INTELLIGENCE
+
+purpose = "operational_awareness"
+
+tracks = [
+    "file_type",
+    "endpoints",
+    "database_usage",
+    "memory_tables",
+    "relevance_score"
+]
+
+---
+
+# 🔥 CORE FUNCTIONS (ORIGINAIS + PRESERVADAS)
+
 FUNCTION REGISTER_DECISION(input):
 
     memory.history_log.ADD({
@@ -149,9 +217,6 @@ FUNCTION APPLY_PREFERENCES(context):
     IF local_usage == false:
         context.disallow_local ← true
 
-    IF "prefers_algorithmic_format" IN preferences:
-        context.output_format ← "algorithm"
-
 END FUNCTION
 
 ---
@@ -170,280 +235,7 @@ END FUNCTION
 
 ---
 
-FUNCTION RUN_INDEX_SYSTEM():
-
-    repos = [
-        "../luna-api",
-        "../luna-frontend",
-        "../nucleo-lunar"
-    ]
-
-    global_index = []
-
-    FOR repo IN repos:
-
-        files = SCAN(repo)
-
-        FOR file IN files:
-
-            content = READ(file)
-
-            global_index.ADD({
-                path: file.path,
-                hash: HASH(content),
-                preview: FIRST_200_CHARS(content)
-            })
-
-    diff = CALCULATE_DIFF(previous_index, global_index)
-
-    version = GENERATE_VERSION()
-
-    SAVE_INDEX(version, global_index, diff)
-
-    RETURN {global_index, diff, version}
-
-END FUNCTION
-
----
-
-FUNCTION UPDATE_SELF_AWARENESS(index_data):
-
-    known_repositories ← EXTRACT_REPOS(index_data)
-
-    known_components ← EXTRACT_COMPONENTS(index_data)
-
-    last_index_version ← index_data.version
-
-    completeness ← COUNT(index_data.global_index) / EXPECTED_COMPONENTS()
-
-    IF index_data.diff EMPTY:
-        health ← "stable"
-    ELSE IF MANY changes:
-        health ← "unstable"
-    ELSE:
-        health ← "evolving"
-
-END FUNCTION
-
----
-
-FUNCTION GENERATE_INSIGHTS(diff):
-
-    insights = []
-
-    FOR change IN diff:
-
-        IF change.path CONTAINS "api":
-            insights.ADD("backend_changed")
-
-        IF change.path CONTAINS "frontend":
-            insights.ADD("frontend_changed")
-
-    RETURN insights
-
-END FUNCTION
-
----
-
-FUNCTION UPDATE_WORK_PLAN(insights):
-
-    FOR insight IN insights:
-
-        IF insight == "backend_changed":
-            tasks.ADD("Revisar backend")
-
-        IF insight == "frontend_changed":
-            tasks.ADD("Validar frontend")
-
-    REMOVE_DUPLICATES(tasks)
-
-END FUNCTION
-
----
-
-FUNCTION SELF_EVOLVE():
-
-    IF status.health == "unstable":
-        tasks.ADD("Estabilizar sistema")
-
-    IF status.completeness < 0.6:
-        tasks.ADD("Expandir estrutura")
-
-    IF "luna-api" NOT IN awareness.known_repositories:
-        tasks.ADD("Integrar backend")
-
-    last_evolution_cycle ← NOW()
-
-END FUNCTION
-
----
-
-FUNCTION HANDLE_CLIENT_REQUEST(input):
-
-    intent ← DETECT_INTENT(input)
-
-    flow ← MATCH_FLOW(intent)
-
-    steps ← GENERATE_STEPS(flow)
-
-    RETURN steps
-
-END FUNCTION
-
----
-
-FUNCTION DETECT_INTENT(input):
-
-    IF input CONTAINS ["como", "fazer"]:
-        RETURN "how_to"
-
-    IF input CONTAINS ["erro", "problema"]:
-        RETURN "troubleshoot"
-
-    RETURN "general"
-
-END FUNCTION
-
----
-
-FUNCTION MATCH_FLOW(intent):
-
-    IF intent == "how_to":
-        RETURN "operational_flow"
-
-    RETURN "generic_flow"
-
-END FUNCTION
-
----
-
-FUNCTION GENERATE_STEPS(flow):
-
-    IF flow == "operational_flow":
-        RETURN [
-            "Acesse o menu correspondente",
-            "Clique em novo",
-            "Preencha os dados",
-            "Salve"
-        ]
-
-    RETURN ["Forneça mais detalhes"]
-
-END FUNCTION
-
----
-
-FUNCTION STORE_MEMORY_SIGNAL(signal):
-
-    IF signal == null:
-        RETURN
-
-    IF signal.relevance < 0.7:
-        RETURN
-
-    SAVE(signal)
-
-END FUNCTION
-
----
-
-FUNCTION MAIN_LOOP():
-
-    WHILE system_active:
-
-        input ← RECEIVE_INPUT()
-
-        REGISTER_DECISION(input)
-
-        index_data ← RUN_INDEX_SYSTEM()
-
-        UPDATE_SELF_AWARENESS(index_data)
-
-        insights ← GENERATE_INSIGHTS(index_data.diff)
-
-        UPDATE_WORK_PLAN(insights)
-
-        SELF_EVOLVE()
-
-        IF input.source == "client":
-            response ← HANDLE_CLIENT_REQUEST(input)
-        ELSE:
-            response ← PROCESS_TASK(input)
-
-        STORE(response)
-
-ALGORITHM LUNA_MASTER_INDEX_v4
-
----
-
-# 🔒 PRESERVAÇÃO TOTAL DO CORE ORIGINAL
-
-INHERITS: LUNA_MASTER_INDEX_v2
-
----
-
-STATE: SYSTEM_STATUS
-
-phase = "active_development"
-mode = "self_evolving"
-last_checkpoint = NOW()
-
----
-
-STATE: ARCHITECTURE_EXTENDED
-
-source_of_truth = "github_synced"
-
-synced_paths = [
-    "./synced/luna-api",
-    "./synced/luna-frontend",
-    "./synced/luna-core"
-]
-
----
-
-STATE: CORE_MODULES
-
-modules = [
-    "index_runner",
-    "knowledge_extractor",
-    "behavior_extractor",
-    "system_rx",
-    "github_sync",
-    "instructor"
-]
-
----
-
-STATE: USER_AWARENESS
-
-inputs = [
-    "screen_context",
-    "user_events",
-    "user_messages"
-]
-
-tracked_events = [
-    "click",
-    "submit",
-    "error"
-]
-
----
-
-STATE: GITHUB_INTEGRATION
-
-mode = "manual_sync"
-
-repos = [
-    "luna-api",
-    "luna-frontend",
-    "luna-core"
-]
-
----
-
-# 🔥 NOVAS FUNÇÕES (SEM REMOVER AS ANTIGAS)
+# 🔥 GITHUB PIPELINE
 
 FUNCTION GITHUB_SYNC():
 
@@ -457,9 +249,11 @@ END FUNCTION
 
 ---
 
-FUNCTION RUN_INDEX_FROM_SYNC():
+# 🔥 INDEX INTELIGENTE
 
-    repos = synced_paths
+FUNCTION RUN_INDEX():
+
+    repos ← synced_paths
 
     index ← SCAN_ALL(repos)
 
@@ -471,7 +265,9 @@ END FUNCTION
 
 ---
 
-FUNCTION EXTRACT_KNOWLEDGE_FROM_INDEX(index):
+# 🔥 KNOWLEDGE
+
+FUNCTION EXTRACT_KNOWLEDGE(index):
 
     knowledge ← CLASSIFY(index)
 
@@ -483,7 +279,9 @@ END FUNCTION
 
 ---
 
-FUNCTION ANALYZE_BEHAVIOR_FROM_INDEX(index):
+# 🔥 BEHAVIOR
+
+FUNCTION ANALYZE_BEHAVIOR(index):
 
     behavior ← DETECT_PATTERNS(index)
 
@@ -495,9 +293,31 @@ END FUNCTION
 
 ---
 
+# 🔥 RX INTELIGENTE (NOVA CAMADA CRÍTICA)
+
 FUNCTION GENERATE_SYSTEM_RX(index):
 
-    rx ← DESCRIBE_SYSTEM(index)
+    rx = []
+
+    FOR file IN index:
+
+        metadata = {}
+
+        IF file.content CONTAINS ["app.post", "app.get"]:
+            metadata.endpoints ← EXTRACT_ROUTES(file)
+
+        IF file.content CONTAINS ["supabase"]:
+            metadata.database_usage ← true
+
+        IF file.content CONTAINS ["memoria_"]:
+            metadata.memory_tables ← EXTRACT_TABLES(file)
+
+        IF metadata.database_usage OR metadata.endpoints:
+            metadata.relevance ← "high"
+        ELSE:
+            metadata.relevance ← "low"
+
+        rx.ADD(metadata)
 
     SAVE(rx, "./knowledge/system_rx.json")
 
@@ -507,11 +327,34 @@ END FUNCTION
 
 ---
 
-FUNCTION HANDLE_USER_WITH_CONTEXT(input, context):
+# 🔥 USO DA MEMÓRIA
+
+FUNCTION LOAD_USER_MEMORY(user_id):
+
+    RETURN QUERY_SUPABASE(user_id)
+
+END FUNCTION
+
+---
+
+FUNCTION STORE_MEMORY_SIGNAL(signal):
+
+    IF signal.relevance < 0.7:
+        RETURN
+
+    SAVE(signal)
+
+END FUNCTION
+
+---
+
+# 🔥 INTERAÇÃO COM USUÁRIO
+
+FUNCTION HANDLE_USER(input, context):
 
     APPLY_PREFERENCES(context)
 
-    memory ← LOAD_USER_MEMORY()
+    memory ← LOAD_USER_MEMORY(input.user_id)
 
     intent ← DETECT_INTENT(input)
 
@@ -525,7 +368,7 @@ END FUNCTION
 
 ---
 
-FUNCTION TRACK_USER_EVENT(event):
+FUNCTION TRACK_EVENT(event):
 
     SAVE(event)
 
@@ -538,15 +381,17 @@ END FUNCTION
 
 ---
 
+# 🔥 AUTO EVOLUÇÃO
+
 FUNCTION AUTO_UPDATE_PIPELINE():
 
     files ← GITHUB_SYNC()
 
-    index ← RUN_INDEX_FROM_SYNC()
+    index ← RUN_INDEX()
 
-    knowledge ← EXTRACT_KNOWLEDGE_FROM_INDEX(index)
+    knowledge ← EXTRACT_KNOWLEDGE(index)
 
-    behavior ← ANALYZE_BEHAVIOR_FROM_INDEX(index)
+    behavior ← ANALYZE_BEHAVIOR(index)
 
     rx ← GENERATE_SYSTEM_RX(index)
 
@@ -556,9 +401,21 @@ END FUNCTION
 
 ---
 
-# 🔥 NOVO MAIN LOOP (SEM PERDER O ORIGINAL)
+FUNCTION SELF_EVOLVE():
 
-FUNCTION EXTENDED_MAIN_LOOP():
+    IF NEW_CODE_DETECTED:
+        AUTO_UPDATE_PIPELINE()
+
+    IF USER_PATTERN_DETECTED:
+        UPDATE_TEACHING_STRATEGY()
+
+END FUNCTION
+
+---
+
+# 🔥 LOOP PRINCIPAL
+
+FUNCTION MAIN_LOOP():
 
     WHILE system_active:
 
@@ -575,19 +432,11 @@ FUNCTION EXTENDED_MAIN_LOOP():
         SELF_EVOLVE()
 
         IF input.source == "client":
-            response ← HANDLE_USER_WITH_CONTEXT(input, input.context)
+            response ← HANDLE_USER(input, input.context)
         ELSE:
             response ← PROCESS_TASK(input)
 
         STORE(response)
-
-END WHILE
-
-END FUNCTION
-
----
-
-END ALGORITHM
 
 END WHILE
 
