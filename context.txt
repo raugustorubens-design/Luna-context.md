@@ -1,72 +1,149 @@
-# 🧠 LUNA CONTEXT
+ALGORITHM LUNA_CONTEXT
 
-## 👤 Perfil do Desenvolvedor
-
-* Trabalha 100% em cloud
-* Não utiliza ambiente local
-* Prefere GitHub / Codespaces
-
----
-
-## 🎯 Objetivo do Projeto
-
-Criar a LUNA:
-
-* IA estilo Jarvis
-* Capaz de aprender
-* Capaz de executar ações
-* Evolução contínua
+STATE:
+developer_profile
+project_goal
+architecture_state
+rules
+history_log
 
 ---
 
-## ⚙️ Preferências Técnicas
+FUNCTION INIT_CONTEXT():
 
-### Ambiente
+```
+developer_profile.environment ← "cloud_only"
+developer_profile.local_usage ← false
 
-* Cloud-first (obrigatório)
-* Nada rodando local
+project_goal ← "build LUNA AI system"
 
-### Backend
+architecture_state.mode ← "fragmented"
+architecture_state.repos ← []
 
-* Python (FastAPI)
+rules.use_ai_only_when_needed ← true
+rules.prefer_deterministic_logic ← true
+```
 
-### Banco
-
-* Supabase
-
-### Execução
-
-* Scripts devem rodar em ambiente cloud
+END FUNCTION
 
 ---
 
-## 🧠 Regras de Decisão
+FUNCTION UPDATE_CONTEXT(input):
 
-* Sempre priorizar soluções cloud
-* Evitar dependência de máquina local
-* Preferir automação via GitHub Actions
-* Preferir scripts simples antes de IA
+```
+IF input.type == "decision":
+    ADD input TO history_log
+
+IF input.type == "preference":
+    UPDATE developer_profile
+
+IF input.type == "architecture":
+    UPDATE architecture_state
+```
+
+END FUNCTION
 
 ---
 
-## 🚫 Evitar
+FUNCTION SHOULD_USE_AI(task):
 
-* Soluções locais
-* Complexidade desnecessária
-* Multi-agente prematuro
+```
+IF task.requires_language_understanding == true:
+    RETURN true
+
+IF task.requires_complex_decision == true:
+    RETURN true
+
+RETURN false
+```
+
+END FUNCTION
 
 ---
 
-## 🔥 Direção do Projeto
+FUNCTION PROCESS_TASK(task):
 
-Fase atual:
+```
+IF SHOULD_USE_AI(task) == true:
+    result ← AI_PROCESS(task)
 
-* Estruturação
-* Índice automático
-* Base da LUNA
+ELSE:
+    result ← DETERMINISTIC_PROCESS(task)
 
-Próximo:
+RETURN result
+```
 
-* Orquestração
-* Memória
-* Execução de ações
+END FUNCTION
+
+---
+
+FUNCTION GENERATE_INDEX(repo):
+
+```
+files ← SCAN(repo)
+
+index ← []
+
+FOR file IN files:
+
+    IF file.path CONTAINS ignored_dirs:
+        CONTINUE
+
+    content ← READ_TOP(file)
+
+    IF "@luna:" IN content:
+        purpose ← EXTRACT(content)
+
+    ELSE:
+        purpose ← INFER(file.name)
+
+    index.ADD(file.path, purpose)
+
+SAVE(index, "LUNA_INDEX.md")
+```
+
+END FUNCTION
+
+---
+
+FUNCTION EVOLVE_SYSTEM():
+
+```
+FOR each entry IN history_log:
+
+    IF repeated_pattern_detected(entry):
+        CREATE_NEW_RULE(entry)
+
+    IF inefficiency_detected(entry):
+        OPTIMIZE_FLOW(entry)
+
+UPDATE rules
+```
+
+END FUNCTION
+
+---
+
+FUNCTION MAIN_LOOP():
+
+```
+INIT_CONTEXT()
+
+WHILE system_active:
+
+    input ← RECEIVE_INPUT()
+
+    UPDATE_CONTEXT(input)
+
+    task ← INTERPRET(input)
+
+    result ← PROCESS_TASK(task)
+
+    STORE(result)
+
+    EVOLVE_SYSTEM()
+```
+
+END WHILE
+
+END ALGORITHM
