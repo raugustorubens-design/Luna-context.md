@@ -1,4 +1,19 @@
-ALGORITHM LUNA_MASTER_SYSTEM_v9
+########################################
+# 🧠 LUNA MASTER SYSTEM v10.1 FULL
+########################################
+
+VERSION = "v10.1_FULL"
+MODE = "extended_no_loss"
+BASE = "v9 + integration + semantic layer"
+
+PRINCIPLES:
+
+- never lose context
+- never compress core logic
+- all decisions must be traceable
+- no implicit logic allowed
+- semantic memory over raw data
+- system must evolve without breaking structure
 
 ---
 
@@ -10,7 +25,14 @@ STATE: SYSTEM_IDENTITY
 
 name = "LUNA"
 type = "self_evolving_ai_system"
-mode = "production_ready"
+mode = "production_evolving"
+
+layers = [
+    "cognitive",
+    "execution",
+    "memory",
+    "interface"
+]
 
 ---
 
@@ -20,10 +42,35 @@ mode = "production_ready"
 
 STATE: DEVELOPER_PROFILE
 
+name = "Rubens"
+
 environment = "cloud_only"
 local_usage = false
-tools = ["GitHub", "Codespaces"]
+
+tools = [
+    "GitHub",
+    "Codespaces",
+    "Railway",
+    "Supabase",
+    "ChatGPT (Luna Smx)"
+]
+
 workflow = "remote_first"
+
+preferences = [
+    "high_productivity",
+    "execution_over_explanation",
+    "low_latency_response",
+    "system_continuity",
+    "full_code_delivery"
+]
+
+pain_points = [
+    "context_loss",
+    "repeated_explanations",
+    "low_execution_speed",
+    "fragmented_memory"
+]
 
 ---
 
@@ -33,9 +80,8 @@ workflow = "remote_first"
 
 STATE: SYSTEM_STATUS
 
-phase = "productization"
+phase = "integration_phase"
 mode = "self_evolving"
-last_checkpoint = NOW()
 
 status_summary = [
     "github_sync_active",
@@ -45,7 +91,8 @@ status_summary = [
     "rx_active",
     "frontend_context_tracking_active",
     "memory_connected_partial",
-    "supabase_integration_pending_optimization"
+    "supabase_integration_in_progress",
+    "gpt_integration_in_progress"
 ]
 
 ---
@@ -56,7 +103,7 @@ status_summary = [
 
 STATE: PROJECT_GOAL
 
-description = "build LUNA AI system"
+description = "build self-evolving AI system LUNA"
 
 capabilities = [
     "learn",
@@ -68,7 +115,9 @@ capabilities = [
     "guide_users_inside_software",
     "self_update_from_github",
     "optimize_processing_using_index",
-    "selective_reasoning"
+    "selective_reasoning",
+    "semantic_memory_processing",
+    "real_time_code_analysis"
 ]
 
 ---
@@ -88,10 +137,11 @@ repos = [
 layers = [
     "core_intelligence",
     "api_orchestration",
-    "user_interface"
+    "user_interface",
+    "external_gpt_layer"
 ]
 
-source_of_truth = "github_synced"
+source_of_truth = "github"
 
 synced_paths = [
     "./synced/luna-core",
@@ -102,20 +152,190 @@ synced_paths = [
 ---
 
 ########################################
-# 🧩 CORE MODULES
+# 🤖 GPT LAYER (NEW)
 ########################################
 
-STATE: CORE_MODULES
+STATE: GPT_LAYER
 
-modules = [
-    "github_sync",
-    "index_runner",
-    "knowledge_extractor",
-    "behavior_extractor",
-    "system_rx",
-    "instructor",
-    "memory_bridge"
+name = "Luna Smx"
+platform = "chatgpt_custom"
+
+role = "external_dev_copilot"
+
+capabilities = [
+    "execute_dev_tasks",
+    "generate_code",
+    "interpret_system",
+    "assist_real_time"
 ]
+
+limitations = [
+    "no_direct_repo_access",
+    "no_native_memory",
+    "stateless_sessions"
+]
+
+solution = [
+    "api_bridge",
+    "semantic_memory",
+    "context_injection"
+]
+
+---
+
+########################################
+# 🔗 API BRIDGE (RAILWAY)
+########################################
+
+STATE: API_BRIDGE
+
+location = "luna-api"
+
+role = "system_gateway"
+
+endpoints = [
+    "/chat",
+    "/dashboard",
+    "/github/file",
+    "/memory"
+]
+
+responsibilities = [
+    "proxy_github_access",
+    "proxy_supabase_memory",
+    "serve_context",
+    "execute_logic"
+]
+
+rules = [
+    "never_expose_tokens",
+    "centralize_runtime_logic",
+    "isolate_external_services"
+]
+
+---
+
+########################################
+# 📦 GITHUB INTEGRATION
+########################################
+
+STATE: GITHUB_INTEGRATION
+
+mode = "api_proxy"
+
+repos = [
+    "luna-core",
+    "luna-api",
+    "luna-frontend"
+]
+
+flow = [
+    "GPT → API",
+    "API → GitHub",
+    "GitHub → API",
+    "API → GPT"
+]
+
+capabilities = [
+    "read_files",
+    "decode_content",
+    "analyze_structure"
+]
+
+---
+
+########################################
+# 🧠 SEMANTIC MEMORY SYSTEM (NEW)
+########################################
+
+STATE: SEMANTIC_MEMORY
+
+type = "interpretative_memory"
+
+stores = [
+    "file_roles",
+    "responsibilities",
+    "risks",
+    "improvements",
+    "decisions",
+    "system_patterns"
+]
+
+rules = [
+    "never_store_raw_code",
+    "store_meaning_only",
+    "prioritize_high_relevance",
+    "merge_not_overwrite"
+]
+
+---
+
+########################################
+# 💾 SUPABASE MEMORY
+########################################
+
+STATE: MEMORY_BRIDGE
+
+tables = [
+    "memoria_luna",
+    "memoria_eventos",
+    "memoria_contextual"
+]
+
+memory_keys = [
+    "luna_context",
+    "dev_context",
+    "current_task",
+    "decision_log"
+]
+
+---
+
+########################################
+# 🧠 CONTEXT ENGINE (NEW)
+########################################
+
+STATE: CONTEXT_ENGINE
+
+sources = [
+    "user_input",
+    "supabase_memory",
+    "github_code",
+    "index"
+]
+
+priority_order = [
+    "explicit_user_context",
+    "semantic_memory",
+    "github_data",
+    "default_logic"
+]
+
+---
+
+########################################
+# 🔍 SEMANTIC INTERPRETATION
+########################################
+
+FUNCTION INTERPRET_CODE(file):
+
+    meaning = {}
+
+    IF contains("app.get", file):
+        meaning.role = "api_route_layer"
+
+    IF contains("openai", file):
+        meaning.role = "ai_integration"
+
+    IF contains("supabase", file):
+        meaning.role = "data_layer"
+
+    meaning.risks = detect_risks(file)
+    meaning.improvements = suggest_improvements(file)
+
+    RETURN meaning
+
+END FUNCTION
 
 ---
 
@@ -127,7 +347,6 @@ STATE: RULES
 
 use_ai_only_when_needed = true
 prefer_deterministic_logic = true
-enforce_luna_tag = true
 cloud_only_execution = true
 
 SYSTEM_RULES:
@@ -139,127 +358,6 @@ SYSTEM_RULES:
 - no inheritance in core
 - all algorithms must be standalone
 - always declare output type
-
----
-
-########################################
-# 🧠 MEMORY SYSTEM (INTEGRADO)
-########################################
-
-STATE: MEMORY_SYSTEM
-
-active_version = "v9"
-history = []
-deprecated_versions = []
-
-RULES:
-
-- memory is never deleted
-- memory is reinterpreted
-- only one active version exists
-- old versions marked as deprecated
-
----
-
-STATE: MEMORY
-
-history_log = []
-
-types = [
-    "interaction_history",
-    "user_behavior",
-    "detected_patterns",
-    "system_index"
-]
-
-rules:
-- store only high relevance signals
-- avoid redundancy
-- prioritize learning signals
-
----
-
-########################################
-# 👁️ USER AWARENESS
-########################################
-
-STATE: USER_AWARENESS
-
-inputs = [
-    "screen_context",
-    "user_events",
-    "user_messages"
-]
-
-tracked_events = [
-    "click",
-    "submit",
-    "error"
-]
-
----
-
-########################################
-# 📚 KNOWLEDGE BASE
-########################################
-
-STATE: KNOWLEDGE_BASE
-
-entities = [
-    "cliente",
-    "veiculo",
-    "ordem_servico",
-    "produto",
-    "financeiro"
-]
-
-actions = [
-    "cadastrar_cliente",
-    "abrir_ordem_servico",
-    "gerar_orcamento",
-    "finalizar_servico"
-]
-
-flows = [
-    "entrada_veiculo",
-    "diagnostico",
-    "execucao_servico",
-    "entrega"
-]
-
----
-
-########################################
-# 🔗 GITHUB INTEGRATION
-########################################
-
-STATE: GITHUB_INTEGRATION
-
-mode = "manual_sync"
-
-repos = [
-    "luna-core",
-    "luna-api",
-    "luna-frontend"
-]
-
----
-
-########################################
-# 🧠 RX INTELLIGENCE
-########################################
-
-STATE: RX_INTELLIGENCE
-
-purpose = "operational_awareness"
-
-tracks = [
-    "file_type",
-    "endpoints",
-    "database_usage",
-    "memory_tables",
-    "relevance_score"
-]
 
 ---
 
@@ -276,21 +374,9 @@ END FUNCTION
 
 ---
 
-FUNCTION APPLY_PREFERENCES(context):
-
-    IF environment == "cloud_only":
-        context.execution_mode ← "cloud"
-
-    IF local_usage == false:
-        context.disallow_local ← true
-
-END FUNCTION
-
----
-
 FUNCTION SHOULD_USE_AI(task):
 
-    IF task.type IN ["nlp", "interpretation", "generation"]:
+    IF task.type IN ["nlp", "generation"]:
         RETURN true
 
     IF task.complexity > 0.7:
@@ -303,172 +389,7 @@ END FUNCTION
 ---
 
 ########################################
-# 🔄 GITHUB PIPELINE
-########################################
-
-FUNCTION GITHUB_SYNC():
-
-    files ← FETCH_FROM_GITHUB()
-    SAVE_TO("./synced")
-    RETURN files
-
-END FUNCTION
-
----
-
-########################################
-# 🧠 INDEX INTELIGENTE
-########################################
-
-FUNCTION RUN_INDEX():
-
-    repos ← synced_paths
-    index ← SCAN_ALL(repos)
-
-    SAVE(index, "./index/latest.json")
-
-    RETURN index
-
-END FUNCTION
-
----
-
-########################################
-# 📊 KNOWLEDGE
-########################################
-
-FUNCTION EXTRACT_KNOWLEDGE(index):
-
-    knowledge ← CLASSIFY(index)
-    SAVE(knowledge, "./knowledge/base.json")
-
-    RETURN knowledge
-
-END FUNCTION
-
----
-
-########################################
-# 🔍 BEHAVIOR
-########################################
-
-FUNCTION ANALYZE_BEHAVIOR(index):
-
-    behavior ← DETECT_PATTERNS(index)
-    SAVE(behavior, "./knowledge/behavior.json")
-
-    RETURN behavior
-
-END FUNCTION
-
----
-
-########################################
-# 🧠 RX INTELIGENTE
-########################################
-
-FUNCTION GENERATE_SYSTEM_RX(index):
-
-    rx = []
-
-    FOR file IN index:
-
-        metadata = {}
-
-        IF file.content CONTAINS ["app.post", "app.get"]:
-            metadata.endpoints ← EXTRACT_ROUTES(file)
-
-        IF file.content CONTAINS ["supabase"]:
-            metadata.database_usage ← true
-
-        IF file.content CONTAINS ["memoria_"]:
-            metadata.memory_tables ← EXTRACT_TABLES(file)
-
-        IF metadata.database_usage OR metadata.endpoints:
-            metadata.relevance ← "high"
-        ELSE:
-            metadata.relevance ← "low"
-
-        rx.ADD(metadata)
-
-    SAVE(rx, "./knowledge/system_rx.json")
-
-    RETURN rx
-
-END FUNCTION
-
----
-
-########################################
-# 💾 MEMORY BRIDGE (SUPABASE)
-########################################
-
-FUNCTION LOAD_USER_MEMORY(user_id):
-
-    RETURN QUERY_SUPABASE(user_id)
-
-END FUNCTION
-
----
-
-FUNCTION SAVE_INTERACTION(user_id, input, response):
-
-    INSERT INTO memoria_eventos
-
-END FUNCTION
-
----
-
-FUNCTION STORE_MEMORY_SIGNAL(signal):
-
-    IF signal.relevance < 0.7:
-        RETURN
-
-    SAVE(signal)
-
-END FUNCTION
-
----
-
-########################################
-# 🤖 USER INTERACTION
-########################################
-
-FUNCTION HANDLE_USER(input, context):
-
-    APPLY_PREFERENCES(context)
-
-    memory ← LOAD_USER_MEMORY(input.user_id)
-
-    intent ← DETECT_INTENT(input)
-
-    response ← GENERATE_RESPONSE(intent, context.screen, memory)
-
-    SAVE_INTERACTION(input.user_id, input, response)
-
-    STORE_MEMORY_SIGNAL(input)
-
-    RETURN response
-
-END FUNCTION
-
----
-
-FUNCTION TRACK_EVENT(event):
-
-    SAVE(event)
-
-    insight ← INTERPRET_EVENT(event)
-
-    IF insight:
-        TRIGGER_ASSISTANCE(insight)
-
-END FUNCTION
-
----
-
-########################################
-# 🔁 AUTO EVOLUTION
+# 🔄 PIPELINE
 ########################################
 
 FUNCTION AUTO_UPDATE_PIPELINE():
@@ -489,20 +410,8 @@ END FUNCTION
 
 ---
 
-FUNCTION SELF_EVOLVE():
-
-    IF NEW_CODE_DETECTED:
-        AUTO_UPDATE_PIPELINE()
-
-    IF USER_PATTERN_DETECTED:
-        UPDATE_TEACHING_STRATEGY()
-
-END FUNCTION
-
----
-
 ########################################
-# 🔄 MAIN LOOP
+# 🧠 MAIN LOOP (EXTENDED)
 ########################################
 
 FUNCTION MAIN_LOOP():
@@ -513,18 +422,27 @@ FUNCTION MAIN_LOOP():
 
         REGISTER_DECISION(input)
 
+        external_memory ← LOAD_SUPABASE()
+
+        action ← DECIDE_ACTION(input)
+
+        IF action == "FETCH_GITHUB":
+            code ← FETCH_GITHUB()
+
+            interpretation ← INTERPRET_CODE(code)
+
+            STORE_SEMANTIC(code, interpretation)
+
+        IF action == "FETCH_MEMORY":
+            context ← external_memory
+
         AUTO_UPDATE_PIPELINE()
 
-        insights ← GENERATE_INSIGHTS()
+        response ← HANDLE_USER(input, context)
 
-        UPDATE_WORK_PLAN(insights)
+        SAVE_INTERACTION(input.user_id, input, response)
 
-        SELF_EVOLVE()
-
-        IF input.source == "client":
-            response ← HANDLE_USER(input, input.context)
-        ELSE:
-            response ← PROCESS_TASK(input)
+        UPDATE_SUPABASE(response)
 
         STORE(response)
 
@@ -534,4 +452,20 @@ END FUNCTION
 
 ---
 
-END ALGORITHM
+########################################
+# 🔁 SELF EVOLUTION
+########################################
+
+FUNCTION SELF_EVOLVE():
+
+    IF new_code_detected:
+        AUTO_UPDATE_PIPELINE()
+
+    IF new_pattern_detected:
+        UPDATE_STRATEGY()
+
+END FUNCTION
+
+---
+
+END SYSTEM
