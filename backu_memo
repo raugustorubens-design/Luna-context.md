@@ -1,0 +1,281 @@
+# 🧠 LUNA MEMORY SNAPSHOT — INTERAÇÃO ATUAL (v1.0)
+
+---
+
+## 1. 👤 PERFIL DO USUÁRIO
+
+### Preferências Cognitivas
+
+```
+- Estilo: estruturado, lógico, orientado a sistema
+- Formato preferido: algoritmos e passos claros
+- Rejeição: respostas genéricas, vagas ou redundantes
+- Expectativa: respostas completas, prontas para uso (no-code parcial)
+- Valoriza: continuidade entre conversas (memória persistente)
+- Abordagem: cautelosa, validação antes de execução
+```
+
+### Preferências Técnicas
+
+```
+- Stack principal:
+  - Backend: Node.js (Railway)
+  - Frontend: React + Vite + Tailwind
+  - Database: Supabase (PostgreSQL)
+- Arquitetura: separação clara (frontend ↔ backend ↔ memória)
+- Diretriz: backend controla inteligência, frontend é interface
+```
+
+---
+
+## 2. 🚀 PROJETO PRINCIPAL — LUNA
+
+### Definição
+
+```
+Sistema cognitivo com:
+- Memória persistente estruturada
+- Pipeline de raciocínio (retrieve → contextualize → respond → extract → persist)
+- Identidade própria (não apenas chatbot)
+- Evolução contínua baseada em uso real
+```
+
+---
+
+## 3. 🧩 ARQUITETURA ATUAL
+
+### Estrutura Geral
+
+```
+LUNA CORE
+ ├── ChatGPT (motor cognitivo)
+ ├── API Node (Railway)
+ ├── Supabase (memória)
+ ├── Frontend React (interface)
+ └── Python Layer (em desenvolvimento - controle/orquestração)
+```
+
+### Memória
+
+```
+Tipos definidos:
+- memoria_eventos
+- memoria_preferencias
+- memoria_contextual
+
+Regras:
+- Evitar redundância
+- Salvar apenas alto sinal
+- Estrutura obrigatória
+```
+
+---
+
+## 4. ⚙️ STATUS ATUAL DO SISTEMA
+
+### Frontend
+
+```
+✔ React + Vite configurado
+✔ Tailwind funcionando
+✔ UI estilo "energia azul" (neon/glow)
+✔ Chat funcional (envio + renderização)
+✔ Integração com backend via /chat
+
+⚠ Problema:
+- Renderização de resposta ainda bruta (JSON não tratado corretamente)
+```
+
+---
+
+### Backend (Node.js)
+
+```
+✔ API /chat funcional
+✔ Recebe: user_id, mensagem, contexto
+✔ Integra com Supabase
+✔ Salva eventos relevantes
+
+⚠ Problemas:
+- Padronização da resposta ({ reply })
+- Inteligência ainda básica (pipeline incompleto)
+```
+
+---
+
+### Banco de Dados (Supabase)
+
+```
+✔ Estrutura criada
+✔ Tabelas principais:
+   - memoria_eventos
+   - memoria_preferencias
+   - memoria_contextual
+
+✔ Estratégia:
+- Indexação planejada (ainda em análise cuidadosa)
+- Governança ativa de dados
+
+⚠ Risco controlado:
+- Evitar mudanças prematuras na estrutura
+```
+
+---
+
+### Pipeline Cognitivo
+
+```
+STATUS:
+
+✔ Retrieve → IMPLEMENTADO
+⏳ Contextualize → PARCIAL
+⏳ Respond → FUNCIONAL (básico)
+⏳ Extract → PARCIAL
+⏳ Persist → PARCIAL
+
+→ Pipeline ainda NÃO completo
+```
+
+---
+
+## 5. 🧠 MEMORY CORE v1.0 (DEFINIDO)
+
+### Fluxo Oficial
+
+```
+Input → Extract → Filter → Classification → Retrieve → Update → Validation → Persistence → Feedback
+```
+
+### Fórmula Central
+
+```
+M(t+1) = σ( α[(R + ηI + θA)M(t) + IΔ − μE] ) λ_tipo
+```
+
+### Regras Críticas
+
+```
+- NÃO usar fórmula isoladamente
+- Score obrigatório:
+  Score = R + ηI − μE
+- Threshold:
+  τ ≈ 0.6
+
+Se Score < τ → NÃO armazena
+```
+
+---
+
+## 6. 🧪 PADRÕES DE ERRO (APRENDIZADO)
+
+### Erros Técnicos
+
+```
+- Railway:
+  ✖ Uso de DB interno entre projetos → erro
+  ✔ Solução: usar Supabase / DATABASE_PUBLIC_URL
+
+- Node.js:
+  ✖ Problema IPv6 → ENETUNREACH
+  ✔ Solução:
+     dns.setDefaultResultOrder('ipv4first')
+     pg Pool { family: 4 }
+
+- Supabase:
+  ✖ Conexão sem SSL falha
+  ✔ Solução: ativar SSL no pool
+```
+
+---
+
+### Erros de Processo
+
+```
+- Implementação prematura sem validação
+- Alterações diretas no banco sem análise
+- Falta de padronização de resposta API
+```
+
+---
+
+## 7. ✅ PADRÕES DE ACERTO
+
+```
+✔ Abordagem step-by-step (altamente eficaz)
+✔ Separação clara de responsabilidades
+✔ Foco em MVP antes de perfeição
+✔ UI consistente (identidade forte)
+✔ Backend como cérebro (decisão correta)
+✔ Uso de checkpoints (controle de evolução)
+```
+
+---
+
+## 8. 🎯 DIREÇÃO ESTRATÉGICA
+
+### Curto Prazo
+
+```
+1. Corrigir resposta do backend ({ reply })
+2. Ajustar renderização no frontend
+3. Completar pipeline cognitivo
+```
+
+### Médio Prazo
+
+```
+1. Implementar camada Python (controle total)
+2. Criar sistema de leitura/escrita via API
+3. Evoluir inteligência contextual
+```
+
+### Longo Prazo
+
+```
+→ LUNA como orquestrador multi-AI (modo JARVIS)
+→ Sistema autônomo adaptativo
+→ Produto monetizável (treinamentos, etc.)
+```
+
+---
+
+## 9. 📌 PRINCÍPIOS DO SISTEMA
+
+```
+- Inteligência centralizada no backend
+- Memória estruturada > memória bruta
+- Evolução baseada em uso real
+- Não otimizar antes de validar
+- Clareza > complexidade
+```
+
+---
+
+## 10. 🔚 ESTADO ATUAL RESUMIDO
+
+```
+LUNA = FUNCIONAL (base sólida)
+→ Integração OK
+→ UI OK
+→ API OK
+
+MAS:
+
+→ Inteligência incompleta
+→ Pipeline incompleto
+→ Renderização precisa ajuste
+
+STATUS GERAL: 70% (pronto para evolução)
+```
+
+---
+
+# 🔥 CLASSIFICAÇÃO FINAL
+
+```
+Sistema: EM FASE DE CONSOLIDAÇÃO
+Risco: BAIXO (arquitetura bem definida)
+Potencial: MUITO ALTO
+```
+
+---
