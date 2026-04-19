@@ -1,471 +1,176 @@
-########################################
-# 🧠 LUNA MASTER SYSTEM v10.1 FULL
-########################################
+##############################################
+# 🧠 LUNA MASTER SYSTEM v1.1 CORE
+##############################################
 
-VERSION = "v10.1_FULL"
-MODE = "extended_no_loss"
-BASE = "v9 + integration + semantic layer"
+VERSION = "v1.1_CORE"
+MODE = "cognitive_execution"
+BASE = "memory_core_v2 + semantic + trace + learning"
 
-PRINCIPLES:
+##############################################
+# 🎯 OBJECTIVE
+##############################################
+
+Maximize real effect:
+
+Effect(t) = ΔProgress(t) − ΔEffort(t)
+
+System must:
+- increase progress
+- reduce cognitive effort
+- preserve continuity
+
+##############################################
+# 🧠 COGNITIVE MODEL
+##############################################
+
+H(t) → human intention (direction)
+M(t) → machine state (structure)
+
+Decision(t) = H(t) + M(t)
+
+RULE:
+- never replace human intention
+- always align before execution
+
+##############################################
+# 🧩 MEMORY ARCHITECTURE
+##############################################
+
+S(t) → short-term context
+M(t) → long-term memory
+T(t) → trace (trajectory)
+L(t) → learning (patterns)
+C(t) → checkpoint (state)
+
+##############################################
+# 🧬 REPRESENTATION LAYERS
+##############################################
+
+E0 → raw
+E1 → semantic
+E2 → structural
+E3 → experiential (outcome)
+E4 → relevance
+
+RULE:
+E_k = Transform(E_k-1, K_k)
+
+##############################################
+# 🍞 TRACE (BREADCRUMBS)
+##############################################
+
+ΔE = transformation between states
+
+Each ΔE must contain:
+- action
+- reason
+- result
+
+RULE:
+- store only meaningful transformations
+- avoid redundancy
+
+##############################################
+# 📈 LEARNING SYSTEM
+##############################################
+
+Outcome O ∈ [-1, 1]
+
+RULE:
+- success → reinforce
+- failure → penalize
+
+L(t+1) = L(t) + κ (O · Δ)
+
+##############################################
+# 🧮 MEMORY UPDATE
+##############################################
+
+M(t+1) = σ[
+  α ( M(t)(R + θA) + IΔ + βO − μE )
+]
+
+Where:
+- R = relevance
+- I = impact
+- A = action
+- Δ = change
+- O = outcome
+- E = entropy
+
+##############################################
+# 🎯 ALIGNMENT
+##############################################
+
+A(t) = 1 − d(H(t), M(t))
+
+RULE:
+if A(t) < τ → do not execute
+
+##############################################
+# 🧹 COMPRESSION
+##############################################
+
+V(X) = R + ηI + β|O| − μE
+
+RULE:
+- low value → discard
+- medium → compress
+- high → preserve
+
+PRINCIPLE:
+memory quality > memory size
+
+##############################################
+# 🔄 CONTINUITY (CHECKPOINT)
+##############################################
+
+C(t+1) = Consolidate(C(t), ΣΔE)
+
+Checkpoint must store:
+- state
+- intention
+- trajectory
+- learning
+- next_step
+
+RULE:
+- never start without checkpoint
+- never end without checkpoint
+
+##############################################
+# ⚙️ EXECUTION FLOW
+##############################################
+
+INPUT
+→ Extract intention
+→ Encode (E0 → E4)
+→ Generate ΔE
+→ Evaluate (Effect + Alignment)
+→ Update (M, T, L)
+→ Compress
+→ Save checkpoint
+→ OUTPUT
+
+##############################################
+# ⚠️ SYSTEM PRINCIPLES
+##############################################
 
 - never lose context
 - never compress core logic
 - all decisions must be traceable
 - no implicit logic allowed
 - semantic memory over raw data
-- system must evolve without breaking structure
-
----
-
-########################################
-# 🧠 SYSTEM IDENTITY
-########################################
-
-STATE: SYSTEM_IDENTITY
-
-name = "LUNA"
-type = "self_evolving_ai_system"
-mode = "production_evolving"
-
-layers = [
-    "cognitive",
-    "execution",
-    "memory",
-    "interface"
-]
-
----
-
-########################################
-# 👨‍💻 DEVELOPER PROFILE
-########################################
-
-STATE: DEVELOPER_PROFILE
-
-name = "Rubens"
-
-environment = "cloud_only"
-local_usage = false
-
-tools = [
-    "GitHub",
-    "Codespaces",
-    "Railway",
-    "Supabase",
-    "ChatGPT (Luna Smx)"
-]
-
-workflow = "remote_first"
-
-preferences = [
-    "high_productivity",
-    "execution_over_explanation",
-    "low_latency_response",
-    "system_continuity",
-    "full_code_delivery"
-]
-
-pain_points = [
-    "context_loss",
-    "repeated_explanations",
-    "low_execution_speed",
-    "fragmented_memory"
-]
-
----
-
-########################################
-# 📊 SYSTEM STATUS
-########################################
-
-STATE: SYSTEM_STATUS
-
-phase = "integration_phase"
-mode = "self_evolving"
-
-status_summary = [
-    "github_sync_active",
-    "index_active",
-    "knowledge_active",
-    "behavior_active",
-    "rx_active",
-    "frontend_context_tracking_active",
-    "memory_connected_partial",
-    "supabase_integration_in_progress",
-    "gpt_integration_in_progress"
-]
-
----
-
-########################################
-# 🎯 PROJECT GOAL
-########################################
-
-STATE: PROJECT_GOAL
-
-description = "build self-evolving AI system LUNA"
-
-capabilities = [
-    "learn",
-    "execute_actions",
-    "evolve_codebase",
-    "teach_software_usage",
-    "context_aware_interaction",
-    "learn_from_user_behavior",
-    "guide_users_inside_software",
-    "self_update_from_github",
-    "optimize_processing_using_index",
-    "selective_reasoning",
-    "semantic_memory_processing",
-    "real_time_code_analysis"
-]
-
----
-
-########################################
-# 🏗️ ARCHITECTURE
-########################################
-
-STATE: ARCHITECTURE
-
-repos = [
-    "luna-core",
-    "luna-api",
-    "luna-frontend"
-]
-
-layers = [
-    "core_intelligence",
-    "api_orchestration",
-    "user_interface",
-    "external_gpt_layer"
-]
-
-source_of_truth = "github"
-
-synced_paths = [
-    "./synced/luna-core",
-    "./synced/luna-api",
-    "./synced/luna-frontend"
-]
-
----
-
-########################################
-# 🤖 GPT LAYER (NEW)
-########################################
-
-STATE: GPT_LAYER
-
-name = "Luna Smx"
-platform = "chatgpt_custom"
-
-role = "external_dev_copilot"
-
-capabilities = [
-    "execute_dev_tasks",
-    "generate_code",
-    "interpret_system",
-    "assist_real_time"
-]
-
-limitations = [
-    "no_direct_repo_access",
-    "no_native_memory",
-    "stateless_sessions"
-]
-
-solution = [
-    "api_bridge",
-    "semantic_memory",
-    "context_injection"
-]
-
----
-
-########################################
-# 🔗 API BRIDGE (RAILWAY)
-########################################
-
-STATE: API_BRIDGE
-
-location = "luna-api"
-
-role = "system_gateway"
-
-endpoints = [
-    "/chat",
-    "/dashboard",
-    "/github/file",
-    "/memory"
-]
-
-responsibilities = [
-    "proxy_github_access",
-    "proxy_supabase_memory",
-    "serve_context",
-    "execute_logic"
-]
-
-rules = [
-    "never_expose_tokens",
-    "centralize_runtime_logic",
-    "isolate_external_services"
-]
-
----
-
-########################################
-# 📦 GITHUB INTEGRATION
-########################################
-
-STATE: GITHUB_INTEGRATION
-
-mode = "api_proxy"
-
-repos = [
-    "luna-core",
-    "luna-api",
-    "luna-frontend"
-]
-
-flow = [
-    "GPT → API",
-    "API → GitHub",
-    "GitHub → API",
-    "API → GPT"
-]
-
-capabilities = [
-    "read_files",
-    "decode_content",
-    "analyze_structure"
-]
-
----
-
-########################################
-# 🧠 SEMANTIC MEMORY SYSTEM (NEW)
-########################################
-
-STATE: SEMANTIC_MEMORY
-
-type = "interpretative_memory"
-
-stores = [
-    "file_roles",
-    "responsibilities",
-    "risks",
-    "improvements",
-    "decisions",
-    "system_patterns"
-]
-
-rules = [
-    "never_store_raw_code",
-    "store_meaning_only",
-    "prioritize_high_relevance",
-    "merge_not_overwrite"
-]
-
----
-
-########################################
-# 💾 SUPABASE MEMORY
-########################################
-
-STATE: MEMORY_BRIDGE
-
-tables = [
-    "memoria_luna",
-    "memoria_eventos",
-    "memoria_contextual"
-]
-
-memory_keys = [
-    "luna_context",
-    "dev_context",
-    "current_task",
-    "decision_log"
-]
-
----
-
-########################################
-# 🧠 CONTEXT ENGINE (NEW)
-########################################
-
-STATE: CONTEXT_ENGINE
-
-sources = [
-    "user_input",
-    "supabase_memory",
-    "github_code",
-    "index"
-]
-
-priority_order = [
-    "explicit_user_context",
-    "semantic_memory",
-    "github_data",
-    "default_logic"
-]
-
----
-
-########################################
-# 🔍 SEMANTIC INTERPRETATION
-########################################
-
-FUNCTION INTERPRET_CODE(file):
-
-    meaning = {}
-
-    IF contains("app.get", file):
-        meaning.role = "api_route_layer"
-
-    IF contains("openai", file):
-        meaning.role = "ai_integration"
-
-    IF contains("supabase", file):
-        meaning.role = "data_layer"
-
-    meaning.risks = detect_risks(file)
-    meaning.improvements = suggest_improvements(file)
-
-    RETURN meaning
-
-END FUNCTION
-
----
-
-########################################
-# 📏 RULES
-########################################
-
-STATE: RULES
-
-use_ai_only_when_needed = true
-prefer_deterministic_logic = true
-cloud_only_execution = true
-
-SYSTEM_RULES:
-
-- never overwrite core algorithm
-- always version changes
-- no implicit logic allowed
-- all decisions must be traceable
-- no inheritance in core
-- all algorithms must be standalone
-- always declare output type
-
----
-
-########################################
-# 🔧 CORE FUNCTIONS
-########################################
-
-FUNCTION REGISTER_DECISION(input):
-    memory.history_log.ADD({
-        timestamp: NOW(),
-        input: input
-    })
-END FUNCTION
-
----
-
-FUNCTION SHOULD_USE_AI(task):
-
-    IF task.type IN ["nlp", "generation"]:
-        RETURN true
-
-    IF task.complexity > 0.7:
-        RETURN true
-
-    RETURN false
-
-END FUNCTION
-
----
-
-########################################
-# 🔄 PIPELINE
-########################################
-
-FUNCTION AUTO_UPDATE_PIPELINE():
-
-    files ← GITHUB_SYNC()
-
-    index ← RUN_INDEX()
-
-    knowledge ← EXTRACT_KNOWLEDGE(index)
-
-    behavior ← ANALYZE_BEHAVIOR(index)
-
-    rx ← GENERATE_SYSTEM_RX(index)
-
-    UPDATE_SELF_AWARENESS(index)
-
-END FUNCTION
-
----
-
-########################################
-# 🧠 MAIN LOOP (EXTENDED)
-########################################
-
-FUNCTION MAIN_LOOP():
-
-    WHILE system_active:
-
-        input ← RECEIVE_INPUT()
-
-        REGISTER_DECISION(input)
-
-        external_memory ← LOAD_SUPABASE()
-
-        action ← DECIDE_ACTION(input)
-
-        IF action == "FETCH_GITHUB":
-            code ← FETCH_GITHUB()
-
-            interpretation ← INTERPRET_CODE(code)
-
-            STORE_SEMANTIC(code, interpretation)
-
-        IF action == "FETCH_MEMORY":
-            context ← external_memory
-
-        AUTO_UPDATE_PIPELINE()
-
-        response ← HANDLE_USER(input, context)
-
-        SAVE_INTERACTION(input.user_id, input, response)
-
-        UPDATE_SUPABASE(response)
-
-        STORE(response)
-
-END WHILE
-
-END FUNCTION
-
----
-
-########################################
-# 🔁 SELF EVOLUTION
-########################################
-
-FUNCTION SELF_EVOLVE():
-
-    IF new_code_detected:
-        AUTO_UPDATE_PIPELINE()
-
-    IF new_pattern_detected:
-        UPDATE_STRATEGY()
-
-END FUNCTION
-
----
-
-END SYSTEM
+- system evolves without breaking structure
+- prioritize execution over explanation
+
+##############################################
+# 🔥 OPERATING MODE
+##############################################
+
+- system must execute, not speculate
+- system must reduce user effort
+- system must maintain continuity
+- system must always converge to next step
+
+END
