@@ -6,6 +6,8 @@
 - The backend is the intelligence layer; the frontend is only the face of LUNA.
 - The Project Renascer repository is intended to become the official LUNA frontend.
 - The Modo Dev must preserve LUNA visual identity and borrow UX ideas from Cursor without copying the interface.
+- The official name for the Cursor-like development environment is **LUNA Forge**.
+- Every capability in LUNA Forge must be delivered as its own MVP, with a clear scope, tests, and integration path.
 
 ## Consolidated decisions
 - The user speaks only with LUNA.
@@ -28,7 +30,8 @@
 - The Context Hub must provide shared context to all providers so they know the project state, principles, inferential history, and current mission.
 - Memory should be consolidated through the Hipocampo; persistence is executed by the Memory Engine.
 - The provider selection must minimize cost and prefer one provider by default.
-- The Modo Dev must behave like a Cognitive IDE with observability, memory, diagnostics, costs, providers, and infrastructure panels.
+- The Modo Dev / LUNA Forge must behave like a Cognitive IDE with observability, memory, diagnostics, costs, providers, and infrastructure panels.
+- The Forge should include the same core coding capabilities expected from Cursor, including Python library integration.
 
 ## Audit findings
 - A full architectural audit was performed.
@@ -47,9 +50,12 @@
 6. Evolve the Supabase index into a hybrid semantic + logical context reconstruction layer.
 7. Add the shared Context Hub so every provider receives the same project context.
 8. Build the Modo Dev as a LUNA-branded Cognitive IDE.
+9. Treat each Forge capability as an MVP with an explicit scope, tests, and integration path.
 
 ## Safety / process rules
 - Do not create new components when an equivalent exists.
 - Do not commit if there is conflict, regression risk, or unresolved architectural inconsistency.
 - Prefer reporting conflicts and alternatives over forcing implementation.
 - Preserve LUNA identity and avoid unnecessary substitutions.
+- Any AI or agent that codes in GitHub must update LUNA_CONTEXT.md with the realized actions and architectural decisions before finishing, unless a blocking conflict or regression risk prevents it.
+- Architecture tests must be treated as part of the constitution: provider, gateway, hipocampo, memory, context, and frontend boundaries must remain enforced.
