@@ -74,3 +74,34 @@ A separate work session on `raugustorubens-design/luna` (backend consolidation o
 - **`raugustorubens-design/luna-frontend`** (Next.js visual prototype: cognitive dashboard, pipeline view, chat terminal, observability panel — all thin/mocked, ~130 lines of components total) was found but not evaluated against the "Project Renascer becomes the official frontend" plan recorded above. Worth a dedicated look before committing to Renascer as the frontend path, given Renascer's own repo is confirmed to be a broken generated artifact.
 
 No repository was created, deleted, or had code moved as part of this convergence check. Both `LUNA_CONTEXT.md` files (this one and the monorepo's `luna_context/LUNA_CONTEXT.md`) should be treated as needing to stay consistent — divergence between them is itself an architectural conflict to record, not ignore.
+
+## Ecosystem architecture consolidation — 2026-07-09 (final macro prompt)
+
+Full detail lives in `ECOSYSTEM_ARCHITECTURE.md` in this repository — this section is the mandatory summary. This is documentation-only work: no code moved, no repository created or restructured, per this pass's explicit closing rule.
+
+**New inferences**
+- All 10 known repositories were enumerated with an unfiltered account-wide search (previous passes only searched by name guesses). No 11th repository exists as of this date.
+- `Luna-reporter`'s own `observations.json` shape (`{source, system, type, timestamp, payload}`) is a stronger candidate for the ecosystem's official Events contract than the monorepo's internal `AuditEvent` shape (`{name, at, evidence}`) — it already accounts for multiple sources, the monorepo's shape doesn't.
+- A real architectural inconsistency was found while building the dependency matrix: `luna`'s `src/convergia/training/training-to-memory.ts` calls `memory-engine.ts`'s `checkpoint()` directly, bypassing Hipocampo. `checkpoint()` persists data internally, so this quietly violates "Convergia never persists directly." The existing automated check (`architecture-check.mjs`) didn't catch it because it only scans for `supabase|drizzle` tokens, not call topology. Not fixed this pass (no-implementation rule) — registered as a priority roadmap item and a future constitution test.
+- No Auth/Identity contract exists anywhere in the ecosystem. The Gateway's authorization policy is allow-all. This is a real gap, not yet a blocker for anything in production.
+
+**New strategy (confirmed, not changed)**
+- This is the last macro architecture prompt. All future work ships as independent MVPs against the roadmap in `ECOSYSTEM_ARCHITECTURE.md` §7 — no more monorepo-wide consolidation passes.
+
+**System classification (see ECOSYSTEM_ARCHITECTURE.md §2 for full table)**
+- Sistema/Infraestrutura: `luna` monorepo, `Luna-context.md`
+- Órgão + MVP + candidate Produto: `Luna-reporter`, Convergia (inside the monorepo)
+- Legado/Experimental: `luna-convergia` (original repo, code superseded), `luna-frontend`, `Luna-API`, `luna-core`, `Front-View`, `projeto-renascer`, `projeto-renascer-backup`
+- Shared Kernel candidates: contract interfaces only (LunaContext, ProviderAdapter, ConsolidationCandidate/Decision, CanonicalDocument, AuditEvent/Observation, Capability/Manifest) — never implementations
+
+**Consolidated principles**
+- No physical merge of systems for implementation convenience — this is the concrete lesson of ADR-004 and this document.
+- Contracts are the only allowed coupling surface between systems with their own repository.
+- Every new architectural rule becomes a test eventually (constitution as code) — architecture that isn't tested tends to get silently violated, as the `checkpoint()` finding above demonstrates.
+
+**Official roadmap**
+See `ECOSYSTEM_ARCHITECTURE.md` §7 for the full per-system MVP breakdown (Forge, Convergia, Hipocampo, Provider Engine, Reporter, Gateway, Memory/Índice/Context). Each line item is one independent MVP, never a macro prompt.
+
+**Architectural impacts**
+- `ECOSYSTEM_ARCHITECTURE.md` is the first artifact that lives only in this repository by design — avoids duplicating a long document in two places. The monorepo's `luna_context/LUNA_CONTEXT.md` holds only a pointer and condensed summary, not a full copy.
+- No divergence found between this file and the monorepo's local copy as of this date — both independently converged on the same organ reclassification before this consolidation pass began.
