@@ -8,6 +8,7 @@
 - The Modo Dev must preserve LUNA visual identity and borrow UX ideas from Cursor without copying the interface.
 - The official name for the Cursor-like development environment is **LUNA Forge**.
 - Every capability in LUNA Forge must be delivered as its own MVP, with a clear scope, tests, and integration path.
+- Every organ of the LUNA ecosystem should be treated as an independently evolvable MVP product with its own responsibility, documentation, tests, and integration contracts.
 
 ## Consolidated decisions
 - The user speaks only with LUNA.
@@ -32,6 +33,8 @@
 - The provider selection must minimize cost and prefer one provider by default.
 - The Modo Dev / LUNA Forge must behave like a Cognitive IDE with observability, memory, diagnostics, costs, providers, and infrastructure panels.
 - The Forge should include the same core coding capabilities expected from Cursor, including Python library integration.
+- Organs are not just internal modules: they must be able to exist as independent MVPs and commercial products while staying integrated through shared contracts.
+- The monorepo is an integration surface, not the owner of every organ’s identity.
 
 ## Audit findings
 - A full architectural audit was performed.
@@ -51,6 +54,7 @@
 7. Add the shared Context Hub so every provider receives the same project context.
 8. Build the Modo Dev as a LUNA-branded Cognitive IDE.
 9. Treat each Forge capability as an MVP with an explicit scope, tests, and integration path.
+10. Treat each organ as an independent MVP product that can evolve, ship, and generate revenue without losing organism-level integration.
 
 ## Safety / process rules
 - Do not create new components when an equivalent exists.
