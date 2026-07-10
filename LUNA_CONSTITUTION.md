@@ -9,3 +9,4 @@
 5. Toda comunicação externa passa pelo Connector Hub.
 6. Infraestrutura é substituível.
 7. Órgãos possuem identidade conceitual permanente.
+8. Documentação global, arquitetural e decisória deve ser centralizada no repositório oficial de contexto da LUNA; a migração deve começar por cópia e inventário, nunca por remoção imediata dos documentos de origem.
