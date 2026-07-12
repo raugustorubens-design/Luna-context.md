@@ -1,15 +1,17 @@
 # ADR-002 — Gateway e Connector Hub como órgãos distintos, coabitando o `luna-core`
 
-**Status:** Proposto
+**Status:** Aceito
 
 **Data:** 2026-07-11
 
 **Relacionado a:**
-- Constitution da LUNA
-- Article I — Órgãos ≠ Implementações
-- Article II — Descobrir → Integrar → Criar
-- Article IV — ADR / Checkpoint System
+- LUNA_CONSTITUTION.md — Princípio 1 ("A arquitetura da LUNA é orientada por órgãos, não por tecnologias.") e Princípio 7 ("Órgãos possuem identidade conceitual permanente.")
+- LUNA_CONSTITUTION.md — Princípio 2 ("Descobrir → Integrar → Criar.")
+- LUNA_CONSTITUTION.md — Princípio 8 (documentação arquitetural e decisória centralizada no repositório oficial de contexto da LUNA)
 - ADR-001 — Guardian (MVP-01)
+- ADR-004 — Portar o Gateway para o `luna-core` e migrar seu runtime de Python para Node/TypeScript (especifica *como* o Gateway chega ao `luna-core` decidido aqui)
+
+**Nota de correção (2026-07-11):** a versão original deste documento citava "Article I/II/IV" da Constitution da LUNA. `LUNA_CONSTITUTION.md` não tem artigos numerados — são 8 princípios em bullet. A tabela acima substitui essas referências por citação direta do princípio correspondente, por conteúdo.
 
 ---
 
