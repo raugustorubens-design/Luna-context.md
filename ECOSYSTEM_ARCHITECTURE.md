@@ -25,6 +25,8 @@ Este é o último prompt macro da arquitetura. Toda evolução futura ocorre por
 | **projeto-renascer** | Pretendia ser o frontend oficial da LUNA | — | Artefato de geração automática falho: commit único, payload `[object Object]`, página de erro estática | Quebrado / não é um produto | Evidência de uma capacidade de geração de repositórios ("Luna Dev") cujo código-fonte não foi localizado em nenhum repositório auditado |
 | **projeto-renascer-backup** | Backup do projeto acima | — | Idêntico em natureza ao original | Quebrado / não é um produto | Mesmo status |
 
+> **Atualização — 2026-07-12 (ADR-004, execução concluída):** a linha de `luna-core` acima é o snapshot da auditoria de 2026-07-09 e é preservada como histórico, não apagada. Desde então, ADR-004 foi aceito e executado (`luna-core` PR #6 e PR #7, ambos mergeados): `luna-core` deixou de ser o protótipo Python/FastAPI descrito acima e passou a hospedar o Gateway (portado do monorepo `luna`, 17 capabilities) e o Connector Hub (Supabase, GitHub, Groq, DeepSeek, OpenRouter) como órgãos coabitando o mesmo runtime Node/TypeScript. Não é mais "duplicata quase idêntica de `apps/core`" nem "sem uso confirmado" — é o destino de deploy real do Gateway, confirmado ao vivo em produção (`/api/gateway/capabilities` responde com as 17 capabilities). Ver a nota de fechamento em `LUNA_CONTEXT.md` para a execução completa.
+
 ### Órgãos internos do monorepo `luna` (sem repositório próprio)
 
 | Órgão | Objetivo | Responsabilidade principal | Estado atual | Maturidade |
@@ -65,7 +67,7 @@ Um sistema pode ter mais de uma classificação simultânea.
 | Convergia (no monorepo) | Órgão, MVP, Produto (candidato) | Responsabilidade única (transformação de documentos); testado; falta só contrato de API para virar produto independente de novo |
 | luna-frontend | Experimental | Protótipo visual sem integração backend confirmada |
 | Luna-API | Legado, Experimental | Não executa no estado atual (bug de redeclaração); sem consumidor confirmado |
-| luna-core | Legado, Infraestrutura (possível) | Pode estar em produção real ("force deploy"), mas função (`training_modules`) não está ligada a nenhum órgão oficial |
+| luna-core | Infraestrutura, Órgão (hospeda Gateway + Connector Hub) — *classificação anterior até 2026-07-09: "Legado, Infraestrutura (possível)", preservada como histórico* | Atualizado 2026-07-12: pós-ADR-004, `luna-core` hospeda o Gateway (portado, 17 capabilities) e o Connector Hub (Supabase/GitHub/Groq/DeepSeek/OpenRouter), confirmado ao vivo em produção. A justificativa de 2026-07-09 ("função `training_modules` não ligada a nenhum órgão oficial") não se aplica mais — esse endpoint foi removido junto com o runtime Python que o hospedava |
 | Front-View | Legado | Superado, funcionalmente substituído |
 | projeto-renascer / backup | Experimental, Legado | Artefato quebrado, sem valor de produto |
 | Gateway | Órgão, Shared Kernel (padrão), Infraestrutura | Único órgão cujo *padrão* (Capability/Manifest/Registry) já é reconhecidamente reutilizável por design |
@@ -144,7 +146,7 @@ Isso é uma violação sutil da regra "Convergia nunca pode persistir diretament
 | Convergia | `GET /api/convergia/catalog`, `GET /api/convergia/templates`, `POST /api/convergia/parse`, `POST /api/convergia/transform`, `POST /api/convergia/training` | nenhum evento externo hoje | nenhum | Canonical Model, Memory (via Hipocampo) |
 | Luna-reporter | nenhuma API HTTP — execução via script (`src/main.py`), saída em `reports/*.json` | `observations.json` (formato candidato a contrato oficial de Eventos) | GitHub API | nenhum contrato formal do ecossistema ainda — é o produtor original do formato de evento |
 | luna-frontend | N/A (é o consumidor, não o provedor) | — | — | nenhum confirmado (não há chamada de API real identificada na leitura feita) |
-| luna-core | `GET /`, `GET /health`, `GET /modules` | — | — | nenhum |
+| luna-core | `GET /`, `GET /health`, `GET /api/gateway/capabilities`, `POST /api/gateway/execute` — atualizado 2026-07-12 (ADR-004); até então (histórico): `GET /`, `GET /health`, `GET /modules` (`/modules` removido junto com o runtime Python) | — | — | Capability/Manifest (mesmo contrato da linha "Gateway" acima — o Gateway daquela linha, descrito em 2026-07-09 como interno ao monorepo sem deploy próprio, agora responde a partir daqui) |
 | Luna-API | `GET /`, `GET /api/github/file`, `POST /chat` | — | — | nenhum |
 
 ---

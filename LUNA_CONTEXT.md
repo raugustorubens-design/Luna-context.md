@@ -91,8 +91,10 @@ Full detail lives in `ECOSYSTEM_ARCHITECTURE.md` in this repository — this sec
 **System classification (see ECOSYSTEM_ARCHITECTURE.md §2 for full table)**
 - Sistema/Infraestrutura: `luna` monorepo, `Luna-context.md`
 - Órgão + MVP + candidate Produto: `Luna-reporter`, Convergia (inside the monorepo)
-- Legado/Experimental: `luna-convergia` (original repo, code superseded), `luna-frontend`, `Luna-API`, `luna-core`, `Front-View`, `projeto-renascer`, `projeto-renascer-backup`
+- Legado/Experimental: `luna-convergia` (original repo, code superseded), `luna-frontend`, `Luna-API`, `Front-View`, `projeto-renascer`, `projeto-renascer-backup`
 - Shared Kernel candidates: contract interfaces only (LunaContext, ProviderAdapter, ConsolidationCandidate/Decision, CanonicalDocument, AuditEvent/Observation, Capability/Manifest) — never implementations
+
+**Reclassification — 2026-07-12 (ADR-004 executed):** `luna-core` moves out of Legado/Experimental into Infraestrutura/Órgão (hospeda Gateway + Connector Hub, `luna-core` PR #6 and PR #7). Its classification as of this 2026-07-09 consolidation (Legado, Infraestrutura possível) is preserved as history in `ECOSYSTEM_ARCHITECTURE.md` §1/§2, not deleted — this note and that document's own inline annotations are the record of the change, not a silent edit.
 
 **Consolidated principles**
 - No physical merge of systems for implementation convenience — this is the concrete lesson of ADR-004 and this document.
@@ -124,3 +126,19 @@ O porte do Gateway do monorepo `luna` para o `luna-core` e a migração de runti
 
 **Próximo passo em aberto**
 - Decidir o que fazer com `luna-guardian`'s `/chat`/`/context` (descontinuar de fato, ou redefinir contrato) não foi resolvido aqui — registrado para um MVP próprio, não uma continuação automática deste ADR.
+
+## Expansão do Connector Hub — GitHub, Groq, DeepSeek, OpenRouter, resiliência, auth centralizada, 2026-07-12
+
+Continuação do Connector Hub aberto no `luna-core` PR #6 (contrato + adapter Supabase). Esta rodada é execução do que ADR-002 já decidiu (gerenciar credenciais, adapters, retries, rate limiting para conectores externos incluindo GitHub e provedores de IA; regra de dependência Gateway→Connector Hub→Adapters, com "Gateway→Adapters" explicitamente listado como fluxo proibido) e do que ADR-004 já decidiu (Connector Hub nasce em TypeScript, no mesmo runtime) — **nenhuma decisão arquitetural nova foi necessária, por isso não há um ADR novo, só esta nota**, conforme combinado antes de começar.
+
+**Execução**
+- `luna-core` PR #7 — GitHub migrado do Gateway para o Connector Hub (lógica de fetch movida sem alteração, credenciais injetadas em vez de lidas de `process.env`, resiliência aplicada); Gateway passa a ser pura delegação a um `GithubConnector` injetado no composition root (`app.ts`), nunca construindo o adapter internamente — a regra "Gateway nunca importa um adapter do Hub diretamente" agora é verificada por `architecture-check.mjs`, não só documentada. Três novos conectores de IA (Groq, DeepSeek, OpenRouter — este último um meta-adapter, `model` obrigatório por chamada, roteando para múltiplos providers através de uma única credencial), preparados mas não consumidos pelo Gateway, mesmo estado em que o Supabase já estava. Camada de resiliência (retry com backoff exponencial + rate limiting básico em janela deslizante) aplicada aos cinco adapters. Auth centralizada em `connector_hub/auth/credentials.ts`, único lugar autorizado a ler `GITHUB_TOKEN`/`SUPABASE_URL`/`SUPABASE_KEY`/`GROQ_API_KEY`/`DEEPSEEK_API_KEY`/`OPENROUTER_API_KEY` — verificado repo-wide por `architecture-check.mjs`.
+- `GROQ_API_KEY` reaproveitado do padrão já usado por `src/luna/adapters/groq.ts` no monorepo `luna` (mesmo endpoint, mesmo modelo default) — não uma convenção nova.
+- Validado a cada adapter, não só no fim: typecheck, suíte de testes (69, de 32) e `architecture-check.mjs` verdes em cada etapa, conforme pedido. Dois smoke tests ao vivo locais (não em produção): o serviço sobe sem `GITHUB_TOKEN` configurado e lista as 17 capabilities (confirma que o boot tolerante funciona de verdade); uma chamada real `github.read_file` através do novo caminho Gateway→Hub chegou à API do GitHub e voltou com um erro estruturado real.
+- **`luna-core` PR #7 está aberto, aguardando revisão — não mergeado, não deployado.** Diferente da nota de Fase 2 acima, nada aqui foi confirmado em produção ainda.
+
+**Não resolvido nesta etapa (fora de escopo combinado)**
+- Groq/DeepSeek/OpenRouter não estão ligados a nenhuma capability do Gateway nem expostos por HTTP — infraestrutura pronta, sem consumidor, mesmo estado documentado para o Supabase desde o PR #6.
+- `FilesystemRestAdapter` não foi tocado — acesso a filesystem local não é "comunicação externa" sob a definição do ADR-002, então permanece adapter direto do Gateway.
+
+**Reclassificação de `luna-core`** registrada acima (ver "Reclassificação — 2026-07-12").
