@@ -105,3 +105,22 @@ See `ECOSYSTEM_ARCHITECTURE.md` §7 for the full per-system MVP breakdown (Forge
 **Architectural impacts**
 - `ECOSYSTEM_ARCHITECTURE.md` is the first artifact that lives only in this repository by design — avoids duplicating a long document in two places. The monorepo's `luna_context/LUNA_CONTEXT.md` holds only a pointer and condensed summary, not a full copy.
 - No divergence found between this file and the monorepo's local copy as of this date — both independently converged on the same organ reclassification before this consolidation pass began.
+
+## Fase 2 concluída — porte do Gateway para o luna-core, 2026-07-12 (ADR-004)
+
+O porte do Gateway do monorepo `luna` para o `luna-core` e a migração de runtime (Python/FastAPI → Node/TypeScript) descritos no ADR-004 foram implementados, revisados e mergeados.
+
+**Execução**
+- `luna-core` PR #6 — porte do Gateway (Registry, Capability/Manifest, auditoria, política de autorização, packs GitHub e Filesystem, 17 capabilities) sem alteração de lógica; nascimento do Connector Hub (contratos + primeiro adapter, Supabase) como módulo irmão, não exposto por HTTP. Mergeado em `main`.
+- `luna-frontend` PR #4 — `lib/forge/api-client.ts` passa a apontar as chamadas de Gateway (`listCapabilities`, `executeCapability`) para o `luna-core`, via `NEXT_PUBLIC_LUNA_GATEWAY_BASE_URL` nova, separada de `NEXT_PUBLIC_LUNA_API_BASE_URL`. Mergeado em `main`.
+- Ambos os PRs foram validados antes do merge (typecheck, testes automatizados, e no caso do `luna-core`, um smoke test ao vivo local do `/api/gateway/execute` ponta a ponta) e só mergeados após configuração confirmada das variáveis de ambiente necessárias no Railway.
+
+**Confirmado ao vivo em produção**
+- `GET /api/gateway/capabilities` no `luna-core` (serviço `uvicorn-main`, projeto `honest-joy`) responde com as 17 capabilities registradas (Filesystem + GitHub).
+
+**Achado registrado, não corrigido nesta etapa**
+- `luna-guardian` (`strong-celebration`) tem um contrato de `/chat` incompatível com o que `luna-frontend` espera, e não implementa `/context` de forma alguma. Confirmado pelo dono do produto como serviço experimental, candidato à descontinuação — **não deve ser usado como referência de contrato daqui em diante**. `luna-frontend` continua apontando `NEXT_PUBLIC_LUNA_API_BASE_URL` para lá por ora (chat/contexto ficaram fora do escopo do ADR-004), mas isso é dívida registrada, não uma decisão de arquitetura definitiva.
+- O terminal do Forge (`/forge`) segue bloqueado em produção — **por desenho, não é bug**: falta `FORGE_TERMINAL_TOKEN`/`NEXT_PUBLIC_FORGE_TERMINAL_TOKEN` configurados no ambiente `outstanding-learning`. O gate em si (rejeitar a conexão WebSocket sem token) é um achado de revisão de segurança já documentado em `DEPLOY.md` do `luna-frontend`, não uma regressão desta mudança.
+
+**Próximo passo em aberto**
+- Decidir o que fazer com `luna-guardian`'s `/chat`/`/context` (descontinuar de fato, ou redefinir contrato) não foi resolvido aqui — registrado para um MVP próprio, não uma continuação automática deste ADR.
