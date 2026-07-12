@@ -10,8 +10,27 @@
 - LUNA_CONSTITUTION.md — Princípio 8 (documentação arquitetural e decisória centralizada no repositório oficial de contexto da LUNA)
 - ADR-001 — Guardian (MVP-01)
 - ADR-004 — Portar o Gateway para o `luna-core` e migrar seu runtime de Python para Node/TypeScript (especifica *como* o Gateway chega ao `luna-core` decidido aqui)
+- **DA-001 — Guardian como Órgão Interno (2026-07-12)** — emenda este ADR (ver seção "Emenda 001" abaixo e "Restrições Arquiteturais")
 
 **Nota de correção (2026-07-11):** a versão original deste documento citava "Article I/II/IV" da Constitution da LUNA. `LUNA_CONSTITUTION.md` não tem artigos numerados — são 8 princípios em bullet. A tabela acima substitui essas referências por citação direta do princípio correspondente, por conteúdo.
+
+---
+
+# Emenda 001 (DA-001, 2026-07-12)
+
+**O que motivou a emenda:** a implementação da capability `guardian.memory_index_search` (Gateway, `luna-core`) expôs uma tensão não resolvida neste documento: a seção "Arquitetura" abaixo sempre desenhou o Guardian como filho direto do Gateway, irmão do Connector Hub — mas a seção "Restrições Arquiteturais" proibia qualquer HTTP direto fora do Connector Hub, sem exceção explícita para o Guardian. A primeira implementação seguiu o texto (mais restritivo) e tratou o Guardian como mais um sistema externo, roteado pelo Connector Hub — e o próprio engenheiro sinalizou a tensão diagrama-vs-texto em vez de resolvê-la silenciosamente.
+
+**Decisão dos arquitetos:** o Guardian não é um sistema externo. O erro foi aplicar uma regra geral (destinada a sistemas externos ao organismo) a um caso que é, na verdade, fisiologia interna. A seção "Arquitetura" estava certa; a seção "Restrições Arquiteturais" precisava desta exceção explícita.
+
+**Regra geral (mantida, sem alteração):** o Connector Hub centraliza toda comunicação com sistemas externos ao organismo. Exemplos: GitHub, Supabase (como infraestrutura de Storage), OpenAI, Claude, Groq, DeepSeek, OpenRouter, Railway, Gmail, Calendar.
+
+**Exceção arquitetural (nova, formalizada por esta emenda):** órgãos do próprio organismo — Gateway, Guardian, Hipocampo, Reporter, e futuros órgãos — não se comunicam entre si como integração externa. Comunicação entre órgãos internos é fisiologia interna, não roteada pelo Connector Hub.
+
+**Texto de emenda à seção "Restrições Arquiteturais":**
+
+> O Connector Hub centraliza toda comunicação com sistemas externos ao organismo. A comunicação entre órgãos internos (Gateway, Guardian, Hipocampo, Reporter e futuros órgãos) não é considerada integração externa e não deve ser roteada pelo Connector Hub. Esses órgãos comunicam-se através de contratos internos do organismo.
+
+**Consequência prática já implementada:** `luna-core` (`src/gateway/organs/`) — comunicação Gateway→Guardian é direta (HTTP, sem Connector Hub, sem credenciais de terceiros), reservada para órgãos internos; `connector_hub/` permanece exclusivo para sistemas verdadeiramente externos.
 
 ---
 
@@ -264,7 +283,11 @@ Essa migração deverá exigir apenas a substituição da implementação dos co
 
 # Restrições Arquiteturais
 
-É proibido, fora do Connector Hub:
+**Emendado por DA-001 (2026-07-12) — ver "Emenda 001" acima.** O texto original abaixo não distinguia sistemas externos de órgãos internos do organismo; essa distinção agora é explícita.
+
+O Connector Hub centraliza toda comunicação com sistemas externos ao organismo. A comunicação entre órgãos internos (Gateway, Guardian, Hipocampo, Reporter e futuros órgãos) não é considerada integração externa e não deve ser roteada pelo Connector Hub. Esses órgãos comunicam-se através de contratos internos do organismo (ex.: `src/gateway/organs/` no `luna-core`).
+
+Para sistemas **externos**, continua proibido, fora do Connector Hub:
 
 - criação direta de clientes HTTP;
 - chamadas REST arbitrárias;
@@ -284,7 +307,24 @@ Exemplos:
 - `create_client()`
 - qualquer SDK externo equivalente.
 
-Todo acesso deverá ocorrer mediante contratos do Connector Hub.
+Todo acesso a sistemas **externos** deverá ocorrer mediante contratos do Connector Hub.
+
+> **Texto original (histórico, pré-DA-001), preservado por não descartar decisões superadas:**
+>
+> É proibido, fora do Connector Hub:
+>
+> - criação direta de clientes HTTP;
+> - chamadas REST arbitrárias;
+> - instâncias de SDKs externos;
+> - gerenciamento de API Keys;
+> - autenticação direta;
+> - criação manual de conexões com provedores.
+>
+> Exemplos: `fetch()`, `axios()`, `OpenAI()`, `Octokit()`, `Anthropic()`, `Groq()`, `create_client()`, qualquer SDK externo equivalente.
+>
+> Todo acesso deverá ocorrer mediante contratos do Connector Hub.
+>
+> *(Esta redação não excepcionava órgãos internos do organismo — corrigido pela Emenda 001/DA-001.)*
 
 ---
 
