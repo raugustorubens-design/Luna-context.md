@@ -28,3 +28,7 @@ Este documento aponta onde cada tipo de informação deve viver.
 |---|---|
 | ADR Gateway + Connector Hub (Aceito) | `ADR/ADR-002-Gateway-ConnectorHub.md` |
 | ADR Porte do Gateway + migração de runtime do `luna-core` (Aceito) | `ADR/ADR-004-Portar-Gateway-Migrar-Runtime-luna-core.md` |
+| ADR Gestão de Segredos — nome no código, valor nunca no GitHub (Proposto) | `ADR/ADR-005-Gestao-de-Segredos-Env-Vars.md` |
+| Inferências registradas (auditoria de código, maturidade real de órgãos) | `INFERENCIAS.md` |
+
+**Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).

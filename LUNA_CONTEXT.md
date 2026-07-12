@@ -142,3 +142,19 @@ Continuação do Connector Hub aberto no `luna-core` PR #6 (contrato + adapter S
 - `FilesystemRestAdapter` não foi tocado — acesso a filesystem local não é "comunicação externa" sob a definição do ADR-002, então permanece adapter direto do Gateway.
 
 **Reclassificação de `luna-core`** registrada acima (ver "Reclassificação — 2026-07-12").
+
+## Auditoria de código real — Luna-reporter, 2026-07-11
+
+Auditoria direta do ZIP oficial do `Luna-reporter` revelou maturidade menor que a registrada em `ECOSYSTEM_ARCHITECTURE.md`. Resumo:
+
+- **Real e funcional:** scanner básico de metadados de repositório (`main.py` → `client.py` → `repository_scanner.py` → `reports/repositories.json`).
+- **Esqueleto vazio (0 bytes):** `activity_analyzer.py`, `ai/repository_analyzer.py`, `reports/json_report.py`, `reports/markdown_report.py`.
+- **Existe só na Constitution do próprio repo, não no código:** Observation Engine (`observations.json`, formato `{source, system, type, timestamp, payload}`), Diagnostics Engine, Recommendation Engine, Report Engine.
+- **Código morto/paralelo:** `src/index.ts` + `src/reporter.ts`, pipeline TypeScript isolado com achado hardcoded, nunca integrado ao pipeline Python real.
+- **CI desconectado:** `.github/workflows/reporter-discovery.yml` não chama `main.py`; gera apenas um markdown estático genérico.
+
+**Consequência para decisões em andamento:** o Reporter não deve ser tratado como dependência ou consumidor do Connector Hub/Gateway em nenhuma decisão arquitetural atual — não há contrato implementado em nenhuma direção hoje. Ver a entrada completa (evidências, confiança, próximas ações) em `INFERENCIAS.md`.
+
+### Divergência estrutural adicional — Luna-context.md
+
+O `README.md` e o `INDEX.md` deste repositório referenciam uma estrutura contendo `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` como parte da documentação oficial. Nenhum desses existe no repositório na data desta auditoria — apenas `ADR/` foi de fato criado. `INFERENCIAS.md` existe, mas continha apenas o template de regras e estrutura sugerida, sem nenhuma inferência registrada até esta sessão (a entrada de 2026-07-11 acima é a primeira registrada de fato).
