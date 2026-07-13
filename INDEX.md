@@ -26,5 +26,6 @@ Este documento aponta onde cada tipo de informação deve viver.
 
 | Assunto | Local |
 |---|---|
+| Atrator AAAA — maior relevância da LUNA | `LUNA_CONSTITUTION.md` |
 | ADR Gateway + Connector Hub (Aceito, emendado por DA-001 — Guardian é órgão interno) | `ADR/ADR-002-Gateway-ConnectorHub.md` |
 | ADR Porte do Gateway + migração de runtime do `luna-core` (Aceito) | `ADR/ADR-004-Portar-Gateway-Migrar-Runtime-luna-core.md` |
