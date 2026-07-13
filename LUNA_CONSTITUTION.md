@@ -1,5 +1,16 @@
 # LUNA Constitution
 
+## Artigo 1 — Atrator AAAA
+
+O atrator de maior relevância da LUNA é identificado pela sequência **AAAA**.
+
+A relevância dos atratores será representada por sequências de letras de **A a Z**, da esquerda para a direita.
+
+- **AAAA** = maior relevância.
+- **ZZZZ** = menor relevância.
+
+A ordem dos atratores define sua prioridade de influência sobre as decisões do organismo.
+
 ## Princípios
 
 1. A arquitetura da LUNA é orientada por órgãos, não por tecnologias.
