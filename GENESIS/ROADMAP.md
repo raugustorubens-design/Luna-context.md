@@ -3,7 +3,10 @@
 Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evolução do Genesis, o Framework Curator, o Sistema Metabólico e o Research Pipeline.
 
 ## P1 — Pronto para concluir (Builder, sem decisão de Architects pendente)
-- [ ] Configurar GROQ_API_KEY, DEEPSEEK_API_KEY, OPENROUTER_API_KEY, ANTHROPIC_API_KEY em luna-core/honest-joy (Railway) — ativa model routing do PR #9
+- [x] ~~Configurar GROQ_API_KEY... — ativa model routing do PR #9~~ — correção (2026-07-13, ver ENG-005/BLD-001): o PR #9 só trazia infraestrutura sem consumidor; não havia capability para as env vars "ativarem" ainda. Implementadas agora: `model.chat`, `model.chat_deep`, `storage.query`, `storage.insert`.
+- [ ] Aplicar o patch de `model.chat`/`model.chat_deep`/`storage.query`/`storage.insert` no luna-core (bloqueado: GitHub App conectado com "Contents"/"Pull requests" somente leitura nesta sessão — ver ENG-005) e então configurar GROQ_API_KEY, DEEPSEEK_API_KEY, OPENROUTER_API_KEY, ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_KEY em luna-core/honest-joy (Railway) — sem essas credenciais as 4 capabilities continuam ausentes de `/api/gateway/capabilities` (design condicional, não bug)
+- [ ] Ajustar permissão do GitHub App (Contents + Pull requests: Read and write) para viabilizar commits e fechamento de PR direto em sessões futuras
+- [ ] Fechar PRs #3, #4 e #5 no luna-core (obsoletas, versão Python pré-ADR-004) — bloqueado pelo mesmo motivo de permissão
 - [ ] Corrigir tabela de classificação de sistemas em ECOSYSTEM_ARCHITECTURE.md e LUNA_CONTEXT.md (luna-core sai de "Legado/Experimental")
 
 ## P2 — Requer decisão de Architects antes de execução
