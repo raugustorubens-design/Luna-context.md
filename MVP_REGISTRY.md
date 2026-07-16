@@ -84,12 +84,19 @@ O Forge, hoje, depende especificamente da segunda parte, não do órgão Guardia
 4. Por que continua apontando para a parte experimental? → Porque a decisão de redirecionamento ficou registrada como "próximo passo em aberto" e não voltou à mesa até esta sessão.
 5. Por que isso é relevante agora? → Porque a causa raiz não é técnica (o destino correto já existe e já funciona: `/api/chat` já atravessa Hipocampo/Memory Engine v1) — é puramente uma decisão de roteamento pendente.
 
-**Decisão registrada (2026-07-16, Rubens, execução, sem ratificação do sócio):**
-manter o Forge apontando para o serviço atual (a parte `/chat`, não o órgão Guardian)
-por enquanto. Redirecionamento para `/api/chat` do Cognitive Engine fica em espera.
+**Decisão revisada (2026-07-16, Rubens, execução, sem ratificação do sócio):**
+decisão original de manter no serviço atual foi revertida na mesma sessão, após
+esclarecer que o Forge ficaria sem relação alguma com memória (não só sem a versão
+nova) enquanto usasse o Caminho A. **Aprovado o redirecionamento para o Caminho B:**
+`luna-frontend` → `/api/chat` (Cognitive Engine) → Context Hub → Hipocampo → Memory
+Engine → Supabase (`memoria_luna`). O serviço anterior ("luna-guardian" `/chat`)
+deixa de ser consumido pelo Forge; o órgão Guardian em si (capability
+`guardian.memory_index_search`) não é afetado — nunca foi a parte usada pelo Forge.
 
-**O que falta:** nada tecnicamente — decisão tomada. Revisitar quando fizer sentido.
-**Status:** adiado por decisão (não é mais pendência esquecida).
+**O que falta:** handoff de spec ao Builder (ver abaixo) — trocar o destino de
+`lib/forge/api-client.ts` de "luna-guardian" para o endpoint `/api/chat` do
+Cognitive Engine, incluindo a variável de ambiente correspondente.
+**Status:** aprovado, liberado para o Builder.
 
 ---
 
@@ -118,5 +125,5 @@ só acessível via WebSocket do `/forge`.
 |---|---|---|---|
 | Git | Resolvida (backend já pronto) | Liberado | Handoff ao Builder |
 | Editor | Resolvida (backend já pronto) | Liberado | Handoff ao Builder |
-| Chat | Decisão de roteamento | Adiado por decisão | Nenhuma — revisitar quando fizer sentido |
+| Chat | Decisão de roteamento | Aprovado — redirecionar para Cognitive Engine | Handoff ao Builder |
 | Python/Terminal | Lacuna de Auth do ecossistema | Bloqueado | Decisão de Architects (P2) |
