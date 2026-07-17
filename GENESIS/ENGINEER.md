@@ -154,3 +154,15 @@ Ação sugerida: Architect decide formalmente antes de implementar (não é
 correção de bug, é mudança de arquitetura operacional do Forge).
 Status: Research Hypothesis / Architectural Transition — não implementar
 até decisão explícita do Architect sobre o guardrail de escrita.
+
+## ID: ENG-010
+Data: 2026-07-16
+Tópico: Requisitos técnicos mínimos para sessão multiagente no luna-forge (v0.2, ver FORGE-001)
+
+Observação: para viabilizar FORGE-001 sem recriar violação de fronteira já
+registrada neste projeto: (1) isolamento de contexto por agente; (2)
+atribuição explícita por mensagem/ação; (3) escrita restrita ao Builder
+mesmo com múltiplos agentes ativos; (4) sincronização de prompt com GENESIS
+quando o arquivo de origem mudar.
+Status: especificação pronta; implementação adiada pro v0.2 (ver ARCH-001,
+congelamento).

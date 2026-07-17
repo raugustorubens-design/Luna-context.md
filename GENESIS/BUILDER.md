@@ -123,3 +123,26 @@ marquei o checkbox lá: marcação de conclusão é escopo do Reporter por
 evidência (ENG-007/Regra 6), não do Builder. Nota: FORGE-001 cita ENG-010
 "para requisitos técnicos" — ENG-010 ainda não foi recebido nesta sessão,
 não persistido. Nenhuma implementação de código associada.
+
+## 2026-07-17 — Pacote 5/6: ENG-010, RESEARCH/README, Meta-Cognitive Memory, P00, FORGE-WORKSPACE-001
+
+Eu fiz: registrei ENG-010 em GENESIS/ENGINEER.md (requisitos técnicos
+mínimos para multiagente v0.2, resolvendo a pendência anotada no pacote
+4). Criei GENESIS/RESEARCH/README.md com o pipeline Hypothesis → Research
+→ Theory → Architecture (ADR) → Implementation. Reescrevi
+GENESIS/RESEARCH/meta-cognitive-memory.md com o conteúdo completo (árvore
+de memória Semantic/Episodic/Operational/Meta-Cognitive, ideia,
+posicionamento estratégico, motivo do congelamento) — substitui o stub que
+eu mesmo tinha criado no pacote 1. Em GENESIS/ROADMAP.md: adicionei P00
+"Forge v0.1: ferramenta de uso diário" (FORGE-MVP-01 a 08) no topo, acima
+do P0; adicionei o item FORGE-WORKSPACE-001; e atualizei o heading do P0
+existente para "(CONGELADO, ver ARCH-001 — retomar após Forge v0.1 em uso
+diário)", mantendo os 7 itens exatamente como estavam (inclusive BLD-002,
+que não apareceu na lista abreviada da instrução — interpretei "mantidos
+como estavam" como não remover nada).
+
+Nota: o item FORGE-001 dentro do P0 ainda diz "aplicar GENESIS/FORGE.md
+primeiro, ainda pendente de commit", o que já não é verdade desde o pacote
+2 — não corrigi o texto porque a instrução foi manter os itens como
+estavam; sinalizando para correção futura via Reporter/Architect.
+Nenhuma implementação de código associada.

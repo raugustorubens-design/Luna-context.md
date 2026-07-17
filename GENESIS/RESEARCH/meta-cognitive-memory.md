@@ -1,24 +1,37 @@
-# Research Hypothesis — Meta-Cognitive Memory
+# Meta-Cognitive Memory — Research Hypothesis
 
-Status: Research Hypothesis. Não é implementação, não entra em Roadmap.
-Registrado por ARCH-001 (`GENESIS/ARCHITECTS.md`, 2026-07-16).
+Status: Research Hypothesis. Não implementar — depende de ENG-007 (Reporter
+em modo evidência) já estar funcionando com dados reais antes de fazer
+sentido implementar. Registrado por ARCH-001 (`GENESIS/ARCHITECTS.md`,
+2026-07-16).
 
-## Hipótese
+## A ideia
 
-Uma camada de memória sobre qual agente/estratégia funciona melhor por tipo
-de problema — não memória sobre conteúdo (o que já é escopo da Operational
-Memory Layer, MEM-001, também congelada), mas memória sobre desempenho e
-seleção de agente/estratégia ao longo do tempo.
+A resposta de um agente de IA não é o produto final — é matéria-prima. A
+LUNA extrai padrão (problema → solução → evidência → resultado) em vez de
+só guardar a resposta.
 
-## Por que não é implementação agora
+## Quarta camada de memória proposta
 
-ARCH-001 congela toda proposta de arquitetura nova até o Forge v0.1 estar em
-uso diário (ver `GENESIS/ARCHITECTS.md`). Meta-Cognitive Memory depende de
-volume real de execução do Forge para ter dados a aprender — não pode ser
-especificada com rigor antes disso.
+```
+Memory
+├── Semantic
+├── Episodic
+├── Operational
+└── Meta-Cognitive (novo)
+```
 
-## Próxima ação
+Meta-Cognitive registra: qual agente foi usado, qual estratégia, qualidade
+da resposta, tempo, correções necessárias, aceitação do usuário, impacto.
 
-Nenhuma até o critério de congelamento de ARCH-001 ser levantado. Quando
-levantado, promover para especificação técnica (padrão MEM-001) antes de
-qualquer código.
+## Posicionamento estratégico
+
+Os provedores de IA evoluem em inteligência geral; a LUNA evolveria em
+inteligência operacional sobre o uso desses modelos — complementar, não
+concorrente aos provedores.
+
+## Por que está congelada
+
+Motivada por ARCH-001 (congelamento). Também depende tecnicamente de
+Reporter maduro (ENG-007) para ter dado real de "qual agente resolveu
+melhor" — não há como implementar antes disso.

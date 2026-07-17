@@ -2,7 +2,20 @@
 
 Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evolução do Genesis, o Framework Curator, o Sistema Metabólico e o Research Pipeline.
 
-## P0 — Continuidade Cognitiva Distribuída (ratificado pelo Architect, 2026-07-16)
+## P00 — Forge v0.1: ferramenta de uso diário (prioridade máxima)
+
+- [ ] FORGE-MVP-01 — Interface web funcional
+- [ ] FORGE-MVP-02 — Chat sequencial com seleção de agente + metadado de atribuição (ver GENESIS/FORGE.md)
+- [ ] FORGE-MVP-03 — Projetos com contexto próprio (LUNA, RENASCER, SMX, CURSO EMPILHADEIRA)
+- [ ] FORGE-MVP-04 — Storage Contract: Forge → Guardian → Storage Contract → Supabase Adapter
+- [ ] FORGE-MVP-05 — Execution Metadata em toda memória salva (ver GENESIS/FORGE.md)
+- [ ] FORGE-MVP-06 — Botões GitHub (commit/push/pull/branch) sob credencial de Builder
+- [ ] FORGE-MVP-07 — Reporter manual: botão "Analisar Projeto"
+- [ ] FORGE-MVP-08 — Workspace v0.1: integração com Claude Code (não reimplementação de IDE)
+
+## FORGE-WORKSPACE-001 — Workspace nativo equivalente a Cursor + VS Code (pós-v0.1, sem prazo)
+
+## P0 — Continuidade Cognitiva Distribuída (CONGELADO, ver ARCH-001 — retomar após Forge v0.1 em uso diário)
 
 - [ ] MEM-001 — Especificar a Operational Memory Layer (Semantic + Operational
       + Identifier) em GENESIS/RESEARCH/operational-memory-layer.md
