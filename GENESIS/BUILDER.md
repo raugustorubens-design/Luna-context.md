@@ -202,4 +202,22 @@ Eu fiz: em `raugustorubens-design/luna-frontend`, branch
 especificado em GENESIS/FORGE.md § Execution Metadata — `project` é string
 aberta, `KNOWN_FORGE_PROJECTS` é só a lista de UI (LUNA/RENASCER/SMX/CURSO
 EMPILHADEIRA) para o seletor do FORGE-MVP-03, não uma restrição de schema.
-Nenhum push ainda — branch local, PR não solicitado.
+Commit empurrado para `origin/claude/forge-mvp-01-08` (PR não solicitado).
+
+## 2026-07-17 — FORGE-MVP-04: Storage Contract
+
+Eu fiz: em `luna-frontend`, branch `claude/forge-mvp-01-08`, commit
+`322bba0` (empurrado) — adicionei `persistMemory`/`retrieveMemory` a
+`lib/forge/api-client.ts`, chamando `guardian.persist_memory`/
+`guardian.retrieve_memory` via Gateway, mesmo padrão de
+`searchGuardianMemoryIndex` já existente (Forge só fala com Guardian, nunca
+com Storage Contract/Supabase Adapter diretamente). Opera sobre o schema
+`MemoryItem` do FORGE-MVP-05. `typecheck` limpo. Não escrevi testes de
+unidade para essas duas funções — `api-client.ts` não tem cobertura de
+testes para nenhuma das suas funções baseadas em fetch (padrão já existente
+no repositório, não uma lacuna que introduzi). Não sei se
+`guardian.persist_memory`/`guardian.retrieve_memory` já existem no Gateway
+real — mesma situação de `searchGuardianMemoryIndex` quando foi adicionado:
+cliente pronto, se a capability não existir o Gateway responde
+CAPABILITY_NOT_FOUND e a UI mostra o erro real (não trava), comportamento
+já estabelecido neste código para exatamente esse caso.
