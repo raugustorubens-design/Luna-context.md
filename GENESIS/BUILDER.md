@@ -269,3 +269,18 @@ checkout): no-op commit, commit real, push de branch existente, criação de
 branch, push de branch nova, pull, e rejeição de nome de branch inválido —
 os 6 cenários corretos. `typecheck`/`test` (20/20)/`test:constitution`/
 `build` limpos antes do commit real.
+
+## 2026-07-17 — FORGE-MVP-03: seletor de projeto
+
+Eu fiz: em `luna-frontend`, branch `claude/forge-mvp-01-08`, commit
+`d7fddb5` (empurrado) — criei `lib/forge/project-context.tsx`
+(`ProjectProvider`/`useForgeProject`, projeto ativo compartilhado por todos
+os painéis), adicionei o seletor no header de `forge-layout.tsx`, e troquei
+o `DEFAULT_PROJECT_ID` fixo do `chat.tsx` (deixado como pendência explícita
+no FORGE-MVP-02) pelo projeto de fato selecionado. Escopo v0.1: um projeto
+ativo por vez, alimentando o modelo de atribuição/memória — não inventei
+mapeamento de owner/repo do GitHub por projeto (não tenho evidência de
+quais são os repositórios reais de RENASCER/SMX/CURSO EMPILHADEIRA), então
+o painel Git continua com campos editáveis manualmente, sem fabricar essa
+ligação. `typecheck`/`test` (20/20)/`test:constitution`/`build` limpos
+antes do commit.
