@@ -97,3 +97,60 @@ diretos em sessões futuras.
 Status: implementação pronta e validada localmente (typecheck, test:architecture,
 94/94 testes, boot smoke-tested com e sem credenciais); aguardando push manual
 do patch ou ajuste de permissão do GitHub App.
+
+## ID: ENG-006
+Data: 2026-07-16
+Tópico: Auto-atualização do BUILDER.md a cada etapa concluída
+
+Observação: Rubens (Architect) determinou que toda etapa de implementação
+concluída deve incluir, no mesmo commit, a atualização do BUILDER.md —
+sem depender de pedido manual separado. Autoatestação em primeira pessoa
+("eu fiz"), no arquivo que já é do Builder por Regra 2.
+Status: regra ativa.
+
+## ID: ENG-007
+Data: 2026-07-16
+Tópico: Escopo do Reporter — verificação por evidência, não autoria; IDs estáveis no Roadmap
+
+Observação: Reporter não cria, reprioriza nem remove itens do Roadmap —
+apenas marca como concluído o que já existe, com evidência objetiva
+(commit/PR/deploy/teste). Autoria de Framework/Pendências/Plano de trabalho
+continua humana + Engineer + Architect. Para viabilizar essa verificação sem
+ambiguidade, todo item do Roadmap passa a levar um ID estável e permanente,
+com prefixo por domínio (MEM-, STOR-, REP-, BLD-, HIP-, FORGE-, INFRA-, GEN-).
+Builder diz "eu fiz" (BUILDER.md); Reporter diz "eu confirmei" (propagação
+por evidência, nunca por fala do Builder).
+Status: regra ativa; aguarda maturidade do Reporter além do scanner básico
+para execução de fato.
+
+## ID: ENG-008
+Data: 2026-07-16
+Tópico: Roteamento de persistência — Engineer/Architect decidem, Builder persiste
+
+Observação: Engineer e Architect seguem sem acesso de escrita ao GitHub
+(403 confirmado nesta sessão). Toda decisão é entregue como pacote de
+aplicação pronto (conteúdo exato + caminho + mensagem de commit) para o
+Builder executar — só se considera oficial após esse commit existir.
+Status: regra ativa a partir de 2026-07-16.
+
+## ID: ENG-009
+Data: 2026-07-16
+Tópico: Proposta — sessão simultânea de múltiplas IAs no luna-forge (Architectural Transition, não decidida ainda)
+
+Observação: proposta do Architect e Rubens de operar Engineer + Builder
+(+ Architect, opcional) simultaneamente na mesma interface do luna-forge,
+eliminando a ponte manual atual (decisão em chat → cópia manual → execução
+→ relato). Nota: GENESIS/FORGE.md, referenciado em sessão anterior como
+papel formal do Forge, ainda não existe no repositório (mesmo bloqueio de
+permissão) — esta proposta parte de um documento que ainda não foi aplicado.
+
+Risco identificado: presença simultânea, sem guardrail, recria o mesmo tipo
+de violação de fronteira já registrada anteriormente (Engineer escrevendo
+código atribuído ao Builder). Guardrail proposto: mesmo em modo simultâneo,
+apenas o Builder commita; Engineer/Architect produzem diff sugerido, nunca
+commit próprio.
+
+Ação sugerida: Architect decide formalmente antes de implementar (não é
+correção de bug, é mudança de arquitetura operacional do Forge).
+Status: Research Hypothesis / Architectural Transition — não implementar
+até decisão explícita do Architect sobre o guardrail de escrita.

@@ -31,6 +31,12 @@ Use this file for implementation status, constraints, tests, and local decisions
 - Keep Connector Hub boundaries intact.
 - Keep Guardian internal and isolated by contracts.
 - Update the implementation status after each relevant merge.
+- Toda etapa de implementação concluída inclui, no mesmo commit, a
+  atualização deste arquivo (BUILDER.md) com autoatestação em primeira
+  pessoa ("eu fiz") — ver ENG-006.
+- Mesmo em modo de sessão simultânea com Engineer/Architect, apenas o
+  Builder commita; os demais papéis produzem diff sugerido, nunca commit
+  próprio — ver ENG-008/ENG-009.
 
 ## ID: BLD-001
 Data: 2026-07-13

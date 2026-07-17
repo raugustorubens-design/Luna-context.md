@@ -19,6 +19,11 @@ It is operational memory, not permanent memory.
 3. Permanent knowledge must still pass through Guardian.
 4. Genesis can generate status and work plans, but it is not the source of truth.
 5. When an item is consolidated, it can be promoted to Framework, Inferência, ADR, or Context.
+6. Nenhuma decisão é considerada persistida até existir como commit real no
+   GitHub. Engineer (Claude, chat) e Architect (GPT) não têm acesso de
+   escrita — apenas decidem e especificam. Builder (Claude Code) é o único
+   canal de persistência real, mesmo em sessões simultâneas com os outros
+   papéis presentes.
 
 ## Files
 
