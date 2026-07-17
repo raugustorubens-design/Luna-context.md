@@ -146,3 +146,17 @@ primeiro, ainda pendente de commit", o que já não é verdade desde o pacote
 2 — não corrigi o texto porque a instrução foi manter os itens como
 estavam; sinalizando para correção futura via Reporter/Architect.
 Nenhuma implementação de código associada.
+
+## 2026-07-17 — Pacote 6/6: P0 revisado (BLD-002 e FORGE-001 saem da lista)
+
+Eu fiz: substituí a lista de itens do P0 em GENESIS/ROADMAP.md pela versão
+enviada agora — MEM-001, STOR-001, GEN-001, REP-001, INFRA-001, texto
+exatamente como entregue. BLD-002 e FORGE-001 saem da lista: confirma o que
+eu já tinha sinalizado no pacote 5 (a omissão deles na lista abreviada não
+era acidental). Entendimento: BLD-002 já está resolvido na prática pela
+disciplina de autoatestação (ENG-006) em vigor durante toda esta série de
+pacotes; FORGE-001 já foi resolvido como decisão formal em GENESIS/FORGE.md
+(pacote 4) — nenhum dos dois precisa continuar como item de P0 em aberto.
+Não apaguei o registro histórico de FORGE-001 em FORGE.md nem a entrada de
+ENG-006 — só o item de checklist do Roadmap. Nenhuma implementação de
+código associada. Este é o pacote 6/6 — relatório final a seguir.

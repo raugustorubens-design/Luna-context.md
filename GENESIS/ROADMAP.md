@@ -17,16 +17,11 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 
 ## P0 — Continuidade Cognitiva Distribuída (CONGELADO, ver ARCH-001 — retomar após Forge v0.1 em uso diário)
 
-- [ ] MEM-001 — Especificar a Operational Memory Layer (Semantic + Operational
-      + Identifier) em GENESIS/RESEARCH/operational-memory-layer.md
-- [ ] STOR-001 — Redesenhar storage.query/storage.insert do Gateway mediado
-      pelo Hipocampo (preserva Constitution Principle 4)
+- [ ] MEM-001 — Especificar a Operational Memory Layer
+- [ ] STOR-001 — Redesenhar storage.query/storage.insert do Gateway mediado pelo Hipocampo
 - [ ] GEN-001 — Adotar IDs estáveis por domínio em todo item de Roadmap/Framework
-- [ ] REP-001 — Redefinir escopo do Reporter: propaga evidência, não decide (ver ENG-007)
-- [ ] BLD-002 — Confirmar Builder restrito ao BUILDER.md (ver ENG-006/ENG-008)
-- [ ] INFRA-001 — Corrigir permissão do GitHub App (Contents + Pull Requests: Read/write)
-- [ ] FORGE-001 — Avaliar sessão simultânea de múltiplas IAs no luna-forge
-      (ver ENG-009) — aplicar GENESIS/FORGE.md primeiro, ainda pendente de commit
+- [ ] REP-001 — Redefinir escopo do Reporter (propagação por evidência)
+- [ ] INFRA-001 — Corrigir permissão do GitHub App
 
 ## P1 — Pronto para concluir (Builder, sem decisão de Architects pendente)
 - [x] ~~Configurar GROQ_API_KEY... — ativa model routing do PR #9~~ — correção (2026-07-13, ver ENG-005/BLD-001): o PR #9 só trazia infraestrutura sem consumidor; não havia capability para as env vars "ativarem" ainda. Implementadas agora: `model.chat`, `model.chat_deep`, `storage.query`, `storage.insert`.
