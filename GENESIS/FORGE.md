@@ -54,7 +54,22 @@ saved_at: <timestamp>
 ```
 
 ### Storage Contract
-Pendente — o texto desta seção foi cortado pela interrupção da mensagem que
-o especificou (2026-07-17). Não preenchido para evitar Builder especificando
-no lugar do Architect/Engineer (ver Regra 6). Reenviar o conteúdo completo
-para persistir.
+Guardian nunca conhece Supabase diretamente — só o Storage Contract
+(`retrieveMemory`, `persistMemory`). Troca de banco futura não muda chamador.
+
+### GitHub
+Botões commit/push/pull/branch sempre executam sob credencial única de
+serviço (Builder), independente do agente ativo no chat.
+
+### Reporter (manual)
+Botão "Analisar Projeto" — gera pendências/concluído/roadmap/drift. Mesmo
+escopo de ENG-007: verifica por evidência, nunca cria ou reprioriza item.
+
+## ID: FORGE-001
+Data: 2026-07-16
+Tópico: Multiagente simultâneo — decidido, implementação adiada pro v0.2
+
+Decisão: arquitetura de multiagente com prompt próprio por agente permanece
+decidida (ver ENG-010 para requisitos técnicos), mas implementação é v0.2 —
+v0.1 usa chat sequencial de agente único.
+Status: decidido; implementação não iniciada, sem prazo definido.

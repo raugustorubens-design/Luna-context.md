@@ -111,3 +111,15 @@ mensagem que a especificava foi cortada pela interrupção antes do corpo da
 seção — deixei como pendência explícita em FORGE.md em vez de inventar o
 contrato, para não violar a Regra 6 (Builder persiste, não especifica).
 Nenhuma implementação de código associada.
+
+## 2026-07-17 — Pacote 4/6: Storage Contract, GitHub, Reporter (manual), FORGE-001
+
+Eu fiz: completei a seção Storage Contract em GENESIS/FORGE.md (pendência
+do pacote 3) e adicionei as seções GitHub e Reporter (manual) ao spec
+v0.1, todas exatamente como entregue. Registrei GENESIS/FORGE.md § ID:
+FORGE-001 (multiagente simultâneo decidido, implementação adiada pro
+v0.2) — responde ao item FORGE-001 do P0 em GENESIS/ROADMAP.md, mas não
+marquei o checkbox lá: marcação de conclusão é escopo do Reporter por
+evidência (ENG-007/Regra 6), não do Builder. Nota: FORGE-001 cita ENG-010
+"para requisitos técnicos" — ENG-010 ainda não foi recebido nesta sessão,
+não persistido. Nenhuma implementação de código associada.
