@@ -31,9 +31,11 @@ It is operational memory, not permanent memory.
 - ENGINEER.md
 - BUILDER.md
 - REPORTER.md
+- FORGE.md
 - STATUS.md
 - ROADMAP.md
 - HISTORY.md
+- RESEARCH/ (Research Hypotheses — ver ARCH-001)
 
 ## Current usage
 

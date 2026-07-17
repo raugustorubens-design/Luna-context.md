@@ -89,3 +89,12 @@ Reporter automático e Genome até o Forge v0.1 estar em uso diário) em
 GENESIS/ARCHITECTS.md, e criei GENESIS/RESEARCH/meta-cognitive-memory.md
 como Research Hypothesis, sem nenhuma implementação de código associada —
 nenhum outro arquivo foi alterado.
+
+## 2026-07-17 — Pacote 2/6: GENESIS/FORGE.md
+
+Eu fiz: criei GENESIS/FORGE.md (owner: sessão multiagente, coordenada por
+projeto) com a Theory "Modelo de órgãos" — Forge não é a IDE, é o cockpit
+da LUNA; a IDE é um órgão dentro dele. Ainda não promovida à Constituição.
+Adicionei FORGE.md e RESEARCH/ ao índice "Files" de GENESIS/README.md. Isto
+resolve o bloqueio citado em ENG-009/FORGE-001 (documento antes inexistente
+no repositório). Nenhuma implementação de código associada.
