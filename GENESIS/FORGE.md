@@ -42,6 +42,14 @@ reimplementação de editor/LSP/terminal. Workspace nativo equivalente a
 Cursor + VS Code é meta de longo prazo, item de roadmap separado
 (FORGE-WORKSPACE-001), fora do escopo do v0.1.
 
+Nota (2026-07-17): Editor (Monaco) e Terminal (xterm) já existiam em
+luna-frontend antes desta implementação (confirmado no audit do
+FORGE-MVP-01) — não são entrega do v0.1. O que o v0.1 endereça é apenas o
+nó "AI Coding": FORGE-MVP-08A (Claude Activity Panel), visibilidade de
+atividade do Builder via github.read_file, sem sessão embutida (sem PTY
+real). Workspace com AI Coding em paridade com Cursor segue em
+FORGE-WORKSPACE-001, sem prazo.
+
 ### Execution Metadata
 Não é Operational Memory Layer (MEM-001, congelado). Todo item salvo carrega:
 
@@ -73,3 +81,7 @@ Decisão: arquitetura de multiagente com prompt próprio por agente permanece
 decidida (ver ENG-010 para requisitos técnicos), mas implementação é v0.2 —
 v0.1 usa chat sequencial de agente único.
 Status: decidido; implementação não iniciada, sem prazo definido.
+
+## Backlog — Operational Intelligence
+Ver GENESIS/RESEARCH/meta-cognitive-memory.md (já registrado, Research
+Hypothesis, congelado por ARCH-001). Não duplicar como novo item.

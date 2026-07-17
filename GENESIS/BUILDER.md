@@ -335,3 +335,15 @@ confirmada) a uma capability fake. `typecheck`/`test` (20/20)/
 Com isto, os 8 itens do FORGE-MVP-01 a 08 (P00, GENESIS/ROADMAP.md) estão
 implementados em `luna-frontend`, branch `claude/forge-mvp-01-08`. Branch
 empurrada, sem PR aberta (não solicitado).
+
+## 2026-07-17 — FORGE.md: nota de escopo do Workspace v0.1 + Backlog Operational Intelligence
+
+Eu fiz: em `GENESIS/FORGE.md` (este repositório), sob "### Workspace
+v0.1", adicionei a nota registrando que Editor (Monaco) e Terminal (xterm)
+já existiam em `luna-frontend` antes desta implementação e não são
+entrega do v0.1 — o que o v0.1 de fato endereça é só o nó "AI Coding"
+(FORGE-MVP-08A, Claude Activity Panel, sem sessão embutida). Adicionei
+também "## Backlog — Operational Intelligence" ao final do arquivo,
+apontando para GENESIS/RESEARCH/meta-cognitive-memory.md sem duplicar
+conteúdo. Conteúdo exatamente como entregue, nenhuma implementação de
+código associada.
