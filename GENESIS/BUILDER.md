@@ -246,3 +246,26 @@ código como pendência explícita, não fabricado como se já funcionasse.
 Também incluído neste commit: a correção do `test:constitution` descrita
 acima. `typecheck`/`test` (20/20)/`test:constitution`/`build` todos limpos
 antes do commit — rodei a suíte completa desta vez, não só typecheck.
+
+## 2026-07-17 — FORGE-MVP-06: botões GitHub (commit/push/pull/branch)
+
+Eu fiz: em `luna-frontend`, branch `claude/forge-mvp-01-08`, commit
+`1df218d` (empurrado) — adicionei `commitAllLocalChanges`/
+`pushCurrentBranch`/`pullCurrentBranch`/`createLocalBranch` a
+`lib/forge/git.ts` (git real no checkout local do servidor, mesma
+credencial de serviço de sempre, documentado explicitamente como
+independente do agente ativo no Chat), 4 rotas novas em `app/api/forge/
+git-{commit,push,pull,branch}`, clientes em `api-client.ts`, e os botões
+correspondentes em `git-panel.tsx` com feedback inline.
+
+Nota de processo: testei manualmente rodando o servidor dev contra este
+próprio checkout antes do commit — o botão de commit funcionou e criou um
+commit real e não intencional (`438873b`, "test commit") em cima do
+trabalho ainda não commitado deste mesmo pacote, na minha branch local.
+Não pusheado ainda quando percebi; desfiz com `git reset --soft HEAD~1`
+(seguro porque era só local) e recomecei o teste isolado. Repeti a
+verificação em um repositório+remoto descartáveis em `/tmp` (não neste
+checkout): no-op commit, commit real, push de branch existente, criação de
+branch, push de branch nova, pull, e rejeição de nome de branch inválido —
+os 6 cenários corretos. `typecheck`/`test` (20/20)/`test:constitution`/
+`build` limpos antes do commit real.
