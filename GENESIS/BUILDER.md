@@ -81,3 +81,11 @@ Next action:
 - Configurar as credenciais reais no Railway para ativar de fato
 - Considerar adicionar testes unitários para as 4 capabilities novas (hoje só
   o Model Router em si tem cobertura, herdada do PR #9)
+
+## 2026-07-17 — Pacote 1/6: ARCH-001
+
+Eu fiz: registrei ARCH-001 (congelamento de Hipocampo, Fórmula de memória,
+Reporter automático e Genome até o Forge v0.1 estar em uso diário) em
+GENESIS/ARCHITECTS.md, e criei GENESIS/RESEARCH/meta-cognitive-memory.md
+como Research Hypothesis, sem nenhuma implementação de código associada —
+nenhum outro arquivo foi alterado.

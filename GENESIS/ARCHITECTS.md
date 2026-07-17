@@ -42,3 +42,23 @@ Use this file for architectural decisions, hypotheses, atrators, and open design
 - Princípio confirmado nesta sessão: cada repositório-interface (luna-convergia,
   luna-guardian, etc.) deve se tornar seu próprio MVP, preparado para
   acoplamento — não um esqueleto fino
+
+## ID: ARCH-001
+Data: 2026-07-16
+Tópico: Congelamento confirmado — Forge v0.1 é a única prioridade de execução
+
+Decisão: Architect confirma o congelamento de Hipocampo, Fórmula de memória,
+Reporter automático e Genome. Nenhuma proposta de arquitetura nova entra na
+fila de implementação até o Forge v0.1 estar em uso diário. Meta-Cognitive
+Memory (camada de memória sobre qual agente/estratégia funciona melhor por
+tipo de problema) é registrada como Research Hypothesis em
+GENESIS/RESEARCH/meta-cognitive-memory.md — não implementação.
+
+Impacto: qualquer item de Roadmap fora do escopo Forge v0.1 (incluindo
+MEM-001/STOR-001 do P0 "Continuidade Cognitiva Distribuída", já sinalizados
+como congelados) permanece bloqueado até o critério de uso diário do Forge
+v0.1 ser atingido.
+
+Próxima ação: nenhuma implementação de arquitetura nova até então; Builder
+persiste este registro e o stub de Research Hypothesis.
+Status: decidido.
