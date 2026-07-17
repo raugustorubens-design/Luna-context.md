@@ -284,3 +284,23 @@ quais são os repositórios reais de RENASCER/SMX/CURSO EMPILHADEIRA), então
 o painel Git continua com campos editáveis manualmente, sem fabricar essa
 ligação. `typecheck`/`test` (20/20)/`test:constitution`/`build` limpos
 antes do commit.
+
+## 2026-07-17 — FORGE-MVP-07: Reporter manual
+
+Eu fiz: em `luna-frontend`, branch `claude/forge-mvp-01-08`, commit
+`03dddc4` (empurrado) — adicionei `analyzeProject(project)` a
+`api-client.ts` (capability `reporter.analyze_project` via Gateway) e o
+botão "Analisar Projeto" em `context-panel.tsx`, numa seção Reporter nova
+que mostra pendências/concluído/roadmap/drift. Só roda quando clicado
+(nunca automático — Reporter automático segue congelado por ARCH-001).
+Escopo estritamente evidência/exibição: não existe nenhum caminho de
+escrita de volta ao Roadmap a partir daqui — mesmo escopo de ENG-007. Não
+sei se `reporter.analyze_project` já existe no Gateway real; mesma postura
+de `searchGuardianMemoryIndex`/Storage Contract — cliente pronto, erro real
+se a capability não existir. `typecheck`/`test` (20/20)/`test:constitution`/
+`build` limpos antes do commit.
+
+Com isto, 7 dos 8 itens do FORGE-MVP (01, 05, 04, 02, 06, 03, 07) estão
+implementados em `luna-frontend`, branch `claude/forge-mvp-01-08` — falta
+só o FORGE-MVP-08 (painel de integração com Claude Code, conforme decisão
+de manter Monaco/xterm intactos).
