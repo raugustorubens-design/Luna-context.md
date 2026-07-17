@@ -98,3 +98,16 @@ da LUNA; a IDE é um órgão dentro dele. Ainda não promovida à Constituição
 Adicionei FORGE.md e RESEARCH/ ao índice "Files" de GENESIS/README.md. Isto
 resolve o bloqueio citado em ENG-009/FORGE-001 (documento antes inexistente
 no repositório). Nenhuma implementação de código associada.
+
+## 2026-07-17 — Pacote 3/6: continuação de GENESIS/FORGE.md
+
+Eu fiz: continuei GENESIS/FORGE.md (o segundo arquivo criado nesta série de
+pacotes, ver entrada acima) — adicionei "Definição de trabalho", a árvore
+de órgãos (Workspace/Memory/Reporter/Guardian/Runtime/Projects/
+Observability/Constitution) e a seção "Forge v0.1 — especificação técnica
+(Design Decision, não ADR)" com Chat, Workspace v0.1 e Execution Metadata,
+todos completos conforme entregue. NÃO preenchi Storage Contract: a
+mensagem que a especificava foi cortada pela interrupção antes do corpo da
+seção — deixei como pendência explícita em FORGE.md em vez de inventar o
+contrato, para não violar a Regra 6 (Builder persiste, não especifica).
+Nenhuma implementação de código associada.
