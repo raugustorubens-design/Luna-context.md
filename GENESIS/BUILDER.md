@@ -304,3 +304,34 @@ Com isto, 7 dos 8 itens do FORGE-MVP (01, 05, 04, 02, 06, 03, 07) estão
 implementados em `luna-frontend`, branch `claude/forge-mvp-01-08` — falta
 só o FORGE-MVP-08 (painel de integração com Claude Code, conforme decisão
 de manter Monaco/xterm intactos).
+
+## 2026-07-17 — FORGE-MVP-08: painel Claude Code
+
+Eu fiz: em `luna-frontend`, branch `claude/forge-mvp-01-08`, commit
+`04d84fe` (empurrado) — criei `components/forge/claude-code-panel.tsx` e
+`readGithubFile` em `api-client.ts` (`github.read_file`, capability madura
+e já testada no backend real — confirmei lendo
+`apps/frontend/artifacts/api-server/src/gateway/capabilities/github/
+read-file.ts` e o teste correspondente no monorepo `luna`, diferente da
+postura "não sei se existe" usada para guardian.*/reporter.* antes). O
+painel lê `GENESIS/BUILDER.md` deste próprio repositório e mostra as 5
+entradas de log mais recentes — parser verificado rodando contra o arquivo
+real antes do commit (peguei corretamente FORGE-MVP-02 a 07). Virou uma
+aba "Claude Code" ao lado de "Terminal" no mesmo slot do painel (Editor
+Monaco e Terminal xterm inalterados, conforme a correção de premissa
+registrada acima). `forceMount` na aba do Terminal — sem isso o Radix Tabs
+desmontaria o Terminal ao trocar de aba, derrubando o WebSocket/shell
+ativo.
+
+Decisão de escopo importante: NÃO tentei rodar a CLI do Claude Code dentro
+do terminal do Forge. `lib/forge/terminal-server.ts` documenta que esse
+terminal não usa PTY real e programas interativos de tela cheia não
+renderizam nele — a própria CLI do Claude Code se qualifica. Fabricar essa
+integração pareceria funcionar e quebraria na prática; preferi uma
+integração fina real (visibilidade de atividade do Builder via capability
+confirmada) a uma capability fake. `typecheck`/`test` (20/20)/
+`test:constitution`/`build` limpos antes do commit.
+
+Com isto, os 8 itens do FORGE-MVP-01 a 08 (P00, GENESIS/ROADMAP.md) estão
+implementados em `luna-frontend`, branch `claude/forge-mvp-01-08`. Branch
+empurrada, sem PR aberta (não solicitado).
