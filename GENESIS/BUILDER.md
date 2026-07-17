@@ -160,3 +160,34 @@ pacotes; FORGE-001 já foi resolvido como decisão formal em GENESIS/FORGE.md
 Não apaguei o registro histórico de FORGE-001 em FORGE.md nem a entrada de
 ENG-006 — só o item de checklist do Roadmap. Nenhuma implementação de
 código associada. Este é o pacote 6/6 — relatório final a seguir.
+
+## 2026-07-17 — Execução FORGE-MVP-01..08 em luna-frontend: início
+
+Eu fiz: auditei `raugustorubens-design/luna-frontend` (branch `main`, já
+com `claude/forge-dev-mode` + Google OAuth + Guardian Memory Index
+mergeados) antes de escrever qualquer código — `pnpm install`/`typecheck`/
+`test` (17/17)/`test:constitution`/`build` todos passam limpo. FORGE-MVP-01
+já está satisfeito no código: Explorer/Editor/Chat/GitPanel/Terminal/
+ContextPanel existem e funcionam. O que resta não é código deste
+repositório: (1) variáveis de ambiente no Railway (login Google,
+FORGE_ALLOWED_EMAIL, tokens) — sem acesso de rede/infra para configurar ou
+verificar daqui; (2) `/chat` do backend atual tem contrato diferente do
+esperado pelo cliente (lacuna já documentada no próprio `DEPLOY.md` do
+repo, nota do ADR-004) — bug de outro repositório. Decisão do Architect
+(2026-07-17): tratar como satisfeito, documentar os 2 bloqueios, seguir.
+
+Correção factual sobre a premissa do FORGE-MVP-08: a especificação (pacote
+3) partiu de "Workspace v0.1: integração fina com Claude Code (IDE-grade já
+existente), não reimplementação de editor/LSP/terminal" como se nenhum
+editor/terminal existisse ainda no Forge. Isso estava desatualizado —
+`luna-frontend` já tem Editor (Monaco) e Terminal (xterm/WebSocket)
+funcionais, herdados da consolidação do Forge MVP-01 (`claude/forge-dev-mode`,
+já mergeado). Decisão do Architect (2026-07-17): manter Monaco/xterm como
+estão — são trabalho pronto (sunk cost), não o "reimplementar" que a regra
+queria evitar. FORGE-MVP-08 passa a ser um painel/modo adicional de
+integração com Claude Code, ao lado do Editor/Terminal atuais, sem
+substituí-los. Correção factual, não novo trade-off arquitetural — não
+registrada em ARCHITECTS.md.
+
+Próxima ação: seguir a ordem definida (05 → 04 → 02 → 06 → 03 → 07 → 08)
+implementando em `luna-frontend`.
