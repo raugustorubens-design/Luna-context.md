@@ -191,3 +191,15 @@ registrada em ARCHITECTS.md.
 
 Próxima ação: seguir a ordem definida (05 → 04 → 02 → 06 → 03 → 07 → 08)
 implementando em `luna-frontend`.
+
+## 2026-07-17 — FORGE-MVP-05: Execution Metadata
+
+Eu fiz: em `raugustorubens-design/luna-frontend`, branch
+`claude/forge-mvp-01-08`, commit `5e0c57a` — criei `lib/forge/memory.ts`
+(tipos `ExecutionMetadata`/`MemoryItem`, `createMemoryItem()`) e
+`lib/forge/__tests__/memory.test.ts` (3 testes novos). `typecheck` limpo,
+`test` 20/20 (17 pré-existentes + 3 novos). Schema exatamente como
+especificado em GENESIS/FORGE.md § Execution Metadata — `project` é string
+aberta, `KNOWN_FORGE_PROJECTS` é só a lista de UI (LUNA/RENASCER/SMX/CURSO
+EMPILHADEIRA) para o seletor do FORGE-MVP-03, não uma restrição de schema.
+Nenhum push ainda — branch local, PR não solicitado.
