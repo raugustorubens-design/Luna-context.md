@@ -347,3 +347,25 @@ também "## Backlog — Operational Intelligence" ao final do arquivo,
 apontando para GENESIS/RESEARCH/meta-cognitive-memory.md sem duplicar
 conteúdo. Conteúdo exatamente como entregue, nenhuma implementação de
 código associada.
+
+## 2026-07-17 — Correção: GENESIS/ROADMAP.md não tinha sido tocado
+
+Achado do Reporter (verificação por evidência, SHA comparado antes/depois):
+o passo anterior só editou `GENESIS/FORGE.md` — o pacote também pedia duas
+edições em `GENESIS/ROADMAP.md`, seção P00, que eu não apliquei. Reportado
+corretamente pelo Reporter antes de qualquer coisa; corrigido agora, não
+só anotado.
+
+Eu fiz: em `GENESIS/ROADMAP.md`, seção P00 — troquei `FORGE-MVP-01 —
+Interface web funcional` (`[ ]`) por `FORGE-MVP-01 — Validated Existing
+Capability (auditado, não implementado — ver GENESIS/BUILDER.md)` (`[x]`,
+texto e checkbox exatamente como o Reporter especificou); e troquei
+`FORGE-MVP-08 — Workspace v0.1: integração com Claude Code (não
+reimplementação de IDE)` por `FORGE-MVP-08A — Claude Activity Panel (nó
+"AI Coding" do Workspace, integração honesta sem PTY — ver GENESIS/FORGE.md)`,
+mantendo `[ ]` (implementação existe em código, mas o Reporter não marcou
+como concluído neste pacote — não presumi). Não toquei nos itens
+FORGE-MVP-02 a 07: continuam `[ ]` apesar de implementados em
+`luna-frontend` (branch `claude/forge-mvp-01-08`), porque marcar conclusão
+é escopo do Reporter por evidência, não meu — não estendi a correção além
+do que foi pedido.

@@ -4,14 +4,14 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 
 ## P00 — Forge v0.1: ferramenta de uso diário (prioridade máxima)
 
-- [ ] FORGE-MVP-01 — Interface web funcional
+- [x] FORGE-MVP-01 — Validated Existing Capability (auditado, não implementado — ver GENESIS/BUILDER.md)
 - [ ] FORGE-MVP-02 — Chat sequencial com seleção de agente + metadado de atribuição (ver GENESIS/FORGE.md)
 - [ ] FORGE-MVP-03 — Projetos com contexto próprio (LUNA, RENASCER, SMX, CURSO EMPILHADEIRA)
 - [ ] FORGE-MVP-04 — Storage Contract: Forge → Guardian → Storage Contract → Supabase Adapter
 - [ ] FORGE-MVP-05 — Execution Metadata em toda memória salva (ver GENESIS/FORGE.md)
 - [ ] FORGE-MVP-06 — Botões GitHub (commit/push/pull/branch) sob credencial de Builder
 - [ ] FORGE-MVP-07 — Reporter manual: botão "Analisar Projeto"
-- [ ] FORGE-MVP-08 — Workspace v0.1: integração com Claude Code (não reimplementação de IDE)
+- [ ] FORGE-MVP-08A — Claude Activity Panel (nó "AI Coding" do Workspace, integração honesta sem PTY — ver GENESIS/FORGE.md)
 
 ## FORGE-WORKSPACE-001 — Workspace nativo equivalente a Cursor + VS Code (pós-v0.1, sem prazo)
 
