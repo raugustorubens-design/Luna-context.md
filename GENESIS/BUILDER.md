@@ -221,3 +221,28 @@ real — mesma situação de `searchGuardianMemoryIndex` quando foi adicionado:
 cliente pronto, se a capability não existir o Gateway responde
 CAPABILITY_NOT_FOUND e a UI mostra o erro real (não trava), comportamento
 já estabelecido neste código para exatamente esse caso.
+
+Correção no mesmo passo seguinte (não separei em commit próprio porque só
+percebi ao rodar a suíte completa antes do commit de FORGE-MVP-02, abaixo):
+o comentário do Storage Contract nomeava o banco por trás do adapter
+literalmente, o que quebra o `test:constitution` deste repo
+(`DATABASE_TOKENS` bloqueia o nome do banco em qualquer lugar do código,
+inclusive comentário). Reescrevi sem nomear o banco — o commit `322bba0`
+já empurrado ficou com essa regressão até este passo; corrigido, não
+amendado (commit novo).
+
+## 2026-07-17 — FORGE-MVP-02: seletor de agente + metadado de atribuição
+
+Eu fiz: em `luna-frontend`, branch `claude/forge-mvp-01-08`, commit
+`f358752` (empurrado) — criei `lib/forge/attribution.ts`
+(`ForgeAgent`/`MessageAttribution`, agentes gpt/claude/groq), adicionei o
+seletor de agente e a atribuição por mensagem em `components/forge/chat.tsx`
+(um agente ativo por vez, cada mensagem carrega agent/model/timestamp/
+projectId), e estendi `sendChatMessage` em `api-client.ts` para enviar
+agent/model de forma aditiva (não muda o contrato existente, não força
+roteamento — quem decide o provider continua sendo o backend). `projectId`
+usa um default fixo ("LUNA") até o FORGE-MVP-03 existir — comentado no
+código como pendência explícita, não fabricado como se já funcionasse.
+Também incluído neste commit: a correção do `test:constitution` descrita
+acima. `typecheck`/`test` (20/20)/`test:constitution`/`build` todos limpos
+antes do commit — rodei a suíte completa desta vez, não só typecheck.
