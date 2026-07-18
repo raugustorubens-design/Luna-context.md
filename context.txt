@@ -93,14 +93,10 @@ M(t+1) = σ[
 Where:
 - R = relevance
 - I = impact
-- ρ = recurrence (NOT Action — Action belongs to the Decision Engine, see below)
+- ρ = recurrence (NOT Action — Action belongs to the Decision Engine, ver ADR-010 §3)
 - Δ = change
 - O = outcome
 - E = entropy
-
-NOTE (ADR-010 §3/§8): Action (A) is never reused as a symbol in the Memory
-Engine. Action lives in Decision(t) = H(t) + A(t), in the Cognitive Model
-section above — a different engine, a different equation.
 
 ##############################################
 # 🎯 ALIGNMENT

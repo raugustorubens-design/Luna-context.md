@@ -78,8 +78,22 @@ M(t+1) = σ[ α( M(t)(R + θρ) + IΔ + βO − μE ) ]
 
 Onde `R` = relevância, `I` = impacto, `ρ` = recorrência, `O` = resultado
 observado, `E` = entropia, `Δ` = novidade. **Action não entra nesta equação** —
-pertence ao Decision Engine (`Decision(t) = H(t) + A(t)`, fora do escopo deste
-ADR).
+pertence ao Decision Engine, cuja fórmula não é definida por este ADR e está
+fora do seu escopo.
+
+**Correção (2026-07-19):** a versão anterior deste parágrafo afirmava
+`Decision(t) = H(t) + A(t))` como se fosse a fórmula existente do Decision
+Engine. Essa fórmula não existe em nenhuma fonte — foi um erro de composição
+ao formalizar este ADR, não uma decisão do Architect nem um fato do
+`context.txt`. O que `context.txt` § Cognitive Model de fato define é
+`Decision(t) = H(t) + M(t)` (`M(t)` = machine state ali). O princípio "Action
+pertence ao Decision Engine, não ao Memory Engine" continua valendo (é
+decisão do Architect, item 3 acima) — só a equação inventada foi removida.
+Esta correção revelou duas colisões de símbolo ainda sem decisão —
+`M(t)` com dois significados incompatíveis (machine state vs. long-term
+memory) e `A` já reservado para Alignment antes da decisão do item 3 —
+pendentes de resolução por uma emenda pontual a este ADR (aguardando
+decisão do Architect).
 
 ### 9. Hierarquia de decisão (regra permanente)
 

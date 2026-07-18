@@ -647,3 +647,30 @@ Reference (fora do escopo desta instrução, que pediu só a linha do
 Hipocampo). Nenhuma implementação de código associada em nenhum dos 6
 pacotes — este pedido também era inteiramente de documentação
 GENESIS/ADR/Constituição/contexto cognitivo.
+
+## 2026-07-19 — Correção: remove fórmula inventada de Decision Engine (context.txt + ADR-010 §8)
+
+Eu fiz: removi a NOTE de `context.txt` § Memory Update que afirmava
+`Decision(t) = H(t) + A(t)` — essa fórmula não existe em nenhuma fonte
+(nem em `context.txt`, nem em `memory_core.alg`); foi introduzida por mim
+ao formalizar o ADR-010, sem verificar contra o arquivo real antes de
+escrever. É exatamente o mesmo tipo de erro que eu mesmo já tinha
+sinalizado como achado de ENG-013 no pacote anterior — só que dessa vez a
+causa raiz era a minha própria composição do ADR, não um pressuposto do
+pacote de instrução. Também ajustei a linha "ρ = recurrence (... see
+below)" em `context.txt`, que ficaria com referência solta ("below") após
+a remoção da NOTE — trocada por referência direta a ADR-010 §3.
+
+Reescrevi o parágrafo correspondente em ADR-010 §8: mantive o princípio
+"Action pertence ao Decision Engine, fora do escopo deste ADR" (que é
+decisão real do Architect, item 3), removi a equação fabricada, e deixei
+registrado explicitamente que a correção existe e por quê — não apaguei
+silenciosamente o erro anterior. Não toquei em ADR-010 §9 (Hierarquia de
+decisão): não continha a fórmula fabricada, só o item §8 continha.
+
+O que está bloqueado: as duas colisões de símbolo que este erro revelou
+(`M(t)` = machine state vs. long-term memory; `A` já reservado para
+Alignment antes da decisão "A = Action" do item 3) ainda não têm decisão
+do Architect — não escolhi um dos dois lados sozinho, é decisão de
+especificação, não implementação (Regra 6). Vou perguntar ao Architect
+diretamente antes de aplicar qualquer ADR-011.
