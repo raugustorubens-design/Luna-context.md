@@ -472,3 +472,20 @@ não fazia sentido como referência permanente no repositório (era uma
 referência ao pacote de instrução, não a um artefato do repo) — troquei
 por referência direta a `LUNA_CONSTITUTION.md`, sem mudar o conteúdo
 decisório do ADR. Nenhuma implementação de código associada.
+
+## 2026-07-18 — Pacote 5/9: ADR-005 (Reporter via GitHub Actions + metacognição) — ATENÇÃO: redraft, não original
+
+Eu fiz: criei `ADR/ADR-005-Reporter-GitHub-Actions-Metacognicao.md`,
+conteúdo exatamente como entregue no pacote desta instrução.
+
+Aviso explícito, repetindo o que a própria instrução sinalizou: o texto
+original desta ADR foi redigido numa sessão de chat anterior e "entregue"
+ao Claude Code, mas não está recuperável verbatim nesta sessão — só um
+resumo chegou até aqui. O que criei é um **redraft a partir desse resumo**,
+não uma cópia fiel do original. Marquei isso no próprio corpo do arquivo
+("Status: Aceito (redigido em sessão anterior; redraft aplicado em
+2026-07-18...)"). Se o Architect tiver o texto original salvo em outro
+lugar (ex. ChatGPT), esse original deve prevalecer sobre este redraft — não
+tratei este arquivo como fonte definitiva do conteúdo histórico da decisão,
+só como registro de que a decisão existe e foi aplicada. Nenhuma
+implementação de código associada.
