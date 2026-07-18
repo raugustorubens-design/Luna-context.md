@@ -446,3 +446,10 @@ ENG-006/ENG-008 deixam de ser regra rígida e passam a ser boa prática
 ajustável — cada arquivo deste pacote entra em commit separado com a
 entrada correspondente em BUILDER.md, por ser a opção padrão/preferida,
 não porque é obrigatório. Registrado também em ENGINEER.md (ver ENG-012).
+
+## 2026-07-18 — Pacote 2/9: CHECKPOINTS/GENESIS-ATTRACTOR-001.md
+
+Eu fiz: criei o diretório `CHECKPOINTS/` (referenciado em `INDEX.md` §
+Diretórios desde antes, mas nunca criado fisicamente) e o arquivo
+`CHECKPOINTS/GENESIS-ATTRACTOR-001.md`, conteúdo exatamente como entregue.
+Nenhuma implementação de código associada.
