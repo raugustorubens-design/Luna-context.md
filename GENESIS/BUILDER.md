@@ -522,3 +522,24 @@ não existia até o pacote 2/9) — não havia nada a adicionar ali, apesar da
 instrução ter pedido essa adição; conferi antes de editar para não
 duplicar uma linha que já existia. Nenhuma implementação de código
 associada.
+
+## 2026-07-18 — Pacote 9/9: GENESIS/ROADMAP.md (GEN-002 + fechamento do item de delegação em P2)
+
+Eu fiz: em `GENESIS/ROADMAP.md` — marquei `[x]` o item de P2 "Escolher
+caminho de delegação API+GitHub", com nota apontando para ADR-008; e
+adicionei `GEN-002 — Workflow de aplicação automática de ADRs via GitHub
+Actions, acionável pelo Forge (ver ADR-008)` em P1, não em P2. Segui a
+alternativa que a própria instrução sugeriu ("ou mover pra P1 já que a
+decisão foi tomada"): como ADR-008 já decidiu o caminho, o que resta de
+GEN-002 é implementação sem decisão de Architect pendente — a definição
+de P1 no próprio Roadmap. Não implementei o workflow `.yml` em si nem o
+botão no Forge — isso é o próprio GEN-002 em aberto, trabalho de Builder
+futuro, não desta sessão de documentação.
+
+Com isto, os 9 arquivos deste pacote (LUNA_CONSTITUTION.md,
+CHECKPOINTS/GENESIS-ATTRACTOR-001.md, ADR-008, ADR-009, ADR-005, ADR-006,
+ADR-007, INDEX.md, GENESIS/ROADMAP.md) foram aplicados, cada um em commit
+separado com autoatestação correspondente, conforme a preferência
+registrada em ENG-012. Nenhuma implementação de código associada em
+nenhum dos 9 pacotes — este pedido era inteiramente de documentação
+GENESIS/ADR/Constituição.
