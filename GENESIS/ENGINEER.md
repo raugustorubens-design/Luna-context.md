@@ -241,3 +241,36 @@ ou (b) reescrever a nota da Memory Update para não pressupor um texto que
 não existe.
 Status: divergência técnica sinalizada; não resolvida por conta própria
 do Builder (Regra 6).
+
+## ID: ENG-014
+Data: 2026-07-19
+Tópico: `/api/chat` e `/api/context` já implementados no monorepo `luna` — nunca portados para `luna-core` (ADR-004 portou só o Gateway)
+
+Observação: `LUNA_CONTEXT.md`/`DEPLOY.md` (luna-frontend) registram como
+lacuna aberta que o backend de chat/contexto hoje em produção
+(`luna-guardian`, projeto Railway "strong-celebration") tem contrato
+incompatível para `/chat` e não implementa `/context`. Auditoria de
+arquitetura (2026-07-19, ver `GENESIS/ARCHITECTURE_INVENTORY.md`) encontrou
+que o contrato correto **já está implementado e montado** dentro do
+monorepo `luna`, em
+`apps/frontend/artifacts/api-server/src/routes/{chat,context}.ts` (325 +
+16 linhas, `runCognitiveEngine`/`buildOrganismContext`, schemas
+`@workspace/api-zod`, montado em `/api` via `app.ts:32`) — nunca portado
+para fora do monorepo. O ADR-004 portou explicitamente só o Gateway e o
+Connector Hub; o restante do `api-server` (Cognitive Engine, Memory
+Engine, Convergia real, chat/context) ficou para trás, sem deploy próprio
+conhecido.
+
+Risco: a lacuna de chat/contexto vem sendo tratada implicitamente como
+"falta implementar", quando na verdade é "falta portar" — um trabalho de
+escopo muito menor (mesmo padrão mecânico do ADR-004) do que reimplementar
+do zero.
+
+Ação sugerida: Architect decidir se autoriza um ADR análogo ao ADR-004
+para portar `src/luna/*` (Cognitive Engine) e `src/routes/{chat,context}.ts`
+de `apps/frontend/artifacts/api-server` para `luna-core` — resolveria a
+lacuna registrada em `LUNA_CONTEXT.md` (MVP Chat) sem nova implementação.
+Fora do escopo desta observação: decidir se `src/convergia/` (também não
+portado) segue o mesmo caminho ou aguarda ENG-004.
+Status: divergência técnica sinalizada; aguardando decisão de Architect
+(não é tarefa de Builder especificar ou executar sozinho — Regra 6).

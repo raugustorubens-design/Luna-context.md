@@ -7,6 +7,7 @@ Este documento aponta onde cada tipo de informação deve viver.
 - `LUNA_CONSTITUTION.md` — regras permanentes do organismo.
 - `LUNA_CONTEXT.md` — contexto global, visão e estado atual.
 - `ECOSYSTEM_ARCHITECTURE.md` — arquitetura de alto nível do ecossistema.
+- `GENESIS/ARCHITECTURE_INVENTORY.md` — inventário canônico dos 7 repositórios (responsabilidades, dependências, conexões externas, ambientes, Railway/Vercel/Supabase), com evidência citada e status "Não confirmado" onde aplicável. Documento vivo — atualizar, não recriar.
 - `CHANGELOG.md` — histórico de mudanças relevantes.
 
 ## Diretórios

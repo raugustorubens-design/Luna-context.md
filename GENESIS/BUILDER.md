@@ -791,3 +791,60 @@ Next action: Rubens configurar env vars no Railway e usar o Forge no
 dia a dia; ao confirmar rotina de uso real, formaliza descongelamento de
 ARCH-001/P0 e libera MEM-001/STOR-001 (especificação já fechada via
 ADR-010/011) para o Builder implementar.
+
+## 2026-07-19 — GENESIS/ARCHITECTURE_INVENTORY.md: auditoria Railway + inventário canônico consolidados
+
+Eu fiz: recebi dois pedidos em sequência — uma auditoria Railway × GitHub
+("não assuma nada, evidência ou 'Sem evidência suficiente'") e, antes de
+eu terminar de aplicá-la como artefato HTML, um segundo pedido pedindo um
+inventário arquitetural canônico mais amplo, versionado no GitHub, e
+explicitamente instruindo a continuar o trabalho já iniciado em vez de
+recomeçar. Recebi então a instrução de terminar os dois juntos
+reaproveitando o que eu já tinha levantado — não descartei a pesquisa já
+feita (clone dos 7 repositórios, leitura de `railway.json`/`Procfile`/
+`Dockerfile`/`package.json`/workflows de cada um), só mudei o formato de
+entrega de HTML efêmero para um documento Markdown permanente em
+`GENESIS/ARCHITECTURE_INVENTORY.md`, seguindo a própria instrução de
+preferir um diretório já existente a criar `docs/` novo.
+
+Confirmei antes de escrever, sem acesso ao Railway/Vercel/Supabase nesta
+sessão (sem CLI, sem token, sem conector MCP) — todo o documento distingue
+explicitamente evidência documental (arquivos versionados) de atividade
+real confirmada no GitHub (ex.: PRs do `vercel[bot]`) de "Não confirmado".
+
+Achado novo mais relevante desta rodada, que não estava em nenhum
+documento anterior: `apps/frontend/artifacts/api-server/src/routes/
+{chat,context}.ts`, dentro do monorepo `luna`, já implementa o contrato
+exato que `luna-frontend` espera de chat/contexto (`runCognitiveEngine`,
+`buildOrganismContext`, schemas `@workspace/api-zod`, montado em `/api`) —
+nunca portado para `luna-core` junto com o Gateway (ADR-004 portou só o
+Gateway/Connector Hub). A lacuna registrada há tempo em `LUNA_CONTEXT.md`
+("`luna-guardian` tem contrato de `/chat` incompatível e não implementa
+`/context`") não é falta de implementação — é falta de porte. Registrei
+isso como ENG-014 em `GENESIS/ENGINEER.md`, sinalizado para decisão do
+Architect (não decidi nem executei o porte sozinho — Regra 6). Também
+confirmei, por atividade real de bot (PRs do `vercel[bot]`, não só
+documentação), que `luna-frontend` está em produção simultaneamente no
+Vercel e (por documentação) no Railway — duplicação de ambiente que
+nenhum documento anterior tinha registrado.
+
+O documento cobre as 10 seções pedidas (Visão Geral, Repositórios,
+Responsabilidades, Dependências, Conexões Externas, Ambientes, Railway,
+Problemas, Recomendações, Roadmap) mais a matriz e as 5 respostas
+objetivas (A-E) da auditoria Railway original — nada foi descartado dos
+dois pedidos, os dois terminam neste único documento. Também registrei em
+`INDEX.md` (marcado como "documento vivo — atualizar, não recriar",
+conforme pedido).
+
+O que está bloqueado: confirmação ao vivo de qualquer conexão Railway ou
+Vercel (não tenho acesso); decisão do Architect sobre o porte do Cognitive
+Engine/Convergia/chat-contexto (ENG-014); decisão do Architect sobre qual
+ambiente de produção o `luna-frontend` deveria manter (Railway ou Vercel,
+não os dois).
+
+Test status: nenhuma mudança de código — este pacote é inteiramente de
+auditoria/documentação.
+
+Next action: Architect revisar `GENESIS/ARCHITECTURE_INVENTORY.md` e
+decidir sobre ENG-014 (porte do Cognitive Engine/chat/context) e sobre a
+duplicação Vercel/Railway do `luna-frontend`.
