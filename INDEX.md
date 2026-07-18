@@ -36,3 +36,5 @@ Este documento aponta onde cada tipo de informação deve viver.
 | ADR-007 Reporter memória persistente + evidência (Aceito) | `ADR/ADR-007-Reporter-Memoria-Persistente-Evidencia.md` |
 | ADR-008 GitHub Actions como caminho de delegação, via Forge (Aceito) | `ADR/ADR-008-GitHub-Genoma-Delegacao-Automatica-Forge.md` |
 | ADR-009 Emenda constitucional — Atrator AAAB (Aceito) | `ADR/ADR-009-Emenda-Constitucional-Atrator-AAAB.md` |
+| ADR-010 Arquitetura canônica de memória, resolução MEM-001/STOR-001 (Aceito, emendado por ADR-011 — símbolos M/X, A/γ) | `ADR/ADR-010-Arquitetura-Canonica-Memoria-MEM-001-STOR-001.md` |
+| ADR-011 Emenda de símbolos — M(t)/X(t), A(t)/γ(t) (Aceito) | `ADR/ADR-011-Emenda-Simbolos-M-X-A-Gamma.md` |

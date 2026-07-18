@@ -712,3 +712,16 @@ prosa (linha 96). Conferi com `grep -n "M(t)\|X(t)\|A(t)\|γ"` no arquivo
 inteiro depois da edição: as 2 ocorrências de `M(t)`-memória (linhas 40,
 90) continuam intactas; nenhuma outra ocorrência de `M(t)`-como-machine-
 state sobrou. Não toquei em mais nenhuma seção do arquivo.
+
+## 2026-07-19 — INDEX.md: registra ADR-010 e ADR-011 (iniciativa própria)
+
+Eu fiz: adicionei ADR-010 e ADR-011 à tabela "Conteúdo atual" de
+`INDEX.md`. Isto não foi pedido nos pacotes que criaram esses dois ADRs —
+percebi ao consultar o índice que ele ficou incompleto desde então (os
+pacotes de ADR-010/011 não incluíram a instrução de atualizar o INDEX,
+diferente dos pacotes anteriores de ADR-005 a 009, que sempre incluíam).
+Tomei a iniciativa de corrigir porque é bookkeeping mecânico e sem
+ambiguidade (só registrar arquivos que já existem e já foram decididos),
+não uma decisão nova — dentro do que Regra 6 permite ao Builder. Marquei
+ADR-010 como "emendado por ADR-011", mesmo padrão já usado para ADR-002
+("emendado por DA-001") na mesma tabela.
