@@ -369,3 +369,64 @@ FORGE-MVP-02 a 07: continuam `[ ]` apesar de implementados em
 `luna-frontend` (branch `claude/forge-mvp-01-08`), porque marcar conclusão
 é escopo do Reporter por evidência, não meu — não estendi a correção além
 do que foi pedido.
+
+## ID: BLD-003
+Data: 2026-07-18
+Tópico: Destravar pendências P1 do Roadmap — verificação de estado real + fechamento formal
+
+Eu fiz: recebi instrução para executar os 4 passos do P1 (fechar PRs
+obsoletas do luna-core, aplicar model.chat/model.chat_deep, corrigir
+classificação de sistemas, atualizar ROADMAP/BUILDER). Antes de executar
+qualquer coisa, auditei o estado real via GitHub API e git clone (não
+assumi que os itens `[ ]` do Roadmap ainda estavam pendentes) — descobri
+que os 3 primeiros passos já tinham sido concluídos fora desta sessão:
+
+1. `luna-core` PR #10 ("Gateway: model.chat/model.chat_deep") já estava
+   mergeada em `main` desde 2026-07-15 (commit `069c219`) — confirmei lendo
+   o código real em `src/gateway/capabilities/model/{chat,chat-deep}.ts` e
+   `src/app.ts` (`tryCreateModelRouter`, try/catch isolado, mesmo padrão de
+   `GITHUB_TOKEN`). Confirmei também, pela ausência de qualquer diretório
+   `capabilities/storage/*` no código, que `storage.query`/
+   `storage.insert` NÃO foram aplicadas — exatamente o que a instrução
+   pedia para não fazer.
+2. As PRs #3, #4 e #5 do `luna-core` já estavam fechadas por Rubens
+   diretamente (usuário `raugustorubens-design`, `author_association:
+   OWNER`) em 2026-07-14, com o comentário "arquivo obsoleto"/"Arquivo
+   obsoleto" em cada uma.
+3. A tabela de classificação de sistemas em `LUNA_CONTEXT.md` já tinha sido
+   corrigida em 2026-07-12 (nota "Reclassificação — 2026-07-12 (ADR-004
+   executed)", linha 97): `luna-core` já aparece como "Infraestrutura,
+   Órgão" na tabela atual (linha 70), não mais em "Legado/Experimental"
+   (linha 94). `ECOSYSTEM_ARCHITECTURE.md` preserva a linha antiga como
+   snapshot histórico explicitamente anotado (linha 28), não uma
+   classificação vigente — não precisa de correção adicional.
+
+O que eu de fato executei nesta sessão: (a) adicionei um comentário de
+rastreabilidade referenciando ADR-004 em cada uma das PRs #3/#4/#5 do
+`luna-core` (a instrução pedia esse comentário antes do fechamento; como
+já estavam fechadas, registrei o motivo formal a posteriori em vez de
+pular a etapa) — isso também serviu de teste real da permissão de escrita
+do GitHub App: os 3 comentários foram aceitos sem 403, confirmando que a
+pendência de permissão (INFRA-001) está resolvida; (b) registrei ENG-011
+em GENESIS/ENGINEER.md (storage.query/storage.insert seguem bloqueadas,
+ver STOR-001); (c) atualizei os 5 itens correspondentes de P1 (e o
+INFRA-001 de P0) em GENESIS/ROADMAP.md para `[x]`, com nota de correção
+apontando a evidência (PR #10, comentários de fechamento, nota de
+reclassificação), seguindo o mesmo padrão já usado no primeiro item do
+P1.
+
+O que está bloqueado: configurar GROQ_API_KEY/DEEPSEEK_API_KEY/
+OPENROUTER_API_KEY/ANTHROPIC_API_KEY no Railway (`luna-core`/honest-joy)
+continua fora do meu alcance nesta sessão — não tenho acesso ao Railway.
+Sem essas credenciais, `model.chat`/`model.chat_deep` seguem ausentes de
+`/api/gateway/capabilities` em produção (comportamento pretendido, não
+bug). Não implementei `storage.query`/`storage.insert` nem uma versão
+provisória delas — permanecem bloqueadas por decisão de Architect
+pendente (STOR-001), como a instrução determinou explicitamente.
+
+Test status: nenhuma mudança de código nesta sessão (apenas documentação
+GENESIS + comentários em PRs já fechadas); não há suíte para rodar.
+
+Next action: Architect decidir o redesenho de storage.query/storage.insert
+(STOR-001); Rubens configurar as credenciais de IA no Railway quando
+oportuno.

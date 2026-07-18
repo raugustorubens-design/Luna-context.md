@@ -166,3 +166,29 @@ mesmo com múltiplos agentes ativos; (4) sincronização de prompt com GENESIS
 quando o arquivo de origem mudar.
 Status: especificação pronta; implementação adiada pro v0.2 (ver ARCH-001,
 congelamento).
+
+## ID: ENG-011
+Data: 2026-07-18
+Tópico: `storage.query`/`storage.insert` bloqueadas — não aplicadas ao Gateway (ver STOR-001)
+
+Observação: `luna-core` PR #10 (mergeada em 2026-07-15) aplicou apenas
+`model.chat`/`model.chat_deep` ao Gateway. As capabilities
+`storage.query`/`storage.insert`, especificadas originalmente junto com as
+duas anteriores (ver ENG-005/BLD-001), foram deliberadamente excluídas
+dessa PR: dariam ao Gateway acesso direto ao Supabase
+(`Gateway → Supabase`), violação do Princípio 4 da Constitution
+("toda persistência passa pelo Guardian"). O desenho correto é
+`Gateway → Guardian → Hipocampo → Supabase`, ainda não especificado.
+
+Risco: implementar uma versão "provisória" de `storage.query`/
+`storage.insert` direto no Gateway para destravar o P1 recriaria a mesma
+violação de fronteira já identificada — não é uma correção incremental,
+é o redesenho que STOR-001 (P0, congelado por ARCH-001) existe para
+resolver.
+
+Ação sugerida: não implementar `storage.query`/`storage.insert` no
+Gateway até o Architect decidir o redesenho via Guardian/Hipocampo
+(STOR-001). `SUPABASE_URL`/`SUPABASE_KEY` seguem dormentes, sem consumidor
+no Gateway.
+Status: bloqueado por decisão de Architect pendente (STOR-001); não é
+tarefa de Builder sozinho.
