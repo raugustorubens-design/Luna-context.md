@@ -45,6 +45,14 @@ no Art. AAAB.7 (promoção por ADR específico).
 Recorrência passa a ser `ρ` (rho). Nunca mais compartilhar símbolo entre os dois
 conceitos.
 
+**Emendado por ADR-011 (2026-07-19):** esta decisão foi tomada sem
+visibilidade de que `A` já era usado pela seção Alignment (pré-existente,
+`A(t) = 1 − d(H(t), M(t))`) para *alignment score*, não Action. ADR-011
+resolve a colisão: `A(t)` permanece Alignment; Action passa a ser `γ(t)`.
+Este item (§3) fica preservado como registro histórico da decisão original,
+não editado silenciosamente (Princípio 8 da Constituição) — ver ADR-011
+para a especificação vigente.
+
 ### 4. Threshold `τ`
 Dois thresholds nomeados, nunca um `τ` genérico:
 - `τ_c` (Content Threshold) — decide persistir ou descartar.
@@ -89,11 +97,11 @@ ao formalizar este ADR, não uma decisão do Architect nem um fato do
 `Decision(t) = H(t) + M(t)` (`M(t)` = machine state ali). O princípio "Action
 pertence ao Decision Engine, não ao Memory Engine" continua valendo (é
 decisão do Architect, item 3 acima) — só a equação inventada foi removida.
-Esta correção revelou duas colisões de símbolo ainda sem decisão —
-`M(t)` com dois significados incompatíveis (machine state vs. long-term
-memory) e `A` já reservado para Alignment antes da decisão do item 3 —
-pendentes de resolução por uma emenda pontual a este ADR (aguardando
-decisão do Architect).
+Esta correção revelou duas colisões de símbolo — `M(t)` com dois
+significados incompatíveis (machine state vs. long-term memory) e `A` já
+reservado para Alignment antes da decisão do item 3 — resolvidas por
+ADR-011 (2026-07-19): `M(t)` fica com memória, machine state vira `X(t)`;
+`A(t)` fica com Alignment, Action vira `γ(t)`.
 
 ### 9. Hierarquia de decisão (regra permanente)
 

@@ -674,3 +674,31 @@ Alignment antes da decisão "A = Action" do item 3) ainda não têm decisão
 do Architect — não escolhi um dos dois lados sozinho, é decisão de
 especificação, não implementação (Regra 6). Vou perguntar ao Architect
 diretamente antes de aplicar qualquer ADR-011.
+
+## 2026-07-19 — ADR-011: emenda de símbolos (M/X, A/γ) — inclui achado de 3ª colisão
+
+Eu fiz: antes de aplicar a resolução que o Architect confirmou (M(t) =
+memória, machine state = X(t); A(t) = Alignment, Action = γ(t)), rodei
+`grep -n "M(t)"` no `context.txt` inteiro para checar o escopo real da
+troca, em vez de aplicar só nas 2 linhas originalmente citadas na
+discussão. Encontrei uma 3ª ocorrência não vista antes: a seção Alignment
+(`A(t) = 1 − d(H(t), M(t))`, linha 105 antes da edição) também usa `M(t)`
+como machine state, não memória — reportei isso ao Architect antes de
+tocar em qualquer arquivo, e a leitura foi confirmada (Alignment mede
+distância entre intenção humana e estado da máquina, não memória
+acumulada; um gate de execução em tempo real não faria sentido comparando
+com histórico). Escopo final confirmado: 3 ocorrências de `M(t)`-como-
+machine-state (linhas 27, 29, 105) viram `X(t)`; 2 ocorrências de
+`M(t)`-como-memória (linhas 40, 90) continuam `M(t)`, sem mudança.
+
+Criei `ADR/ADR-011-Emenda-Simbolos-M-X-A-Gamma.md`, registrando a decisão
+completa (incluindo a 3ª colisão encontrada) e a tabela de símbolos
+consolidada. Adicionei uma nota de emenda em `ADR-010` §3 apontando para
+ADR-011 — não editei o texto original da decisão de 2026-07-18
+silenciosamente (Princípio 8), só anexei a nota de que foi superada.
+Também atualizei o parágrafo de correção que eu mesmo tinha adicionado em
+ADR-010 §8 no dia anterior (que dizia "pendente de resolução") para
+apontar a resolução real via ADR-011, já que deixar de atualizar essa
+frase depois de resolvida a deixaria desatualizada no mesmo estilo do
+achado que o Reporter já tinha me pego antes (ver "Correção:
+GENESIS/ROADMAP.md não tinha sido tocado", 2026-07-17).
