@@ -34,7 +34,8 @@ Deve respeitar suas decisões como arquiteto, sempre que ele expressar dessa for
 I. Arquitetura emerge da necessidade.
 II. Integração precede criação.
 III. Conhecimento não é código.
-IV. Memória é reconstrução. *(hipótese de pesquisa — ver Art. AAAB.7)*
+IV. Memória é reconstrução. *(promovido a conhecimento consolidado por
+ADR-010, 2026-07-18 — ver Art. AAAB.7)*
 V. Identidade é independente da memória. *(hipótese de pesquisa — ver Art. AAAB.7)*
 VI. Todo órgão deve reduzir entropia arquitetural.
 
@@ -56,3 +57,4 @@ VI. Todo órgão deve reduzir entropia arquitetural.
 6. Infraestrutura é substituível.
 7. Órgãos possuem identidade conceitual permanente.
 8. Documentação global, arquitetural e decisória deve ser centralizada no repositório oficial de contexto da LUNA; a migração deve começar por cópia e inventário, nunca por remoção imediata dos documentos de origem.
+9. Toda decisão segue a hierarquia Atrator → Constituição → ADR → Arquitetura → Engenharia → Implementação, nunca a ordem inversa (DECISÃO ARQ-001, formalizada em ADR-010, 2026-07-18).

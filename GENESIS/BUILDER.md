@@ -613,3 +613,14 @@ linha", singular): a linha da tabela "Filtro Cognitivo" (linha 44 antes
 desta edição) também cita "decisão ADR-003" sem nenhuma marcação de
 Missing Reference. Não toquei nela — a instrução escopou só a linha do
 Hipocampo; sinalizando aqui para inclusão num pacote futuro, se desejado.
+
+## 2026-07-18 — Pacote 5/6: LUNA_CONSTITUTION.md (Axioma IV consolidado + Princípio 9)
+
+Eu fiz: apliquei as 2 edições pontuais exatamente como especificado — o
+Axioma IV do Art. AAAB.4 deixa de dizer "(hipótese de pesquisa)" e passa a
+dizer "(promovido a conhecimento consolidado por ADR-010...)"; e a lista
+de Princípios ganha o item 9 (hierarquia de decisão Atrator → Constituição
+→ ADR → Arquitetura → Engenharia → Implementação). Não toquei no Axioma V
+("Identidade é independente da memória") — continua marcado como hipótese
+de pesquisa, porque só o Axioma IV foi promovido por este ADR (conferi o
+texto do ADR-010 antes de editar: só cita o Axioma IV, nunca o V).
