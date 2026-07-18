@@ -489,3 +489,12 @@ lugar (ex. ChatGPT), esse original deve prevalecer sobre este redraft — não
 tratei este arquivo como fonte definitiva do conteúdo histórico da decisão,
 só como registro de que a decisão existe e foi aplicada. Nenhuma
 implementação de código associada.
+
+## 2026-07-18 — Pacote 6/9: ADR-006 (Hierarquia biológica — "Sistema Funcional") — redraft, não original
+
+Eu fiz: criei `ADR/ADR-006-Hierarquia-Biologica-Sistema-Funcional.md`,
+conteúdo exatamente como entregue. Mesmo aviso do pacote anterior (5/9):
+redraft a partir de resumo, não cópia do texto original da sessão que
+gerou esta decisão — se o texto original existir salvo em outro lugar,
+deve prevalecer sobre este arquivo. Nenhuma implementação de código
+associada.
