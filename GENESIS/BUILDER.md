@@ -624,3 +624,26 @@ de Princípios ganha o item 9 (hierarquia de decisão Atrator → Constituição
 ("Identidade é independente da memória") — continua marcado como hipótese
 de pesquisa, porque só o Axioma IV foi promovido por este ADR (conferi o
 texto do ADR-010 antes de editar: só cita o Axioma IV, nunca o V).
+
+## 2026-07-18 — Pacote 6/6: GENESIS/ROADMAP.md (MEM-001/STOR-001 — especificação resolvida por ADR-010)
+
+Eu fiz: troquei as 2 linhas de P0 (MEM-001, STOR-001) exatamente como
+especificado, deixando explícito que a especificação foi decidida via
+ADR-010, mas a implementação segue bloqueada por ARCH-001 — as duas coisas
+não se confundem. Também atualizei ENG-011 em GENESIS/ENGINEER.md com uma
+nota curta (não reescrevi a entrada original) marcando que o "ainda não
+especificado" registrado ali em 2026-07-18 (antes deste mesmo pacote,
+poucas horas atrás) deixou de ser verdade com ADR-010 — mantive o registro
+histórico da entrada original intacto, só adicionei a atualização.
+
+Com isto, os 6 arquivos deste pacote (ADR-010, context.txt, memory_core.alg,
+ECOSYSTEM_ARCHITECTURE.md, LUNA_CONSTITUTION.md, GENESIS/ROADMAP.md) foram
+aplicados, cada um em commit separado com autoatestação correspondente,
+conforme ENG-012. Achados sinalizados e não corrigidos por conta própria
+(Regra 6): a divergência `Decision(t) = H(t) + M(t)` vs. `H(t) + A(t)` em
+`context.txt` (ver ENG-013); e a linha "Filtro Cognitivo" em
+`ECOSYSTEM_ARCHITECTURE.md` que ainda cita ADR-003 sem marcação de Missing
+Reference (fora do escopo desta instrução, que pediu só a linha do
+Hipocampo). Nenhuma implementação de código associada em nenhum dos 6
+pacotes — este pedido também era inteiramente de documentação
+GENESIS/ADR/Constituição/contexto cognitivo.

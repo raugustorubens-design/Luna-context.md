@@ -17,8 +17,13 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 
 ## P0 — Continuidade Cognitiva Distribuída (CONGELADO, ver ARCH-001 — retomar após Forge v0.1 em uso diário)
 
-- [ ] MEM-001 — Especificar a Operational Memory Layer
-- [ ] STOR-001 — Redesenhar storage.query/storage.insert do Gateway mediado pelo Hipocampo
+- [ ] MEM-001 — Especificar a Operational Memory Layer — **especificação
+  decidida via ADR-010 (2026-07-18)**; implementação segue bloqueada pelo
+  congelamento do P0 (ARCH-001), não é mais bloqueio de decisão.
+- [ ] STOR-001 — Redesenhar storage.query/storage.insert do Gateway mediado
+  pelo Hipocampo — **especificação decidida via ADR-010 (2026-07-18)**;
+  implementação segue bloqueada pelo congelamento do P0 (ARCH-001), não é
+  mais bloqueio de decisão.
 - [ ] GEN-001 — Adotar IDs estáveis por domínio em todo item de Roadmap/Framework
 - [ ] REP-001 — Redefinir escopo do Reporter (propagação por evidência)
 - [x] ~~INFRA-001 — Corrigir permissão do GitHub App~~ — correção (2026-07-18, ver BLD-003): confirmado resolvido (ver item correspondente em P1); registrado aqui só por consistência com o ID, não é trabalho novo sob o congelamento do P0.

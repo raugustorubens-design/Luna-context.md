@@ -193,6 +193,14 @@ no Gateway.
 Status: bloqueado por decisão de Architect pendente (STOR-001); não é
 tarefa de Builder sozinho.
 
+Atualização (2026-07-18, ver ADR-010): o "ainda não especificado" acima
+não é mais verdade — ADR-010 fecha a especificação canônica de memória
+(MEM-001/STOR-001). O que muda: a decisão de *especificação* está tomada;
+a decisão de *liberar a implementação* continua sob o congelamento de
+ARCH-001 (retomar após Forge v0.1 em uso diário). Status revisado:
+bloqueado por congelamento de implementação (ARCH-001), não mais por
+decisão de especificação pendente.
+
 ## ID: ENG-012
 Data: 2026-07-18
 Tópico: ENG-006/ENG-008 passam de regra rígida a boa prática ajustável pelo fundador
