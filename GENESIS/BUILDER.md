@@ -498,3 +498,16 @@ redraft a partir de resumo, não cópia do texto original da sessão que
 gerou esta decisão — se o texto original existir salvo em outro lugar,
 deve prevalecer sobre este arquivo. Nenhuma implementação de código
 associada.
+
+## 2026-07-18 — Pacote 7/9: ADR-007 (Reporter memória persistente + evidência antes de intervenção) — redraft, não original
+
+Eu fiz: criei `ADR/ADR-007-Reporter-Memoria-Persistente-Evidencia.md`,
+conteúdo exatamente como entregue. Mesmo aviso dos pacotes 5/9 e 6/9:
+redraft a partir de resumo, não cópia do texto original — se o original
+existir salvo em outro lugar, deve prevalecer sobre este arquivo. Nenhuma
+implementação de código associada.
+
+Nota de consistência: o princípio "Reporter confirma, não cria" descrito
+nesta ADR-007 já era regra ativa em ENGINEER.md (ver ENG-007, registrada
+em 2026-07-16) — os dois documentos são consistentes entre si, não
+conflitam nem duplicam a mesma decisão como se fossem independentes.
