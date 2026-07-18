@@ -33,7 +33,7 @@ Este é o último prompt macro da arquitetura. Toda evolução futura ocorre por
 |---|---|---|---|---|
 | Gateway | Superfície de execução de capacidades do organismo | Registro, autorização, auditoria e execução de capacidades (GitHub, Filesystem; Railway e n8n preparados e desabilitados) | Ativo, 19 capacidades registradas, testado | Alta |
 | Cognitive Engine | Orquestração da cognição | Coordena retrieveMemory → Context Hub → Provider Router → Hipocampo, sem persistir ou chamar provider diretamente | Ativo | Alta (fronteiras verificadas por teste automatizado) |
-| Hipocampo | Decisão de consolidação de memória (inclui Filtro Cognitivo) | Filtra conteúdo vazio/duplicado, delega persistência ao Memory Engine | Ativo, v1 determinística | Média (fórmula completa da ADR-003 não implementada) |
+| Hipocampo | Decisão de consolidação de memória (inclui Filtro Cognitivo) | Filtra conteúdo vazio/duplicado, delega persistência ao Memory Engine | Ativo, v1 determinística | Média (fórmula completa referenciada como ADR-003 — **Missing Reference**, ADR-003 não existe na pasta ADR/; ver ADR-010 §6. Fonte de verdade vigente para a fórmula é ADR-010.) |
 | Memory Engine | Persistência e recuperação de memória | Único módulo autorizado a tocar Supabase (`memoria_luna`) | Ativo | Média (retrieval é só recência, sem semântica) |
 | Provider Engine | Registro de modelos de IA | 5 adapters registrados (Groq real; ChatGPT/Claude/Grok/Manus honestamente "não configurado") | Ativo | Baixa (só 1 de 5 providers funcional) |
 | Provider Router | Seleção e fallback entre providers | Itera providers configurados, checa orçamento, faz fallback real em falha | Ativo | Média (critério de seleção é só disponibilidade, não custo/qualidade/latência real) |

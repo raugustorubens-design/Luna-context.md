@@ -600,3 +600,16 @@ depois das entradas deste pacote novo (1/6, 2/6) em vez de logo após
 "Pacote 9/9", por causa de como o texto foi inserido por match de string.
 Corrigi a posição sem alterar o conteúdo do parágrafo, antes deste commit
 — achado próprio, corrigido de imediato, não deixado para trás.
+
+## 2026-07-18 — Pacote 4/6: ECOSYSTEM_ARCHITECTURE.md (linha Hipocampo — Missing Reference)
+
+Eu fiz: troquei a coluna de qualidade da linha "Hipocampo" na tabela
+"Órgãos internos do monorepo `luna`" exatamente como especificado,
+marcando a referência a ADR-003 como Missing Reference e apontando
+ADR-010 como fonte de verdade vigente para a fórmula.
+
+Achado não corrigido, fora do escopo desta instrução (que pediu "uma
+linha", singular): a linha da tabela "Filtro Cognitivo" (linha 44 antes
+desta edição) também cita "decisão ADR-003" sem nenhuma marcação de
+Missing Reference. Não toquei nela — a instrução escopou só a linha do
+Hipocampo; sinalizando aqui para inclusão num pacote futuro, se desejado.
