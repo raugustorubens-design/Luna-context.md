@@ -5,13 +5,13 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 ## P00 — Forge v0.1: ferramenta de uso diário (prioridade máxima)
 
 - [x] FORGE-MVP-01 — Validated Existing Capability (auditado, não implementado — ver GENESIS/BUILDER.md)
-- [ ] FORGE-MVP-02 — Chat sequencial com seleção de agente + metadado de atribuição (ver GENESIS/FORGE.md)
-- [ ] FORGE-MVP-03 — Projetos com contexto próprio (LUNA, RENASCER, SMX, CURSO EMPILHADEIRA)
-- [ ] FORGE-MVP-04 — Storage Contract: Forge → Guardian → Storage Contract → Supabase Adapter
-- [ ] FORGE-MVP-05 — Execution Metadata em toda memória salva (ver GENESIS/FORGE.md)
-- [ ] FORGE-MVP-06 — Botões GitHub (commit/push/pull/branch) sob credencial de Builder
-- [ ] FORGE-MVP-07 — Reporter manual: botão "Analisar Projeto"
-- [ ] FORGE-MVP-08A — Claude Activity Panel (nó "AI Coding" do Workspace, integração honesta sem PTY — ver GENESIS/FORGE.md)
+- [x] FORGE-MVP-02 — Chat sequencial com seleção de agente + metadado de atribuição (ver GENESIS/FORGE.md) — `luna-frontend` PR #7 (commit `f358752`), mergeada em `main` em 2026-07-17.
+- [x] FORGE-MVP-03 — Projetos com contexto próprio (LUNA, RENASCER, SMX, CURSO EMPILHADEIRA) — `luna-frontend` PR #7 (commit `d7fddb5`), mergeada em `main` em 2026-07-17.
+- [x] FORGE-MVP-04 — Storage Contract: Forge → Guardian → Storage Contract → Supabase Adapter — `luna-frontend` PR #7 (commit `322bba0`), mergeada em `main` em 2026-07-17.
+- [x] FORGE-MVP-05 — Execution Metadata em toda memória salva (ver GENESIS/FORGE.md) — `luna-frontend` PR #7 (commit `5e0c57a`), mergeada em `main` em 2026-07-17.
+- [x] FORGE-MVP-06 — Botões GitHub (commit/push/pull/branch) sob credencial de Builder — `luna-frontend` PR #7 (commit `1df218d`), mergeada em `main` em 2026-07-17.
+- [x] FORGE-MVP-07 — Reporter manual: botão "Analisar Projeto" — `luna-frontend` PR #7 (commit `03dddc4`), mergeada em `main` em 2026-07-17.
+- [x] FORGE-MVP-08A — Claude Activity Panel (nó "AI Coding" do Workspace, integração honesta sem PTY — ver GENESIS/FORGE.md) — já satisfeito pelo commit `04d84fe` (mesma PR #7, mergeada em 2026-07-17); `components/forge/claude-code-panel.tsx` lê `GENESIS/BUILDER.md` via `github.read_file`, sem sessão embutida, e está de fato ligado como aba no `forge-layout.tsx`, não órfão. Confirmado 2026-07-19: nenhuma implementação nova foi necessária, a renomeação de "08" para "08A" no Roadmap (2026-07-17) já tinha sido só reclassificação do item, não indicava código faltante.
 
 ## FORGE-WORKSPACE-001 — Workspace nativo equivalente a Cursor + VS Code (pós-v0.1, sem prazo)
 
@@ -61,7 +61,7 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 - [ ] Fluxo C (interrupção em tempo real): pendência sem prazo, fora deste ciclo
 
 ## P5 — Sistema de crescimento e sustentabilidade
-- [ ] Definir Atrator AAAB — Sustentabilidade
+- [ ] Definir Atrator AAAC — Sustentabilidade (renomeado de AAAB em 2026-07-19: AAAB já é o Atrator Cognitivo, ver ADR-009/LUNA_CONSTITUTION.md)
 - [ ] Definir indicadores econômicos por MVP
 - [ ] Definir telemetria econômica para o Reporter
 - [ ] Conectar valor econômico ao Atrator Evolução

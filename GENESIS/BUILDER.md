@@ -725,3 +725,69 @@ ambiguidade (só registrar arquivos que já existem e já foram decididos),
 não uma decisão nova — dentro do que Regra 6 permite ao Builder. Marquei
 ADR-010 como "emendado por ADR-011", mesmo padrão já usado para ADR-002
 ("emendado por DA-001") na mesma tabela.
+
+## 2026-07-19 — FORGE-MVP-02 a 08A: verificação de estado real em luna-frontend, sem código novo
+
+Eu fiz: recebi instrução para, em `luna-frontend`, "abrir PR de
+`claude/forge-mvp-01-08` para `main` (ou fazer merge direto, se
+autorizado)" e "implementar FORGE-MVP-08A". Antes de agir, adicionei o
+repositório a esta sessão e auditei o estado real via GitHub API + git,
+em vez de assumir a premissa da instrução:
+
+1. `luna-frontend` PR #7 ("Forge MVP-02–08: chat attribution, git panel,
+   Claude Code panel, storage contract") já estava aberta, revisada e
+   **mergeada em `main`** desde 2026-07-17T16:11:50Z, por
+   `raugustorubens-design` diretamente — confirmei via
+   `pull_request_read get` (`merged: true`; a listagem geral mostrava
+   `merged: false`, mesma inconsistência da API já vista antes no
+   `luna-core` PR #10) e via `git log` local (`main` tem
+   "Merge pull request #7..." como HEAD). Não havia PR para abrir nem
+   merge para fazer — os dois já aconteceram, sem relação com esta sessão.
+2. FORGE-MVP-08A ("Claude Activity Panel... via `github.read_file`, sem
+   PTY", especificado em `GENESIS/FORGE.md`) já está satisfeito pelo
+   mesmo commit `04d84fe` da mesma PR #7 — não é uma implementação
+   diferente que "substituiu conceitualmente" a versão antiga como a
+   instrução assumia. Li o código real de
+   `components/forge/claude-code-panel.tsx` em `main`: lê
+   `GENESIS/BUILDER.md` via `readGithubFile`/`github.read_file`, mostra as
+   5 entradas mais recentes, não embute sessão/PTY — bate ponto a ponto
+   com a especificação de FORGE-MVP-08A. Confirmei também que não é um
+   componente órfão: `grep` em `forge-layout.tsx` mostra `ClaudeCodePanel`
+   importado e renderizado como aba real. Não escrevi nenhum código novo
+   — implementar de novo seria violar Princípio 3 da Constitution
+   ("Reutilizar antes de implementar") e recriar algo que já existe.
+
+Rodei a suíte completa em `main` antes de atualizar o Roadmap, para ter
+evidência fresca (não só confiar na descrição da PR de 2 dias atrás):
+`pnpm install`, `typecheck` limpo, `test` 20/20, `test:constitution` (42
+arquivos, sem violação), `build` sucesso (mesmos 2 warnings pré-existentes
+de Edge Runtime em `jose`/`next-auth`, já documentados na PR original).
+
+Em `GENESIS/ROADMAP.md`: marquei FORGE-MVP-02 a 08A como `[x]` (P00), cada
+um com o commit específico dentro da PR #7 como evidência — os 7 itens que
+antes ficavam `[ ]` só porque "marcar conclusão é escopo do Reporter", não
+porque faltava código (ver pacote "Correção: GENESIS/ROADMAP.md não tinha
+sido tocado", 2026-07-17, que já tinha sinalizado isso). Desta vez marco
+diretamente porque a instrução mais recente pediu explicitamente o ajuste
+de P00 como parte da execução — mesma autorização explícita já usada no
+BLD-003 para o P1. Também apliquei a correção solta pedida (`P5`:
+`Atrator AAAB — Sustentabilidade` vira `Atrator AAAC — Sustentabilidade`,
+já que AAAB é o Atrator Cognitivo desde ADR-009) — conferi com `grep -rn
+"AAAB"` no repositório inteiro que não sobrou nenhuma outra referência a
+AAAB-como-Sustentabilidade em outro documento.
+
+O que está bloqueado: env vars do Railway (login Google,
+`FORGE_ALLOWED_EMAIL`, tokens) — infraestrutura, fora do alcance desta
+sessão, só o Rubens configura. Uso diário de fato do Forge também depende
+disso e de decisão humana, não de código — é o próprio gate que o
+Architect definiu para descongelar ARCH-001/P0.
+
+Test status: `luna-frontend`/`main` — `typecheck` limpo, `test` 20/20,
+`test:constitution` 42 arquivos sem violação, `build` sucesso (2026-07-19).
+Nenhuma mudança de código neste pacote — FORGE-MVP-08A já estava completo;
+o trabalho real foi verificação + atualização de `GENESIS/ROADMAP.md`.
+
+Next action: Rubens configurar env vars no Railway e usar o Forge no
+dia a dia; ao confirmar rotina de uso real, formaliza descongelamento de
+ARCH-001/P0 e libera MEM-001/STOR-001 (especificação já fechada via
+ADR-010/011) para o Builder implementar.
