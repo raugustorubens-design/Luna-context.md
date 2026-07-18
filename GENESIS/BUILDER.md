@@ -453,3 +453,13 @@ Eu fiz: criei o diretório `CHECKPOINTS/` (referenciado em `INDEX.md` §
 Diretórios desde antes, mas nunca criado fisicamente) e o arquivo
 `CHECKPOINTS/GENESIS-ATTRACTOR-001.md`, conteúdo exatamente como entregue.
 Nenhuma implementação de código associada.
+
+## 2026-07-18 — Pacote 3/9: ADR-008 (GitHub como Genoma — delegação via Actions/Forge)
+
+Eu fiz: criei `ADR/ADR-008-GitHub-Genoma-Delegacao-Automatica-Forge.md`,
+conteúdo exatamente como entregue. Este ADR resolve a pendência de decisão
+do Roadmap P2 "Escolher caminho de delegação API+GitHub" — vou marcar esse
+item no Roadmap num pacote posterior deste mesmo pedido (pacote 9/9),
+junto com o novo item GEN-002. Nenhuma implementação de código associada
+(o `.yml` do workflow e o botão no Forge ficam fora do escopo deste ADR,
+conforme o próprio texto).
