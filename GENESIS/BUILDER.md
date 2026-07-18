@@ -536,6 +536,14 @@ de P1 no próprio Roadmap. Não implementei o workflow `.yml` em si nem o
 botão no Forge — isso é o próprio GEN-002 em aberto, trabalho de Builder
 futuro, não desta sessão de documentação.
 
+Com isto, os 9 arquivos daquele pacote (LUNA_CONSTITUTION.md,
+CHECKPOINTS/GENESIS-ATTRACTOR-001.md, ADR-008, ADR-009, ADR-005, ADR-006,
+ADR-007, INDEX.md, GENESIS/ROADMAP.md) foram aplicados, cada um em commit
+separado com autoatestação correspondente, conforme a preferência
+registrada em ENG-012. Nenhuma implementação de código associada em
+nenhum dos 9 pacotes — aquele pedido era inteiramente de documentação
+GENESIS/ADR/Constituição.
+
 ## 2026-07-18 — Pacote 1/6: ADR-010 (arquitetura canônica de memória — DECISÃO ARQ-001)
 
 Eu fiz: criei `ADR/ADR-010-Arquitetura-Canonica-Memoria-MEM-001-STOR-001.md`,
@@ -576,10 +584,19 @@ inventei correção da seção Cognitive Model, que não estava no escopo das
 se `Decision(t) = H(t) + M(t)` deveria virar `H(t) + A(t)` num pacote
 futuro, ou se a nota é que deveria ser reescrita para não pressupor isso.
 
-Com isto, os 9 arquivos deste pacote (LUNA_CONSTITUTION.md,
-CHECKPOINTS/GENESIS-ATTRACTOR-001.md, ADR-008, ADR-009, ADR-005, ADR-006,
-ADR-007, INDEX.md, GENESIS/ROADMAP.md) foram aplicados, cada um em commit
-separado com autoatestação correspondente, conforme a preferência
-registrada em ENG-012. Nenhuma implementação de código associada em
-nenhum dos 9 pacotes — este pedido era inteiramente de documentação
-GENESIS/ADR/Constituição.
+## 2026-07-18 — Pacote 3/6: memory_core.alg (marcado como histórico)
+
+Eu fiz: troquei as 2 linhas do bloco `## 📌 STATUS` de `memory_core.alg`
+exatamente como especificado — `State` passa de "ACTIVE (OFFICIAL)" para
+"HISTÓRICO — superado por ADR-010", e `Replaces` ganha a nota de que este
+documento é quem foi substituído, não o contrário. Resto do arquivo
+(as 237 linhas restantes) inalterado, conforme instruído — preservação
+histórica, Princípio 8 da Constituição.
+
+Nota de processo: ao revisar o histórico deste próprio arquivo (BUILDER.md)
+antes deste commit, percebi que o parágrafo de fechamento do pacote
+anterior ("Com isto, os 9 arquivos...") tinha ficado deslocado — apareceu
+depois das entradas deste pacote novo (1/6, 2/6) em vez de logo após
+"Pacote 9/9", por causa de como o texto foi inserido por match de string.
+Corrigi a posição sem alterar o conteúdo do parágrafo, antes deste commit
+— achado próprio, corrigido de imediato, não deixado para trás.
