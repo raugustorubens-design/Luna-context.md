@@ -24,9 +24,9 @@ System must:
 ##############################################
 
 H(t) → human intention (direction)
-M(t) → machine state (structure)
+X(t) → machine state (structure)
 
-Decision(t) = H(t) + M(t)
+Decision(t) = H(t) + X(t)
 
 RULE:
 - never replace human intention
@@ -93,7 +93,7 @@ M(t+1) = σ[
 Where:
 - R = relevance
 - I = impact
-- ρ = recurrence (NOT Action — Action belongs to the Decision Engine, ver ADR-010 §3)
+- ρ = recurrence (NOT Action — Action is γ(t), belongs to the Decision Engine, ver ADR-011)
 - Δ = change
 - O = outcome
 - E = entropy
@@ -102,7 +102,7 @@ Where:
 # 🎯 ALIGNMENT
 ##############################################
 
-A(t) = 1 − d(H(t), M(t))
+A(t) = 1 − d(H(t), X(t))
 
 RULE:
 if A(t) < τ_a → do not execute

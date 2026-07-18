@@ -702,3 +702,13 @@ apontar a resolução real via ADR-011, já que deixar de atualizar essa
 frase depois de resolvida a deixaria desatualizada no mesmo estilo do
 achado que o Reporter já tinha me pego antes (ver "Correção:
 GENESIS/ROADMAP.md não tinha sido tocado", 2026-07-17).
+
+## 2026-07-19 — Aplica ADR-011 em context.txt (X(t), γ(t))
+
+Eu fiz: apliquei em `context.txt` as 3 trocas de `M(t)`→`X(t)` confirmadas
+(linhas 27, 29, 105) e atualizei o comentário sobre Action na seção Memory
+Update para citar `γ(t)` como o símbolo real, em vez de só "Action" em
+prosa (linha 96). Conferi com `grep -n "M(t)\|X(t)\|A(t)\|γ"` no arquivo
+inteiro depois da edição: as 2 ocorrências de `M(t)`-memória (linhas 40,
+90) continuam intactas; nenhuma outra ocorrência de `M(t)`-como-machine-
+state sobrou. Não toquei em mais nenhuma seção do arquivo.
