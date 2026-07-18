@@ -39,3 +39,4 @@ Este documento aponta onde cada tipo de informação deve viver.
 | ADR-009 Emenda constitucional — Atrator AAAB (Aceito) | `ADR/ADR-009-Emenda-Constitucional-Atrator-AAAB.md` |
 | ADR-010 Arquitetura canônica de memória, resolução MEM-001/STOR-001 (Aceito, emendado por ADR-011 — símbolos M/X, A/γ) | `ADR/ADR-010-Arquitetura-Canonica-Memoria-MEM-001-STOR-001.md` |
 | ADR-011 Emenda de símbolos — M(t)/X(t), A(t)/γ(t) (Aceito) | `ADR/ADR-011-Emenda-Simbolos-M-X-A-Gamma.md` |
+| ADR-012 Consolidação do backend em `luna-core` + Interface de Convergia (Aceito) | `ADR/ADR-012-Consolidacao-Backend-luna-core-Interface-Convergia.md` |

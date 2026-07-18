@@ -848,3 +848,50 @@ auditoria/documentação.
 Next action: Architect revisar `GENESIS/ARCHITECTURE_INVENTORY.md` e
 decidir sobre ENG-014 (porte do Cognitive Engine/chat/context) e sobre a
 duplicação Vercel/Railway do `luna-frontend`.
+
+## 2026-07-19 — ADR-012: formalizado antes de qualquer código (mesma regra do ADR-010)
+
+Eu fiz: recebi o rascunho do ADR-012 (Decisão 1: porte do Cognitive
+Engine/Convergia/chat-context para `luna-core`; Decisão 2: interface de
+Convergia em `luna-frontend`) com instrução explícita de auditar
+`apps/frontend/artifacts/api-server` antes de mexer em qualquer coisa, e
+de parar e reportar se encontrasse algo que não batesse com a descrição do
+ADR, em vez de decidir sozinho.
+
+Antes de escrever qualquer código ou o ADR final, li o código-fonte
+completo a portar (Cognitive Engine, Convergia, rotas chat/context,
+schemas, package.json, architecture-check.mjs do monorepo) e encontrei
+duas divergências reais, que reportei ao Architect antes de prosseguir:
+
+1. `chat.ts` persiste `conversations`/`messages` direto via Drizzle/
+   Postgres (`@workspace/db`), sem passar pelo Guardian — a mesma classe de
+   violação do Princípio 4 que eu já tinha recusado implementar no Gateway
+   nesta sessão (BLD-003/ENG-011). Portar como está recriaria a violação
+   dentro do backend oficial. Arquitect decidiu: portar tudo, roteando
+   `conversations`/`messages` pelo contrato genérico do Guardian
+   (save/get/delete/search), com uma extensão pontual de `count` para
+   stats — não o redesenho completo de STOR-001.
+2. `context-hub.ts`/`indice-cognitivo.ts` leem arquivos locais do monorepo
+   (`luna_context/*.md`, `forge/ROADMAP.md`, `docs/architecture/adr-004-*.md`)
+   que não existem em `luna-core` — portado como está, degradaria
+   silenciosamente para contexto vazio. Architect decidiu: trocar para ler
+   `Luna-context.md` via `GithubConnector.readFile`, mesmo padrão já maduro
+   do FORGE-MVP-08A.
+
+Formalizei `ADR/ADR-012-Consolidacao-Backend-luna-core-Interface-Convergia.md`
+incorporando as duas decisões originais mais os dois refinamentos acima,
+e uma nota de escopo sobre `@workspace/api-zod`/`@workspace/db` (o primeiro
+é código gerado por orval, não portado verbatim — só as ~10 schemas Zod
+realmente usadas por `chat.ts`, copiadas manualmente; o segundo não é
+portado, substituído inteiramente pelo cliente HTTP do Guardian). Registrei
+em `INDEX.md`.
+
+O que está bloqueado: nada ainda — ADR aceito, prossigo para a
+implementação (Cognitive Engine + Convergia + rotas, depois a interface em
+`luna-frontend`).
+
+Test status: nenhuma mudança de código neste commit — só o ADR.
+
+Next action: portar Cognitive Engine + Convergia + rotas para `luna-core`,
+seguido de typecheck/testes, depois descontinuar `/chat`/`/context` em
+`luna-guardian`, depois a interface de Convergia em `luna-frontend`.
