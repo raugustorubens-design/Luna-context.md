@@ -164,7 +164,7 @@ Isso é uma violação sutil da regra "Convergia nunca pode persistir diretament
 - [x] MVP: SSMA (transformação/normalização ASO) — feito
 - [x] MVP: Memória (integração com Hipocampo/Memory Engine) — feito, com a inconsistência do `checkpoint()` direto registrada acima
 - [ ] MVP: DOCX (parser + renderer) — não iniciado, precisa de modelo de documento em árvore/seções
-- [ ] MVP: PPTX — parcialmente feito (renderer existe; sem template de conteúdo real além do genérico tabular)
+- [ ] MVP: PPTX — correção de documentação (2026-07-19): esta linha estava desatualizada. O renderer (`luna-core/src/convergia/renderers/pptx-renderer.ts`) já estava completo antes desta correção — título + tabela paginada (18 linhas/slide), registrado em `renderers/registry.ts` — não "parcialmente feito" como descrito. O que era real e faltava era rigor de teste: a suíte só checava buffer não-vazio, sem abrir o arquivo. Corrigido (`luna-core` commit `fe5b354`, branch `claude/pptx-renderer-test-rigor`, PR aberto para `main`): teste agora abre o `.pptx` como zip real (`jszip`), lê o XML dos slides e confere conteúdo (título, cabeçalho, valores), com dados no padrão SSMA/ASO — mais um teste de paginação (25 registros → 3 slides). Segue incompleto **apenas** quanto a templates de conteúdo reais para os 13 tipos de documento corporativo — mesma pendência que já existia, não específica do PPTX (ver item de templates abaixo e `GENESIS/ROADMAP.md` P4).
 - [ ] MVP: PDF (parser + renderer) — não iniciado
 - [ ] MVP: cada um dos 13 tipos de documento corporativo catalogados (APR, PGR, DDS, etc.) — catalogados, nenhum com conteúdo real; cada um é seu próprio MVP futuro, dependente de validação de especialista SSMA
 

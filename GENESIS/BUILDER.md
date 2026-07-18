@@ -1079,3 +1079,63 @@ limpos, smoke test manual em navegador via Playwright/Chromium.
 Next action: nenhuma pendência aberta deste ADR. Pendências relacionadas
 mas fora de escopo continuam registradas em `GENESIS/ROADMAP.md` (P4:
 templates reais dos 13 tipos de documento, parsers DOCX/PDF).
+
+## 2026-07-19 — Correção de documentação: renderer PPTX não era "parcial"; teste era raso
+
+O que fiz: recebi o pacote "Integrar PPTX real ao pipeline do Convergia"
+pedindo pra completar o renderer PPTX em `luna-core`, com base numa
+premissa de `ECOSYSTEM_ARCHITECTURE.md` de que ele estava "parcialmente
+feito". Auditei `luna-core/src/convergia/renderers/pptx-renderer.ts`
+antes de escrever qualquer código de renderer: já estava completo —
+slide de título + tabela paginada (18 registros/slide via `chunk()`),
+registrado em `renderers/registry.ts`, com o mesmo padrão de estilo (sem
+cor, cabeçalho em negrito) que `xlsx-renderer.ts`/`html-renderer.ts` já
+usam — não havia paleta/tema pra "preservar" nem pra evitar herdar do
+script de referência, porque nenhum renderer do Convergia usa cor. A doc
+estava desatualizada, não o código.
+
+O que era real e faltava: o teste existente (`renderers.test.ts`, teste
+"pptx renderer produces a non-empty buffer") só verificava
+`Buffer.isBuffer` + tamanho > 0 — não abria o arquivo. Corrigido: novo
+teste carrega o `.pptx` resultante como zip real (`jszip`, adicionado
+como devDependency explícita — antes só vinha transitivo via
+`pptxgenjs`), lê o XML de cada slide (`ppt/slides/slideN.xml`) e confere
+conteúdo real: título, contagem de registros, cabeçalho de colunas e
+valores de campo, usando dados no padrão SSMA/ASO (a categoria real mais
+próxima do catálogo, já que nenhum dos 13 tipos de documento corporativo
+tem template implementado — `corporate-catalog.ts` já registra isso como
+decisão deliberada, pendente de especialista, não regressão desta sessão).
+Adicionei também um teste de paginação (25 registros → 1 slide de título +
+2 slides de dados).
+
+Não encontrei `luna-convergia/src/scripts/test-pptx.js` (commit `4e63d67`,
+citado no pacote como referência) — esse repositório não estava no escopo
+desta sessão; não fui atrás dele. A rigidez pedida (abrir o zip, ler o
+XML) foi replicada a partir do próprio contrato do `pptxgenjs`, verificado
+manualmente rodando o renderer e inspecionando a saída antes de escrever
+as asserções — não a partir do script em si.
+
+Escopo que NÃO mexi, porque ainda é real e não fazia parte deste pedido:
+os 13 tipos de documento corporativo continuam sem template de conteúdo
+próprio (`corporate-catalog.ts`, `regulatoryStatus: "pending_specialist_review"`
+em todos), então "MVP: PPTX" como um todo segue incompleto em
+`ECOSYSTEM_ARCHITECTURE.md`/`GENESIS/ROADMAP.md` — só a caracterização do
+renderer em si (que já existia, completo, antes desta sessão) e o rigor do
+teste (que eu de fato mudei) foram corrigidos.
+
+Commit: `luna-core` `fe5b354` (branch `claude/pptx-renderer-test-rigor`).
+
+Validado antes do commit: `npm test` 171/171 (incluindo os 2 testes novos),
+`npm run typecheck` limpo, `npm run test:architecture` aprovado.
+
+O que está bloqueado: nada quanto ao renderer/teste. PR de
+`claude/pptx-renderer-test-rigor` para `main` ainda não aberto nesta
+entrada — ver próxima ação.
+
+Test status: 171/171, typecheck limpo, architecture-check aprovado (ver
+acima).
+
+Next action: abrir PR de `claude/pptx-renderer-test-rigor` para `main` em
+`luna-core` (mudança de baixo risco, só reforço de teste). Templates reais
+dos 13 tipos de documento corporativo seguem em `GENESIS/ROADMAP.md` (P4)
+como pendência separada, não afetada por esta entrada.
