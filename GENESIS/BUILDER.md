@@ -430,3 +430,19 @@ GENESIS + comentários em PRs já fechadas); não há suíte para rodar.
 Next action: Architect decidir o redesenho de storage.query/storage.insert
 (STOR-001); Rubens configurar as credenciais de IA no Railway quando
 oportuno.
+
+## 2026-07-18 — Pacote 1/9: LUNA_CONSTITUTION.md (Artigo AAAB — Atrator Cognitivo)
+
+Eu fiz: substituí `LUNA_CONSTITUTION.md` inteiro pelo conteúdo entregue —
+mesmo Artigo 1/AAAA e lista de Princípios 1-8 preservados sem nenhuma
+alteração, adicionado o novo Artigo AAAB (Princípio do Atrator Cognitivo,
+Art. AAAB.1 a AAAB.8) exatamente como recebido. Conferi antes de escrever
+que o conteúdo pré-existente do arquivo batia byte a byte com a parte
+"antes do AAAB" do texto entregue — não houve perda de conteúdo na
+substituição. Nenhuma implementação de código associada.
+
+Nota de processo (decisão do fundador, 2026-07-18): a partir deste pacote,
+ENG-006/ENG-008 deixam de ser regra rígida e passam a ser boa prática
+ajustável — cada arquivo deste pacote entra em commit separado com a
+entrada correspondente em BUILDER.md, por ser a opção padrão/preferida,
+não porque é obrigatório. Registrado também em ENGINEER.md (ver ENG-012).

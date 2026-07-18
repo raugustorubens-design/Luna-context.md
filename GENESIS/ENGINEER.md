@@ -192,3 +192,18 @@ Gateway até o Architect decidir o redesenho via Guardian/Hipocampo
 no Gateway.
 Status: bloqueado por decisão de Architect pendente (STOR-001); não é
 tarefa de Builder sozinho.
+
+## ID: ENG-012
+Data: 2026-07-18
+Tópico: ENG-006/ENG-008 passam de regra rígida a boa prática ajustável pelo fundador
+
+Observação: decisão do fundador (Rubens), 2026-07-18 — a disciplina de
+"cada etapa concluída inclui, no mesmo commit, a atualização do
+BUILDER.md" (ENG-006) e "só o Builder commita, demais papéis produzem
+diff sugerido" (ENG-008) deixam de ser regras rígidas e passam a ser boa
+prática, ajustável pelo fundador conforme conveniência de produção. Na
+prática: a preferência por commit separado por arquivo + autoatestação
+correspondente continua sendo o padrão default; agrupar múltiplos
+arquivos num commit só é permitido quando autorizado explicitamente,
+desde que essa decisão seja registrada no BUILDER.md.
+Status: regra ativa como boa prática, não mais como obrigação rígida.
