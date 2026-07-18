@@ -1011,3 +1011,71 @@ limpos nos dois repositórios, smoke test manual do boot em ambos.
 
 Next action: construir a interface de Convergia em `luna-frontend`
 (ADR-012 Decisão 2).
+
+## 2026-07-19 — ADR-012 Decisão 2 executada: interface de Convergia em `luna-frontend` + correção de base URL
+
+O que fiz: construí a nova área "Convergia" no Forge
+(`components/forge/convergia-panel.tsx`), seguindo o mesmo padrão
+visual/estrutural do resto de `components/forge/` (Tabs/ScrollArea/Button
+do `components/ui/`, classes utilitárias cruas, sem framework de formulário
+novo) — três abas dentro do painel, mapeando as quatro etapas do fluxo
+pedido: "Catálogo & Upload" (etapas 1+2 — upload de xlsx/csv/json com parse
++ validação imediata, e o catálogo dos 13 tipos de documento corporativo
+como referência), "Transformação" (etapa 4 — escolhe template, aplica e
+baixa o arquivo renderizado, com opção de enviar o resultado como
+conhecimento ao Guardian) e "Conhecimento" (etapa 3 — upload de
+treinamento em texto, mostra a extração do Hipocampo e a decisão de
+consolidar/descartar por tipo semântico/procedimental/inferencial).
+Adicionei as funções cliente correspondentes em `lib/forge/api-client.ts`
+(`fetchConvergiaCatalog`, `fetchConvergiaTemplates`, `parseConvergiaFile`,
+`transformConvergiaFile`, `submitConvergiaTraining`) — chamam
+`/api/convergia/*` diretamente (rotas irmãs do Gateway em `luna-core`,
+mesmo padrão de `/api/chat`/`/api/context`), não `executeCapability`,
+porque não são capabilities do Gateway. `transformConvergiaFile` é a única
+que não usa `parseJsonOrThrow`: sucesso é o arquivo renderizado (blob), não
+JSON — erro continua JSON, então tratado à parte. Fiz o painel aparecer como
+uma aba de nível superior nova em `forge-layout.tsx` ("Workspace" vs.
+"Convergia", ao lado do seletor de projeto), com o mesmo `forceMount` já
+usado no Terminal para não derrubar a conexão WebSocket dele ao trocar de
+aba.
+
+Achado que corrigi no mesmo commit, consequência direta da Decisão 1: como
+`/chat` e `/context` foram removidos de `luna-guardian` no porte anterior,
+o `luna-frontend` existente (que ainda apontava para
+`LUNA_API_BASE_URL` = `luna-guardian`/`strong-celebration`) ia quebrar as
+features de Chat/Contexto já em produção. Corrigi `sendChatMessage`/
+`fetchOrganismContext` para usar `LUNA_GATEWAY_BASE_URL` (`luna-core`,
+onde o Cognitive Engine mora desde o ADR-012), removi a constante
+`LUNA_API_BASE_URL` inteira, e atualizei `.env.example`/`DEPLOY.md` para
+não documentarem mais uma variável que não existe. Confirmei via grep que
+só esses três arquivos referenciavam a base antiga — nenhum outro ponto do
+repositório dependia dela.
+
+Validado antes do commit: `pnpm run typecheck` limpo, `pnpm test` 20/20,
+`pnpm run test:constitution` limpo (43 arquivos), `pnpm run build`
+(`next build`) completo sem erros. Smoke test manual em navegador (`pnpm
+dev`, o gate de login do `/forge` é pulado fora de produção): screenshot
+da aba Workspace intacta, screenshot das três abas de Convergia
+renderizando corretamente e degradando graciosamente sem backend real
+rodando localmente ("Failed to fetch" no catálogo, mensagem de guarda
+"Envie um arquivo... primeiro" na aba Transformação sem arquivo ainda
+carregado) — nenhum erro de render novo introduzido por este código (o
+único `pageerror` observado no console, sobre `dimensions`, vem do
+Terminal/xterm tentando conectar a um WebSocket sem servidor real, mesmo
+comportamento pré-existente do Workspace, não deste painel).
+
+Não testei o fluxo teste-a-teste com um backend `luna-core` real
+respondendo (nenhuma credencial/deploy ativo nesta sessão) — o contrato foi
+verificado por leitura direta de `luna-core/src/routes/convergia.ts`
+(campos de multipart, corpo/headers de resposta), não por chamada real.
+
+Commit: `luna-frontend` `673b29c` (`main`).
+
+O que está bloqueado: nada. As duas decisões do ADR-012 estão concluídas.
+
+Test status: ver validação acima — typecheck/testes/constitution-check/build
+limpos, smoke test manual em navegador via Playwright/Chromium.
+
+Next action: nenhuma pendência aberta deste ADR. Pendências relacionadas
+mas fora de escopo continuam registradas em `GENESIS/ROADMAP.md` (P4:
+templates reais dos 13 tipos de documento, parsers DOCX/PDF).

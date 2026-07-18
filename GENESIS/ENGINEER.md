@@ -277,4 +277,7 @@ Convergia + rotas chat/context portados para `luna-core` (commit `ac38aee`),
 `/chat`/`/context` legados descontinuados em `luna-guardian` (commit
 `28c1c6e`). Ver ADR-012 para os dois refinamentos que a auditoria
 pré-implementação exigiu (persistência via Guardian, contexto via GitHub)
-antes do porte ser executado.
+antes do porte ser executado. Decisão 2 (interface de Convergia em
+`luna-frontend`, mais a correção de `sendChatMessage`/
+`fetchOrganismContext` para a nova base do Gateway) concluída no mesmo dia,
+commit `673b29c`.
