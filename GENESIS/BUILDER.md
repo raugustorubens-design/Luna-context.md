@@ -511,3 +511,14 @@ Nota de consistência: o princípio "Reporter confirma, não cria" descrito
 nesta ADR-007 já era regra ativa em ENGINEER.md (ver ENG-007, registrada
 em 2026-07-16) — os dois documentos são consistentes entre si, não
 conflitam nem duplicam a mesma decisão como se fossem independentes.
+
+## 2026-07-18 — Pacote 8/9: INDEX.md (tabela "Conteúdo atual")
+
+Eu fiz: adicionei ao `INDEX.md` as 7 linhas novas na tabela "Conteúdo
+atual" (Atrator AAAB, Checkpoint GENESIS-ATTRACTOR-001, ADR-005 a ADR-009),
+conforme entregue. Não toquei na seção "Diretórios": `CHECKPOINTS/` já
+estava listada lá desde antes deste pacote (só o diretório físico é que
+não existia até o pacote 2/9) — não havia nada a adicionar ali, apesar da
+instrução ter pedido essa adição; conferi antes de editar para não
+duplicar uma linha que já existia. Nenhuma implementação de código
+associada.

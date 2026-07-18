@@ -27,5 +27,12 @@ Este documento aponta onde cada tipo de informação deve viver.
 | Assunto | Local |
 |---|---|
 | Atrator AAAA — maior relevância da LUNA | `LUNA_CONSTITUTION.md` |
+| Atrator AAAB — Atrator Cognitivo (peso inferior a AAAA) | `LUNA_CONSTITUTION.md` |
+| Checkpoint GENESIS-ATTRACTOR-001 | `CHECKPOINTS/GENESIS-ATTRACTOR-001.md` |
 | ADR Gateway + Connector Hub (Aceito, emendado por DA-001 — Guardian é órgão interno) | `ADR/ADR-002-Gateway-ConnectorHub.md` |
 | ADR Porte do Gateway + migração de runtime do `luna-core` (Aceito) | `ADR/ADR-004-Portar-Gateway-Migrar-Runtime-luna-core.md` |
+| ADR-005 Reporter via GitHub Actions + metacognição (Aceito) | `ADR/ADR-005-Reporter-GitHub-Actions-Metacognicao.md` |
+| ADR-006 Hierarquia biológica — "Sistema Funcional" (Aceito) | `ADR/ADR-006-Hierarquia-Biologica-Sistema-Funcional.md` |
+| ADR-007 Reporter memória persistente + evidência (Aceito) | `ADR/ADR-007-Reporter-Memoria-Persistente-Evidencia.md` |
+| ADR-008 GitHub Actions como caminho de delegação, via Forge (Aceito) | `ADR/ADR-008-GitHub-Genoma-Delegacao-Automatica-Forge.md` |
+| ADR-009 Emenda constitucional — Atrator AAAB (Aceito) | `ADR/ADR-009-Emenda-Constitucional-Atrator-AAAB.md` |
