@@ -38,10 +38,10 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 
 ## P2 — Requer decisão de Architects antes de execução
 - [x] ~~Escolher caminho de delegação API+GitHub (GitHub Action com @claude / Claude Code headless em cron / Gateway próprio via API)~~ — resolvido por ADR-008 (2026-07-18, ver `ADR/ADR-008-GitHub-Genoma-Delegacao-Automatica-Forge.md`): caminho escolhido é GitHub Actions, acionável sob demanda pelo Forge. Implementação passa a ser GEN-002 em P1.
-- [ ] Decidir futuro de luna-guardian /chat e /context (deprecar vs. redefinir)
+- [x] ~~Decidir futuro de luna-guardian /chat e /context (deprecar vs. redefinir)~~ — resolvido por ADR-012 (2026-07-19, ver `ADR/ADR-012-Consolidacao-Backend-luna-core-Interface-Convergia.md`): deprecadas e removidas de `luna-guardian` (commit `28c1c6e`) — o backend único de chat/contexto passa a ser `luna-core`, portado do monorepo `luna`.
 - [ ] Escolher 1 dos 4 candidatos a Skill (auditoria de compliance, geração de ADR/checkpoint, assistente Reporter, scaffolding de capability)
 - [ ] Formalizar a fronteira entre repo-interface e MVP acoplável: cada repositório é uma interface evolutiva, não o órgão em si
-- [ ] Consolidar a decisão arquitetural sobre Convergia: portar a implementação real do monorepo luna para luna-convergia ou manter a arquitetura atual
+- [x] ~~Consolidar a decisão arquitetural sobre Convergia: portar a implementação real do monorepo luna para luna-convergia ou manter a arquitetura atual~~ — resolvido por ADR-012 (2026-07-19): nem um nem outro exatamente — o Convergia completo foi portado para `luna-core` (não para `luna-convergia`, que segue como esqueleto de 1 endpoint, órfão), com interface de usuário em `luna-frontend`. Decisão formal registrada no ADR, não a mesma alternativa binária que este item original enumerava.
 
 ## P3 — Genesis e coordenação do organismo
 - [ ] Criar/atualizar os arquivos do Genesis para coordenação em tempo real: STATUS.md, HISTORY.md e TASKS.md
@@ -51,9 +51,9 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 
 ## P4 — Atividades de framework
 - [ ] Confirmar com GPT/LUNA o paradeiro do frontend de mapeamento de campo ("bolhas") — não encontrado em nenhum repositório auditado
-- [ ] Decisão de Architects: portar convergia/ do monorepo luna para luna-convergia (padrão ADR-004), ou manter arquitetura atual
-- [ ] Escrever ADR de migração do Convergia (Engineer), análogo ao ADR-004
-- [ ] Implementar templates reais dos 13 tipos de documento corporativo — bloqueado por revisão de especialista (regulatoryStatus: pending_specialist_review), não é tarefa de Builder sozinho
+- [x] ~~Decisão de Architects: portar convergia/ do monorepo luna para luna-convergia (padrão ADR-004), ou manter arquitetura atual~~ — resolvido por ADR-012 (2026-07-19): portado para `luna-core`, não `luna-convergia` — ver nota equivalente em P2.
+- [x] ~~Escrever ADR de migração do Convergia (Engineer), análogo ao ADR-004~~ — é o próprio ADR-012 (2026-07-19).
+- [ ] Implementar templates reais dos 13 tipos de documento corporativo — deixa de ser "bloqueado por revisão de especialista": ADR-012 define que o conteúdo passa a ser alimentado via `/api/convergia/training` pelo especialista diretamente (mecanismo já portado), não mais uma revisão externa a esperar.
 - [ ] luna-convergia: acoplar frontend (uma vez localizado) ao pipeline real
 - [ ] Engineer: especificar Fluxo A do Sistema Sensorial (Playwright vs. Computer Use API)
 - [ ] Builder: implementar Fluxo A — acompanhamento de vídeos de curso organizados por tópico

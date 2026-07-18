@@ -272,5 +272,9 @@ de `apps/frontend/artifacts/api-server` para `luna-core` — resolveria a
 lacuna registrada em `LUNA_CONTEXT.md` (MVP Chat) sem nova implementação.
 Fora do escopo desta observação: decidir se `src/convergia/` (também não
 portado) segue o mesmo caminho ou aguarda ENG-004.
-Status: divergência técnica sinalizada; aguardando decisão de Architect
-(não é tarefa de Builder especificar ou executar sozinho — Regra 6).
+Status: **resolvido por ADR-012 (2026-07-19)** — Cognitive Engine +
+Convergia + rotas chat/context portados para `luna-core` (commit `ac38aee`),
+`/chat`/`/context` legados descontinuados em `luna-guardian` (commit
+`28c1c6e`). Ver ADR-012 para os dois refinamentos que a auditoria
+pré-implementação exigiu (persistência via Guardian, contexto via GitHub)
+antes do porte ser executado.

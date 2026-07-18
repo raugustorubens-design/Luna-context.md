@@ -895,3 +895,119 @@ Test status: nenhuma mudança de código neste commit — só o ADR.
 Next action: portar Cognitive Engine + Convergia + rotas para `luna-core`,
 seguido de typecheck/testes, depois descontinuar `/chat`/`/context` em
 `luna-guardian`, depois a interface de Convergia em `luna-frontend`.
+
+## 2026-07-19 — ADR-012 Decisão 1 executada: Cognitive Engine + Convergia portados para luna-core
+
+Eu fiz: auditei `apps/frontend/artifacts/api-server` (monorepo `luna`) por
+completo antes de escrever qualquer código, conforme instruído. Portei:
+
+- `src/luna/*` (Cognitive Engine: cognitive-engine, memory-engine,
+  hipocampo, context-hub, indice-cognitivo, provider-router, provider-engine,
+  budget-manager, reporter, contracts, guardian-contract, adapters de
+  provider) para `luna-core/src/luna/*`.
+- `src/convergia/*` completo (parsers, renderers, templates, transform,
+  validation, knowledge-gate, training, pipeline, contracts, errors) para
+  `luna-core/src/convergia/*`, sem alteração de lógica.
+- `src/routes/{chat,context,convergia,health}.ts` para
+  `luna-core/src/routes/*`, montadas em `app.ts` como rotas irmãs do
+  Gateway (nunca capabilities dele).
+
+Dois pontos não bateram com o que o ADR-012 (rascunho) descrevia como
+"porte mecânico" — parei e reportei antes de decidir sozinho, Architect
+decidiu os dois antes de eu tocar em qualquer arquivo:
+
+1. `chat.ts` original persistia `conversations`/`messages` direto via
+   Drizzle/Postgres — a mesma violação do Princípio 4 que eu já tinha
+   recusado para `storage.query`/`storage.insert` (BLD-003/ENG-011).
+   Decisão: roteei pelo contrato genérico do Guardian
+   (save/update/delete/get/search) via um novo `HttpGuardianClient`
+   (`luna-core/src/luna/adapters/guardian-http-adapter.ts`), substituindo
+   `guardian-local-adapter.ts` — exatamente a troca que o próprio
+   comentário do arquivo original já previa ("quando o Guardian oficial
+   for implantado, só esta classe muda"). `conversations`/`messages` viram
+   duas coleções do contrato genérico, sem endpoint bespoke; só `count`
+   precisou ser uma extensão nova (ver commit em `luna-guardian` abaixo).
+2. `context-hub.ts`/`indice-cognitivo.ts` liam arquivos locais do monorepo
+   que não existem em `luna-core`. Decisão: troquei para ler
+   `Luna-context.md` via `GithubConnector.readFile`
+   (`luna-core/src/luna/adapters/github-context-client.ts`), mesmo padrão
+   do FORGE-MVP-08A. Mantive a lógica de extração (regexes) exatamente como
+   estava — não modernizei os parsers para o formato atual dos documentos
+   (isso é um follow-up separado, registrado no próprio código como
+   comentário, não um defeito desta etapa).
+
+`@workspace/api-zod` (codegen orval) e `@workspace/db` (Drizzle) não foram
+portados — o primeiro porque é código gerado a partir de uma spec OpenAPI
+não relacionada à lógica de negócio (copiei manualmente só as ~10 schemas
+Zod que `chat.ts` usa, em `routes/chat-schemas.ts`); o segundo porque foi
+inteiramente substituído pelo cliente HTTP do Guardian.
+
+Estendi `scripts/architecture-check.mjs` de `luna-core` com as mesmas
+fronteiras já testadas no `architecture-check.mjs` de origem (Cognitive
+Engine nunca toca DB/provider direto, Context Hub nunca persiste/decide, só
+`guardian-http-adapter.ts` conhece o endpoint do Guardian, Convergia nunca
+persiste direto exceto via `knowledge-gate.ts`, Gateway continua
+"cognition-free"), adaptadas aos caminhos reais deste repositório. Também
+estendi a regra de centralização de credenciais (ADR-002) para reconhecer
+`src/luna/adapters/` como segundo leitor autorizado de
+`GROQ_API_KEY`/`ANTHROPIC_API_KEY` (Cognitive Engine é um consumidor
+legítimo diferente do Model Router do Gateway) — mesmo padrão de
+"múltiplos leitores por categoria" já usado para `GUARDIAN_BASE_URL`
+(DA-001).
+
+Portei também os testes que fazem sentido verbatim (memory-engine,
+provider-engine, hipocampo, budget-manager, reporter, provider-router,
+toda a suíte de Convergia) e reescrevi os que dependiam de filesystem local
+(`indice-cognitivo.test.ts`, `context-hub.test.ts`) para injetar um
+`reader` fake em vez de um diretório temporário — tornei `readProjectContext`/
+`buildOrganismContext` testáveis por injeção de dependência, mesmo padrão já
+usado por `createMemoryEngine(guardian = new HttpGuardianClient())`. Escrevi
+`guardian-http-adapter.test.ts` do zero (mockando `fetch`, mesmo padrão de
+`gateway/organs/__tests__/guardian-adapter.test.ts`), substituindo
+conceitualmente `guardian-local-adapter.test.ts` (que teria testado código
+que não existe mais aqui).
+
+Corrigi um único ponto de fricção de tipos encontrado no typecheck: exceljs
+declara seu próprio `interface Buffer extends ArrayBuffer` no `.d.ts`, que
+colide por merge de interface global com o `Buffer<ArrayBufferLike>` do
+`@types/node` desta versão — bug de tipagem do pacote upstream, não deste
+código; contornado com um cast pontual em `renderers.test.ts`, comentado
+inline. Também subi `@types/node` de `^22.10.0` para `^25.0.0` (mesma major
+que o monorepo de origem já usa) antes de descobrir que isso sozinho não
+resolvia o problema do exceljs — mantive o bump de qualquer forma, por
+consistência com a versão validada na origem.
+
+Validado antes do commit: `npm run typecheck` limpo, `npm test` 170/170,
+`npm run test:architecture` limpo, smoke test manual do boot rodando o
+servidor de verdade (`/`, `/health`, `/api/healthz`,
+`/api/gateway/capabilities`, `GET /api/context`, `POST /api/chat`) — todos
+degradam graciosamente sem `GITHUB_TOKEN`/`GUARDIAN_BASE_URL`/
+`GROQ_API_KEY` configurados nesta sessão (erros limpos em JSON, processo
+nunca cai).
+
+Em `luna-guardian`: adicionei a operação `count` (contrato, `guardian.js`,
+`adapters/supabase-adapter.js` via `count: "exact", head: true` do
+Supabase — não fetch-all, `routes.js` com `POST /guardian/count`) e
+descontinuei `/chat`/`/api/github/file` (e a dependência `pg`/`axios`
+exclusiva delas) — não toquei em mais nada do Guardian (`/guardian/*`,
+armazenamento, `hipocampo-temp/`). Atualizei o `architecture-check.mjs` do
+próprio `luna-guardian`, que tinha um regression-guard afirmando que essas
+rotas legadas "devem ser preservadas" — invertido para afirmar que elas
+"não devem reaparecer", já que a instrução era descontinuá-las
+deliberadamente, não uma regressão a evitar. 30/30 testes, architecture
+check limpo, smoke test manual do boot (`/` funciona, `/chat` e
+`/api/github/file` retornam 404 corretamente).
+
+Commits: `luna-core` `ac38aee` (porte completo, um commit só — arquivos
+interdependentes, não compilam/testam isoladamente; documentando aqui a
+escolha de agrupar, conforme ENG-012); `luna-guardian` `28c1c6e`.
+
+O que está bloqueado: nada. Próxima etapa (interface de Convergia em
+`luna-frontend`) depende só deste porte estar funcionando, o que já validei
+acima.
+
+Test status: ver validação acima — typecheck/testes/architecture-check
+limpos nos dois repositórios, smoke test manual do boot em ambos.
+
+Next action: construir a interface de Convergia em `luna-frontend`
+(ADR-012 Decisão 2).
