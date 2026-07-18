@@ -536,6 +536,22 @@ de P1 no próprio Roadmap. Não implementei o workflow `.yml` em si nem o
 botão no Forge — isso é o próprio GEN-002 em aberto, trabalho de Builder
 futuro, não desta sessão de documentação.
 
+## 2026-07-18 — Pacote 1/6: ADR-010 (arquitetura canônica de memória — DECISÃO ARQ-001)
+
+Eu fiz: criei `ADR/ADR-010-Arquitetura-Canonica-Memoria-MEM-001-STOR-001.md`,
+conteúdo como entregue (ajustei só 2 frases internas de "ver Arquivo N
+abaixo" para prosa sem numeração de pacote, mesmo motivo do ajuste feito em
+ADR-009 no pacote anterior — não é uma referência válida fora do contexto
+da instrução). Este ADR resolve a especificação de `MEM-001`/`STOR-001`
+(P0), mas não desbloqueia a implementação: ambos seguem congelados por
+ARCH-001 até o Forge v0.1 estar em uso diário — decisão de especificação
+e liberação de implementação são coisas diferentes, e só a primeira está
+resolvida aqui. Nenhuma implementação de código associada — este ADR é
+puramente de especificação/documentação. Nota sobre o 403 mencionado no
+pacote de instrução: refere-se à sessão de chat que redigiu o pacote, não
+a esta sessão do Claude Code — aqui a escrita direta (git push) continua
+funcionando normalmente, como já confirmado no pacote anterior.
+
 Com isto, os 9 arquivos deste pacote (LUNA_CONSTITUTION.md,
 CHECKPOINTS/GENESIS-ATTRACTOR-001.md, ADR-008, ADR-009, ADR-005, ADR-006,
 ADR-007, INDEX.md, GENESIS/ROADMAP.md) foram aplicados, cada um em commit
