@@ -207,3 +207,29 @@ correspondente continua sendo o padrão default; agrupar múltiplos
 arquivos num commit só é permitido quando autorizado explicitamente,
 desde que essa decisão seja registrada no BUILDER.md.
 Status: regra ativa como boa prática, não mais como obrigação rígida.
+
+## ID: ENG-013
+Data: 2026-07-18
+Tópico: `context.txt` § Cognitive Model — `Decision(t) = H(t) + M(t)` vs. `H(t) + A(t)` assumido por ADR-010
+
+Observação: ADR-010 §9 e a nota adicionada a `context.txt` § Memory Update
+(ver BLD, pacote 2/6 de 2026-07-18) afirmam "Action lives in Decision(t) =
+H(t) + A(t), in the Cognitive Model section above". O texto real da seção
+`🧠 COGNITIVE MODEL` de `context.txt` (linha 29) diz `Decision(t) = H(t) +
+M(t))` — nunca usa o símbolo `A(t)`. Nenhum dos dois documentos (o pacote
+de instrução que gerou ADR-010, nem o próprio ADR) conferiu essa frase
+contra o arquivo real antes de assumi-la.
+
+Risco: a nota inserida em `context.txt` agora descreve incorretamente o
+conteúdo da própria seção que ela cita ("acima"), criando uma nova
+inconsistência interna no mesmo documento que o ADR-010 pretendia corrigir.
+
+Ação sugerida: decisão do Architect/Engineer sobre qual lado corrigir —
+(a) atualizar `Decision(t) = H(t) + M(t)` para `H(t) + A(t)` em
+`context.txt` § Cognitive Model (parece a leitura mais provável, dado que
+`M(t)` já é usado para "machine state" ali e para "long-term memory" na
+seção seguinte — colisão de símbolo semelhante à que motivou ADR-010 §3),
+ou (b) reescrever a nota da Memory Update para não pressupor um texto que
+não existe.
+Status: divergência técnica sinalizada; não resolvida por conta própria
+do Builder (Regra 6).

@@ -4,7 +4,7 @@
 
 VERSION = "v1.1_CORE"
 MODE = "cognitive_execution"
-BASE = "memory_core_v2 + semantic + trace + learning"
+BASE = "context v1.1 (canônico, ver ADR-010) + semantic + trace + learning"
 
 ##############################################
 # 🎯 OBJECTIVE
@@ -87,16 +87,20 @@ L(t+1) = L(t) + κ (O · Δ)
 ##############################################
 
 M(t+1) = σ[
-  α ( M(t)(R + θA) + IΔ + βO − μE )
+  α ( M(t)(R + θρ) + IΔ + βO − μE )
 ]
 
 Where:
 - R = relevance
 - I = impact
-- A = action
+- ρ = recurrence (NOT Action — Action belongs to the Decision Engine, see below)
 - Δ = change
 - O = outcome
 - E = entropy
+
+NOTE (ADR-010 §3/§8): Action (A) is never reused as a symbol in the Memory
+Engine. Action lives in Decision(t) = H(t) + A(t), in the Cognitive Model
+section above — a different engine, a different equation.
 
 ##############################################
 # 🎯 ALIGNMENT
@@ -105,7 +109,7 @@ Where:
 A(t) = 1 − d(H(t), M(t))
 
 RULE:
-if A(t) < τ → do not execute
+if A(t) < τ_a → do not execute
 
 ##############################################
 # 🧹 COMPRESSION
@@ -118,8 +122,28 @@ RULE:
 - medium → compress
 - high → preserve
 
+THRESHOLD:
+V(X) < τ_c → discard (Content Threshold, ver ADR-010 §4)
+
 PRINCIPLE:
 memory quality > memory size
+
+##############################################
+# 🗂️ MEMORY OBJECT (ver ADR-010 §7)
+##############################################
+
+Memory Object = {
+  embedding,
+  trace,
+  checkpoint,
+  classification,
+  metadata
+}
+
+RULE:
+- classification (ex-CLASSIFY, ex-λ_tipo) is metadata, not a pipeline step
+- classification influences retrieval, prioritization, and compression
+- classification never gates persistence directly
 
 ##############################################
 # 🔄 CONTINUITY (CHECKPOINT)

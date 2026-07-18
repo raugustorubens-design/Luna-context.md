@@ -552,6 +552,30 @@ pacote de instrução: refere-se à sessão de chat que redigiu o pacote, não
 a esta sessão do Claude Code — aqui a escrita direta (git push) continua
 funcionando normalmente, como já confirmado no pacote anterior.
 
+## 2026-07-18 — Pacote 2/6: context.txt (correções ADR-010 §3/§4/§5/§7)
+
+Eu fiz: apliquei as 5 edições pontuais em `context.txt` exatamente como
+especificado — `BASE` corrigido (remove referência a `memory_core_v2`
+inexistente), símbolo `A`→`ρ` na Memory Update com nota explicando a
+separação Action/Recurrence, `τ`→`τ_a` no Alignment, `THRESHOLD τ_c`
+adicionado na Compression, e a nova seção `🗂️ MEMORY OBJECT` inserida
+antes de `🔄 CONTINUITY`. Conferi o arquivo inteiro após as edições, não
+só os trechos alterados.
+
+Achado não corrigido, sinalizado em vez de resolvido por conta própria
+(Regra 6, Builder persiste/não especifica): a nota nova inserida na seção
+Memory Update ("Action lives in Decision(t) = H(t) + A(t), in the
+Cognitive Model section above") descreve a seção `🧠 COGNITIVE MODEL`
+como se ela já definisse `Decision(t) = H(t) + A(t)` — mas o texto real
+dessa seção (linha 29, não alterada por esta instrução) diz
+`Decision(t) = H(t) + M(t)`, nunca menciona `A(t)`. O pacote de instrução
+e o `ADR-010` (§9, mesma frase) partem do mesmo pressuposto não conferido
+contra o arquivo real. Apliquei a nota exatamente como entregue (não
+inventei correção da seção Cognitive Model, que não estava no escopo das
+5 edições pedidas) — registrando aqui para o Engineer/Architect decidir
+se `Decision(t) = H(t) + M(t)` deveria virar `H(t) + A(t)` num pacote
+futuro, ou se a nota é que deveria ser reescrita para não pressupor isso.
+
 Com isto, os 9 arquivos deste pacote (LUNA_CONSTITUTION.md,
 CHECKPOINTS/GENESIS-ATTRACTOR-001.md, ADR-008, ADR-009, ADR-005, ADR-006,
 ADR-007, INDEX.md, GENESIS/ROADMAP.md) foram aplicados, cada um em commit
