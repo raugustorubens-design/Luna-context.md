@@ -1139,3 +1139,11 @@ Next action: abrir PR de `claude/pptx-renderer-test-rigor` para `main` em
 `luna-core` (mudança de baixo risco, só reforço de teste). Templates reais
 dos 13 tipos de documento corporativo seguem em `GENESIS/ROADMAP.md` (P4)
 como pendência separada, não afetada por esta entrada.
+## 2026-07-18 — Reporter (não Builder): análise automática do projeto LUNA
+
+Autoatestação: esta entrada foi gerada por `reporter.analyze_project` (FORGE-MVP-07 v1), disparada manualmente via `/api/gateway/execute` — não é um registro do Builder. Leu `GENESIS/ROADMAP.md` real (`github.read_file`), contou 21 item(ns) concluído(s) e 31 pendente(s), e atualizou `GENESIS/ARCHITECTURE_INVENTORY.md` §11 com o resultado.
+
+**Desde a última análise**
+- Primeira execução do Reporter registrada — sem análise anterior para comparar.
+
+Escopo v1 (ADR-013): compara só os marcadores `[x]`/`[ ]` do Roadmap contra a análise anterior — não verifica cada item contra código real (isso é auditoria dirigida, feita manualmente quando necessário). Formato de 3 camadas (física/lógica/semântica) é v2, fora de escopo aqui.
