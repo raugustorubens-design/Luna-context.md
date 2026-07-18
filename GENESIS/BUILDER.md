@@ -463,3 +463,12 @@ item no Roadmap num pacote posterior deste mesmo pedido (pacote 9/9),
 junto com o novo item GEN-002. Nenhuma implementação de código associada
 (o `.yml` do workflow e o botão no Forge ficam fora do escopo deste ADR,
 conforme o próprio texto).
+
+## 2026-07-18 — Pacote 4/9: ADR-009 (emenda constitucional do Atrator AAAB)
+
+Eu fiz: criei `ADR/ADR-009-Emenda-Constitucional-Atrator-AAAB.md`, conteúdo
+como entregue, com um ajuste de texto: a frase "ver Arquivo 1 deste pacote"
+não fazia sentido como referência permanente no repositório (era uma
+referência ao pacote de instrução, não a um artefato do repo) — troquei
+por referência direta a `LUNA_CONSTITUTION.md`, sem mudar o conteúdo
+decisório do ADR. Nenhuma implementação de código associada.
