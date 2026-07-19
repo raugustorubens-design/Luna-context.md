@@ -310,3 +310,130 @@ uma vez que a chave SSH/GPG de assinatura de commit seja gerada — ver
 próximo pacote Engineer sobre o Artigo de Autonomia Limitada.
 Status: CPF removido do arquivo atual; reescrita de histórico e
 verificação criptográfica seguem pendentes de decisão/execução.
+
+## ID: INFRA-002
+Data: 2026-07-19
+Tópico: GitHub App instalado não tem acesso a 4 repositórios (luna, luna-frontend, luna-guardian, Luna-reporter)
+
+Observação: verificado por tentativa direta de leitura via API — o GitHub
+App usado pelas sessões de chat/Engineer retorna 404 (não 403) para:
+`luna` (monorepo), `luna-frontend`, `luna-guardian`, `Luna-reporter`.
+Acesso confirmado, no mesmo teste, para: `Luna-context.md`, `luna-core`,
+`Front-View`, `projeto-renascer`, `projeto-renascer-backup`.
+
+Diferente do INFRA-001 (permissão de escrita, já resolvido) — aqui o App
+nem lista os repositórios, sugerindo instalação configurada como "Only
+select repositories" sem esses 4 incluídos.
+
+Risco: qualquer sessão de Engineer (chat) que precise auditar esses 4
+repositórios opera sem evidência direta, dependendo inteiramente do que
+`BUILDER.md` relata. Essa lacuna atrasou o diagnóstico do incidente
+registrado em ENG-019 (abaixo) — o Guardian, especificamente, é um dos 4
+bloqueados, e é onde a causa raiz real do bug de chat provavelmente está.
+
+Ação sugerida: Originador ajusta a instalação do GitHub App — GitHub →
+Settings → Applications → Installed GitHub Apps → Configure → adicionar
+`luna`, `luna-frontend`, `luna-guardian`, `Luna-reporter` à lista de
+repositórios autorizados.
+Status: aguardando ação do Originador. Não bloqueia o Builder (usa
+credencial própria), mas bloqueia diagnóstico independente do Engineer —
+ver ENG-019, onde isso já atrasou a investigação.
+
+## ID: ENG-019
+Data: 2026-07-19
+Tópico: Incidente em produção no Forge (chat 500, GitHub 404, terminal cai) — diagnóstico completo até a causa raiz de código
+
+Observação: Originador reportou Forge em produção com múltiplas falhas
+simultâneas: chat retorna 500 (todos os 3 agentes: GPT/Claude/Groq),
+painel Git retorna "GitHub request failed with status 404", terminal
+conecta e desconecta imediatamente, painel de Contexto inicialmente
+retornava "Failed to fetch". Diagnóstico conduzido em conjunto
+(Originador operando o Railway/Forge, Engineer lendo código-fonte e
+propondo hipóteses testáveis) ao longo desta sessão.
+
+Mapeamento de infraestrutura real (não documentado antes em lugar
+nenhum):
+
+| Serviço Railway | Repositório | Papel |
+|---|---|---|
+| `uvicorn main` | `luna-core` | Gateway + Cognitive Engine + Convergia (nome do serviço é resquício do Python pré-ADR-004; `railway.json` confirmado correto, Node) |
+| `strong-celebration` | `luna-guardian` | Guardian/memória — tem `OPENAI_API_KEY` residual de rota já descontinuada por ADR-012, não urgente remover |
+| `luna-frontend` | `luna-frontend` | O próprio Forge |
+
+**Causas identificadas, em ordem cronológica de descoberta:**
+
+1. **`GITHUB_TOKEN` ausente do `luna-frontend`** — confirmado ausente por
+   inspeção da lista de variáveis. Corrigido pelo Originador: token
+   pessoal (classic, escopo `repo`) criado e cadastrado. Redeploy
+   disparado automaticamente pelo Railway. **Resolvido** — porém o painel
+   Git continuou retornando 404 mesmo depois, então não era (ou não era só
+   isso) a causa do erro do GitHub — ver item 4.
+
+2. **Variável de URL do Gateway desatualizada** — `NEXT_PUBLIC_LUNA_API_BASE_URL`
+   (nome antigo, pré-ADR-012) estava presente; a variável nova esperada
+   pelo código pós-ADR-012 não foi confirmada por nome exato (Engineer não
+   tem acesso a `luna-frontend` para grep — ver INFRA-002). Como variáveis
+   `NEXT_PUBLIC_*` do Next.js são fixadas no build, um redeploy foi
+   necessário para qualquer correção de variável ter efeito.
+
+3. **Painel de Contexto voltou a funcionar** após a correção do item 1 +
+   redeploy — confirmado visualmente ("Sistema atual: LUNA", "Missão
+   atual" com conteúdo real carregando). Prova que a ligação
+   `luna-frontend` → `luna-core` está request funcionando para essa rota.
+
+4. **Chat continuou falhando (500) mesmo com credenciais de IA
+   confirmadas** — painel do Forge mostra "2/5 provedores configurados:
+   groq ✓, claude ✓" — ou seja, Groq e Claude estão corretamente
+   configurados, e mesmo assim as três tentativas de chat (GPT/Claude/Groq)
+   falharam identicamente. Isso descarta credencial ausente como causa.
+
+5. **Causa raiz de código confirmada por leitura direta de
+   `luna-core/src/routes/chat.ts`** (commit `ac38aee`, `main`): no handler
+   `POST /chat`, as duas primeiras chamadas ao Guardian (`guardian.save`
+   para criar conversa e salvar mensagem do usuário) estão protegidas por
+   `try/catch`, devolvendo 500 com mensagem legível em caso de falha. A
+   terceira chamada — `const lunaResponse = await runCognitiveEngine(content);`,
+   a que de fato invoca a IA — **não tem nenhum `try/catch`**. Qualquer
+   erro dentro dela sobe sem tratamento, vira 500 genérico do Express sem
+   corpo de erro útil — exatamente o comportamento observado (Response
+   vazio no DevTools do navegador).
+
+6. **Hipótese sobre o gatilho do erro dentro de `runCognitiveEngine`**
+   (não confirmada — falta acesso ao código do `luna-guardian`, ver
+   INFRA-002): `runCognitiveEngine` consulta memória via Guardian
+   internamente (logs do `luna-core` já mostram eventos
+   `memory.retrieval.started`/`completed`). O painel de Contexto do Forge
+   mostra, separadamente, "Guardian Memory Index search failed with
+   status 400". Se essa consulta interna falhar sem tratamento, o efeito
+   é exatamente o 500 opaco observado — para os três agentes, porque a
+   falha ocorre antes de qualquer provider de IA específico ser chamado.
+
+7. **Painel Git (404) e Terminal (desconecta na hora) permanecem sem
+   causa raiz confirmada** — não investigados a fundo ainda; GITHUB_TOKEN
+   sozinho não resolveu o Git, então a causa é outra (rota do código, ou
+   nome de repositório incorreto na configuração do painel).
+
+Risco: sem tratamento de erro em `runCognitiveEngine`, qualquer falha
+futura nessa função (não só esta) continuará produzindo 500 opacos,
+difíceis de diagnosticar sem leitura direta de código-fonte a cada
+incidente — como esta própria investigação demonstrou (múltiplas hipóteses
+descartadas por falta de mensagem de erro legível).
+
+Ação sugerida, em ordem:
+1. Envolver `runCognitiveEngine(content)` em `try/catch` em `chat.ts`,
+   devolvendo 500 com a mensagem de erro real — baixo risco, alta
+   utilidade para diagnóstico futuro. Aplicar primeiro.
+2. Com o erro real visível, investigar `luna-guardian` (Builder tem
+   acesso, Engineer não) para achar o parâmetro malformado na consulta de
+   memória que retorna 400.
+3. Investigar separadamente a causa do painel Git (404) e do Terminal
+   (desconexão imediata) — nenhuma hipótese forte ainda, tratar como
+   pendências independentes, não assumir mesma causa do chat.
+4. Retestar os 3 sintomas restantes (chat, Git, Terminal) depois de cada
+   correção — não marcar como resolvido sem reteste real (Regra 6 —
+   evidência antes de intervenção).
+
+Status: causa raiz do chat parcialmente confirmada (ponto exato no código
+identificado); causa raiz final (por que o Guardian retorna 400) e as
+causas do Git/Terminal seguem não confirmadas. Painel de Contexto e
+GITHUB_TOKEN — resolvidos e confirmados por reteste real.
