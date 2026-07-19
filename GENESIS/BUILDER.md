@@ -1165,3 +1165,19 @@ Validei rodando as 4 funções contra o conteúdo real de produção (não só o
 O que está bloqueado: nada. As duas branches têm PR aberto, aguardando merge.
 
 Next action: merge dos dois PRs (`claude/context-hub-regex-fix`, `claude/reporter-analyze-project`) em `luna-core`, depois confirmar em produção (Railway) que `reporter.analyze_project` aparece em `/api/gateway/capabilities` e que o botão "Analisar Projeto" do Forge para de retornar `CAPABILITY_NOT_FOUND`.
+
+## 2026-07-19 — GEN-002 v2 Fase 1: workflow `builder-headless.yml` (Claude Code headless, sem fallback ainda)
+
+Eu fiz (via Claude Code, sessão de chat — não é uma execução do próprio workflow, é a implementação dele): criei `.github/workflows/builder-headless.yml` em `Luna-context.md`, conforme o pacote GEN-002 v2 Fase 1 ratificado pelo Architect (ver `GENESIS/ENGINEER.md`, ID GEN-002). `workflow_dispatch` com dois inputs obrigatórios (`package_path`, `target_repo`); passo de leitura do pacote falha explicitamente (`::error::`) se `package_path` não existir já commitado em `Luna-context.md` — mantém a trava de governança (nunca texto livre). Checkout do `target_repo`, branch nova `builder/{run_id}`, instala a CLI do Claude Code, roda headless (`claude -p "$PACKAGE_CONTENT" --dangerously-skip-permissions` — sintaxe a reconferir na documentação vigente antes do primeiro uso real, como o próprio pacote pede) e só commita/push a branch se a execução tiver sucesso e realmente tiver produzido mudança (`git status --porcelain`). Fase 2/3 (fallback OpenCode/Aider) deliberadamente fora — se Claude Code falhar, o workflow registra a falha e termina com erro, não tenta mais nada.
+
+Autoatestação sempre acontece, sucesso ou falha (Regra 6): o último passo sempre anexa uma entrada nesta seção do `BUILDER.md` (e commita em `main` de `Luna-context.md`) citando `run_id`, `target_repo`, `package_path` e o resultado — inclusive quando Claude Code falha, pra não ter falha silenciosa.
+
+**Gap técnico real encontrado, não estava no pacote original — sinalizando explicitamente, não escondendo:** o `GITHUB_TOKEN` padrão de um Action só tem alcance sobre o próprio repositório onde ele roda (`Luna-context.md`), nunca sobre `target_repo` (outro repositório). O passo "Checkout target repo" usa `secrets.BUILDER_REPO_TOKEN` em vez do `GITHUB_TOKEN` padrão por isso — precisa ser um PAT (classic, escopo `repo`) ou token de GitHub App com acesso aos repositórios-alvo, cadastrado manualmente como secret em `Luna-context.md` antes do primeiro teste real. Sem isso, o passo de checkout do `target_repo` falha com 404/403.
+
+O que está bloqueado: dois secrets precisam ser cadastrados manualmente em `Luna-context.md` (Settings → Secrets and variables → Actions) antes do teste de aceitação rodar de verdade — não tenho acesso a essa tela e não devo manusear valor de credencial:
+- `ANTHROPIC_API_KEY` — dedicada a este workflow, não reaproveitar a do `luna-core` (mesma lógica de token por serviço já usada no `GITHUB_TOKEN` do `luna-frontend`, ver ENG-019).
+- `BUILDER_REPO_TOKEN` — não estava especificado no pacote original; é o gap técnico acima. Precisa de permissão de escrita nos repositórios-alvo (`luna-core` no teste de baixo risco sugerido).
+
+Não criei o pacote de teste (`pending-packages/teste-gen-002-fase1.md`) nem disparei o `workflow_dispatch` — o próprio pacote descreve isso como teste manual pela interface do GitHub, e a implementação (este commit) ainda não tem os dois secrets acima configurados, então disparar agora só produziria falha de credencial, não um teste real.
+
+Next action: cadastrar os dois secrets acima; criar e commitar o pacote de teste em `pending-packages/`; disparar `workflow_dispatch` manualmente (Actions → Run workflow) com um `target_repo` de baixo risco; confirmar branch criada + entrada em `BUILDER.md` + que uma falha proposital também vira entrada registrada (não desaparece). Só depois disso: Fase 2 (OpenCode).
