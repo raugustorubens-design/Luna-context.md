@@ -281,3 +281,32 @@ antes do porte ser executado. Decisão 2 (interface de Convergia em
 `luna-frontend`, mais a correção de `sendChatMessage`/
 `fetchOrganismContext` para a nova base do Gateway) concluída no mesmo dia,
 commit `673b29c`.
+
+## ID: ENG-015
+Data: 2026-07-19
+Tópico: CPF removido de LUNA_CONSTITUTION.md — dado sensível exposto em repositório versionado
+
+Observação: o Art. AAAA da Constituição citava o CPF do Originador
+Constitucional em texto plano. Repositório aparentemente público — CPF é
+dado sensível (documento de identidade nacional brasileiro), exposição
+é risco real de fraude/doxxing, não teórico. Removido nesta sessão
+(ver commit correspondente), mantendo o nome completo do Originador —
+suficiente para a função de identificação do Artigo, sem o dado sensível.
+
+Risco residual: histórico de commits do Git é praticamente permanente —
+quem já clonou o repositório antes desta remoção ainda tem o CPF na
+história local. Remover do arquivo atual não apaga isso; só uma reescrita
+de histórico (`git filter-repo` ou equivalente) resolveria de fato, e isso
+tem custo próprio (invalida hashes de commit existentes, exige
+force-push). Não executado nesta sessão — decisão de Architect, não
+urgência técnica adicional além da já resolvida (arquivo atual limpo).
+
+Ação sugerida: Architect decidir se vale reescrever o histórico do
+repositório para remover o CPF de commits antigos também, ou se a remoção
+do arquivo atual é suficiente dado o risco residual descrito acima.
+Pendência relacionada, já em andamento: substituir a identificação do
+Originador por verificação criptográfica (fingerprint de chave pública),
+uma vez que a chave SSH/GPG de assinatura de commit seja gerada — ver
+próximo pacote Engineer sobre o Artigo de Autonomia Limitada.
+Status: CPF removido do arquivo atual; reescrita de histórico e
+verificação criptográfica seguem pendentes de decisão/execução.
