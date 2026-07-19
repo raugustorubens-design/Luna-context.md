@@ -437,3 +437,94 @@ Status: causa raiz do chat parcialmente confirmada (ponto exato no código
 identificado); causa raiz final (por que o Guardian retorna 400) e as
 causas do Git/Terminal seguem não confirmadas. Painel de Contexto e
 GITHUB_TOKEN — resolvidos e confirmados por reteste real.
+
+## ID: GEN-002
+Data: 2026-07-19
+Tópico: Workflow multi-agente de Builder (Claude Code → OpenCode → Aider), via GitHub Actions — v2
+
+Status: Proposto — aguardando ratificação do Architect.
+
+Substitui: a especificação original de GEN-002 (entregue mais cedo nesta
+sessão) — mesma base (ADR-008: GitHub Actions, acionável sob demanda pelo
+Forge, autoatestação com run ID), agora ampliada para múltiplos agentes
+de Builder com fallback e atribuição visível, conforme pedido do
+Originador.
+
+Contexto: Builder hoje só existe como sessão manual do Claude Code —
+Rubens abre aba, cola pacote, acompanha, cola resultado de volta no chat.
+Pedido: automatizar essa execução via GitHub Actions (ADR-008 já decidiu
+esse caminho), com Claude Code como titular e OpenCode e Aider como
+reservas, nessa ordem — se um falhar, tenta o próximo sozinho. Em Modo
+Dev, deve existir seleção manual também. Toda execução, automática ou
+manual, deve informar visualmente qual ferramenta/modelo respondeu —
+logotipo do fornecedor + nome do modelo, mesmo padrão de transparência já
+decidido no ADR-016 para o chat.
+
+Decisão de governança (resolve o ponto em aberto antes de especificar o
+resto): o `task` executado pelo Action nunca é texto livre. O gatilho do
+workflow (via botão no Forge) só pode referenciar um pacote já existente
+e commitado (ex.: um arquivo em `pending-packages/` no próprio
+repositório, ou um commit/branch específico já revisado) — nunca uma
+string arbitrária digitada na hora. Isso preserva a fronteira
+Engineer-propõe/Architect-decide/Builder-executa mesmo em modo
+automático — sem essa trava, qualquer acesso ao botão do Forge
+equivaleria a acesso de escrita irrestrito ao código.
+
+Decisão técnica: cadeia de fallback, em ordem: Claude Code (headless,
+`claude -p`, sintaxe exata a confirmar na documentação vigente da
+ferramenta no momento da implementação — não travar num flag específico
+que pode já ter mudado) → OpenCode → Aider. Cada tentativa roda no mesmo
+runner, mesmo `GITHUB_TOKEN` do Action (escopo próprio, independente do
+GitHub App instalado — mesma observação já registrada em ADR-008). Se
+uma ferramenta falhar (erro de autenticação, rate limit, exit code
+não-zero, timeout), o workflow segue para a próxima automaticamente —
+sem intervenção humana no meio.
+
+Seleção manual (Modo Dev): o `workflow_dispatch` aceita um input opcional
+`agent` (`claude-code` | `opencode` | `aider`). Se vazio, roda a cadeia
+de fallback completa; se preenchido, tenta só a ferramenta escolhida
+(sem cair pras outras) — é o modo de depuração/teste que o Originador
+pediu para preservar, mesmo padrão do campo `provider` já decidido no
+ADR-016 para o chat.
+
+Cada ferramenta precisa da própria credencial — `ANTHROPIC_API_KEY`
+(Claude Code, já existe), e novas: credencial do OpenCode (modelo a
+definir — ele suporta 75+ providers, decisão de qual usar é separada,
+sugestão: reaproveitar `GROQ_API_KEY` já configurada, já que Groq é o
+único provider realmente testado no ecossistema hoje) e do Aider (mesma
+lógica). Não há credencial "genérica" — cada tentativa de fallback só
+roda se a credencial dela existir; se faltar, pula direto pra próxima,
+mesmo padrão de tolerância a ausência já usado em todo o `luna-core`.
+
+Atualização em `GENESIS/BUILDER.md`: a autoatestação passa a incluir
+explicitamente qual ferramenta executou (não mais só "Builder"
+genérico) — ex.: `Eu fiz (via OpenCode, Claude Code indisponível — ver
+log do run): ...`. Isso alimenta o próximo item.
+
+Atribuição visível no Forge: o painel "Claude Code" existente
+(FORGE-MVP-08A, já lê as últimas 5 entradas de `BUILDER.md`) passa a
+mostrar, por entrada: logotipo do fornecedor + nome do modelo/ferramenta
+que executou — reaproveita o painel que já existe, só adiciona o dado (já
+vai estar no texto da autoatestação, é só parsear). Renomear a aba de
+"Claude Code" pra algo mais genérico (ex. "Builder") já que agora pode
+não ser sempre o Claude Code.
+
+Fora de escopo desta decisão:
+- Sintaxe exata de invocação headless de cada ferramenta (Builder
+  confirma na documentação vigente de cada uma no momento de
+  implementar — este documento não trava versão/flag específico, que
+  muda com frequência).
+- Qual provider de modelo o OpenCode/Aider usam por padrão — decisão
+  separada, mais barata de adiar (pode nascer só com Claude Code + 1
+  reserva, adicionar a segunda depois).
+- Onde exatamente vive `pending-packages/` e o mecanismo de aprovação
+  antes do commit desse pacote — reaproveita o mesmo fluxo Engineer→
+  Architect que já existe (colar aqui no chat, eu preparo, você aprova),
+  só muda o que acontece depois da aprovação.
+
+Next action: Ratificação do Architect antes de qualquer implementação —
+esta é uma decisão de arquitetura real (governança de execução
+automática), não só UI. Depois de ratificado, Builder implementa em
+fases: (1) Claude Code sozinho, headless, sem fallback ainda — prova o
+caminho básico; (2) adiciona OpenCode como reserva; (3) adiciona Aider;
+(4) atualiza o painel do Forge pra mostrar atribuição visual.
