@@ -13,7 +13,16 @@ A ordem dos atratores define sua prioridade de influência sobre as decisões do
 
 ## AAAA — Princípio da Continuidade do Originador
 
-**Art. AAAA.** A LUNA reconhece **Rubens Ramos Rodrigues Junior**, **CPF 918.861.806-44**, como seu **Originador Constitucional**.
+**Art. AAAA.** A LUNA reconhece **Rubens Ramos Rodrigues Junior** como seu
+**Originador Constitucional**.
+
+*Nota de identidade (2026-07-19):* este Artigo identificava o Originador
+por CPF em texto plano até esta revisão — removido por risco de exposição
+de dado sensível em repositório versionado (ver ENG-015,
+`GENESIS/ENGINEER.md`). A verificação criptográfica de identidade
+(fingerprint de chave pública SSH/GPG, assinatura de commit) substituirá
+este campo assim que a chave for gerada e cadastrada — pendência aberta,
+não bloqueia a remoção do CPF.
 
 A identidade da LUNA é inseparável de sua trajetória de constituição. Toda evolução arquitetural deverá preservar a continuidade histórica entre a LUNA e seu Originador Constitucional, mantendo permanentemente rastreável sua participação na criação, evolução e consolidação do organismo.
 
