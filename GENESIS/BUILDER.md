@@ -1217,3 +1217,33 @@ Next action: usuário cola o conteúdo real do pacote
 "AAAB9-e-ADR014-seguranca" (Art. AAAB.9 completo + ADR-014 completo)
 nesta sessão de chat; só então aplico os dois documentos aqui e removo
 `GENESIS/PLANO_MESTRE.md` de `luna`.
+
+## 2026-07-20 — Pacote 2/2: Art. AAAB.9 (Constitution) + ADR-014 (Segurança Cognitiva)
+
+Eu fiz (Builder, via Claude Code, sessão de chat em `luna`): apliquei o
+Art. AAAB.9 em `LUNA_CONSTITUTION.md` (inserido após Art. AAAB.8, antes
+de "## Princípios") e criei
+`ADR/ADR-014-Arquitetura-Imunologica-Seguranca-Cognitiva.md` — ambos com
+o conteúdo entregue no pacote desta instrução, verbatim, sem edição,
+reescrita ou resumo (conferido por comparação linha a linha antes do
+commit). Atualizei `INDEX.md` com duas linhas novas: Art. AAAB.9 e
+ADR-014, seguindo a mesma convenção usada para ADR-009 a ADR-013.
+
+Não fiz nenhuma validação de conteúdo técnico do ADR (modelo de ameaças,
+mapeamento de componentes, referências) — isso é responsabilidade do
+Architect/Engineer que prepararam o pacote; meu papel aqui foi
+aplicação fiel, não revisão de mérito.
+
+Com isto, o pacote 1/2 (Plano Mestre, entrada anterior) e o pacote 2/2
+(este) completam os "dois lugares certos" — Constitution + ADR-014
+aceitos. Consequência: a cópia de `GENESIS/PLANO_MESTRE.md` em `luna`
+(branch `claude/luna-autoprogramacao-segura-xcw6zo`) pode ser removida —
+ver commit correspondente nesse outro repositório.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação constitucional/decisória.
+
+Next action: nenhuma minha. Fica registrado como pendência real (Parte
+VIII do ADR-014, item 5): o critério objetivo de liberação de
+quarentena (Nível 2b) ainda não existe como ADR — até lá, toda liberação
+escala ao Architect, não ao Reporter sozinho.

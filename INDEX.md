@@ -29,6 +29,7 @@ Este documento aponta onde cada tipo de informação deve viver.
 |---|---|
 | Atrator AAAA — maior relevância da LUNA | `LUNA_CONSTITUTION.md` |
 | Atrator AAAB — Atrator Cognitivo (peso inferior a AAAA) | `LUNA_CONSTITUTION.md` |
+| Art. AAAB.9 — Segurança Cognitiva como Sistema Imunológico (extensão do Atrator Cognitivo) | `LUNA_CONSTITUTION.md` |
 | Checkpoint GENESIS-ATTRACTOR-001 | `CHECKPOINTS/GENESIS-ATTRACTOR-001.md` |
 | ADR Gateway + Connector Hub (Aceito, emendado por DA-001 — Guardian é órgão interno) | `ADR/ADR-002-Gateway-ConnectorHub.md` |
 | ADR Porte do Gateway + migração de runtime do `luna-core` (Aceito) | `ADR/ADR-004-Portar-Gateway-Migrar-Runtime-luna-core.md` |
@@ -42,3 +43,4 @@ Este documento aponta onde cada tipo de informação deve viver.
 | ADR-012 Consolidação do backend em `luna-core` + Interface de Convergia (Aceito) | `ADR/ADR-012-Consolidacao-Backend-luna-core-Interface-Convergia.md` |
 | ADR-013 Índice Semântico do GENESIS (**RASCUNHO — não aplicado**, voto 2-1) | `ADR/ADR-013-Indice-Semantico-GENESIS.md` |
 | Plano Mestre — Autoprogramação Aderente e Segura da LUNA (tronco, raiz, galhos 1-8, ordem de prioridade) | `GENESIS/PLANO_MESTRE.md` |
+| ADR-014 Arquitetura Imunológica de Segurança Cognitiva (Aceito, ancorado em Art. AAAB.9) | `ADR/ADR-014-Arquitetura-Imunologica-Seguranca-Cognitiva.md` |
