@@ -1181,3 +1181,39 @@ O que está bloqueado: dois secrets precisam ser cadastrados manualmente em `Lun
 Não criei o pacote de teste (`pending-packages/teste-gen-002-fase1.md`) nem disparei o `workflow_dispatch` — o próprio pacote descreve isso como teste manual pela interface do GitHub, e a implementação (este commit) ainda não tem os dois secrets acima configurados, então disparar agora só produziria falha de credencial, não um teste real.
 
 Next action: cadastrar os dois secrets acima; criar e commitar o pacote de teste em `pending-packages/`; disparar `workflow_dispatch` manualmente (Actions → Run workflow) com um `target_repo` de baixo risco; confirmar branch criada + entrada em `BUILDER.md` + que uma falha proposital também vira entrada registrada (não desaparece). Só depois disso: Fase 2 (OpenCode).
+
+## 2026-07-20 — Pacote 1/2: GENESIS/PLANO_MESTRE.md (via Claude Code, sessão de chat em `luna`)
+
+Eu fiz (Builder, este commit): copiei `GENESIS/PLANO_MESTRE.md` — conteúdo
+exatamente como entregue no pacote desta instrução, sem edição — do
+repositório `luna` (branch `claude/luna-autoprogramacao-segura-xcw6zo`,
+onde havia sido commitado por engano numa sessão anterior desta mesma
+conversa, antes de eu confirmar que o destino correto era este
+repositório de contexto) para cá. `diff` bit-a-bit confirmado idêntico
+antes do commit. Adicionei uma linha em `INDEX.md` §"Conteúdo atual"
+apontando para o documento, seguindo a convenção já estabelecida neste
+repositório de registrar todo documento de decisão/planejamento no
+índice.
+
+Não fiz (Pacote 2/2, bloqueado): aplicar o Art. AAAB.9 (Segurança
+Cognitiva) em `LUNA_CONSTITUTION.md` e criar `ADR-014`. O pedido cita
+"os pacotes já preparados (Plano Mestre final + AAAB9-e-ADR014-seguranca)"
+como se o conteúdo já estivesse disponível para mim — mas o texto real
+de Art. AAAB.9 e de ADR-014 não está em nenhum dos dois repositórios
+(`luna`, `Luna-context.md`) nem foi colado nesta sessão de chat. Toda
+emenda constitucional e todo ADR anteriores neste arquivo (ex.: ADR-009,
+pacote 4/9 de 2026-07-18) foram aplicados com o texto exato entregue no
+pacote da instrução — nunca redigidos pelo próprio Builder. Não vou
+fabricar texto de segurança cognitiva/constitucional; sinalizando o
+bloqueio em vez de inventar conteúdo.
+
+Consequência direta: a remoção de `GENESIS/PLANO_MESTRE.md` do
+repositório `luna` (pedida como passo 3, condicionada a "confirmado nos
+dois lugares certos") também fica pendente — só o lugar 1 (este arquivo,
+aqui) está confirmado; o lugar 2 (Constitution + ADR-014) ainda não
+existe.
+
+Next action: usuário cola o conteúdo real do pacote
+"AAAB9-e-ADR014-seguranca" (Art. AAAB.9 completo + ADR-014 completo)
+nesta sessão de chat; só então aplico os dois documentos aqui e removo
+`GENESIS/PLANO_MESTRE.md` de `luna`.
