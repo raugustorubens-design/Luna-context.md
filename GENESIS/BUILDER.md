@@ -1247,3 +1247,44 @@ Next action: nenhuma minha. Fica registrado como pendência real (Parte
 VIII do ADR-014, item 5): o critério objetivo de liberação de
 quarentena (Nível 2b) ainda não existe como ADR — até lá, toda liberação
 escala ao Architect, não ao Reporter sozinho.
+
+## 2026-07-21 — Builder headless run 29791039096 (falhou — atestação manual)
+
+Disparei manualmente (via Claude Code, sessão de chat, não o workflow em
+si) o `workflow_dispatch` de `builder-headless.yml` com
+`package_path=pending-packages/2026-07-21-teste-gen-002-fase1.md`,
+`target_repo=raugustorubens-design/luna-core` — primeiro disparo real do
+GEN-002 v2 Fase 1.
+
+**Resultado: falhou no passo "Checkout target repo"**, com o erro
+`Input required and not supplied: token` — o secret `BUILDER_REPO_TOKEN`
+não está cadastrado em `Luna-context.md` (Settings → Secrets and
+variables → Actions). Confirma exatamente o gap já sinalizado na entrada
+de 2026-07-19 (implementação do workflow): sem esse PAT/token de escrita
+em `luna-core`, o checkout do repositório-alvo falha antes de qualquer
+código rodar. Nenhuma branch foi criada em `luna-core`; `claude`
+(headless) nunca chegou a rodar.
+
+**Esta entrada é atestação manual, não automática** — o passo
+"Append self-attestation to BUILDER.md" do workflow não roda quando um
+passo anterior falha (não tem `if: always()`), então a falha teria
+ficado sem registro se eu não tivesse checado o log e escrito isto à
+mão. Sinalizando como gap real do próprio workflow, não escondendo:
+contradiz o texto da entrada de 2026-07-19 ("Autoatestação sempre
+acontece, sucesso ou falha") — na prática, só acontece em sucesso ou na
+falha específica tratada pelo passo "Fail the run if Claude Code
+failed"; qualquer falha em passo anterior (como esta) pula a atestação
+silenciosamente.
+
+Run: https://github.com/raugustorubens-design/Luna-context.md/actions/runs/29791039096
+
+Next action: cadastrar `BUILDER_REPO_TOKEN` (PAT classic, escopo `repo`,
+com permissão de escrita em `luna-core`) e `ANTHROPIC_API_KEY` como
+secrets em `Luna-context.md` — não posso fazer isso eu mesmo (tela de
+Settings, não devo manusear valor de credencial). Separadamente,
+recomendo adicionar `if: always()` ao passo de atestação do workflow
+para que ele nunca dependa de checagem manual como esta — não apliquei
+essa mudança porque é uma alteração ao próprio workflow (GEN-002 Fase 1),
+não ao pacote de teste; aguardando decisão. Depois de cadastrar os
+secrets, redisparar o mesmo pacote (`2026-07-21-teste-gen-002-fase1.md`)
+sem alterações.
