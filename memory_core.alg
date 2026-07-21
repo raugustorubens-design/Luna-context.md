@@ -3,8 +3,11 @@
 ## 📌 STATUS
 
 * Version: **v1.0.0**
-* State: **ACTIVE (OFFICIAL)**
-* Replaces: All previous memory logic (formula-only approaches deprecated)
+* State: **HISTÓRICO — superado por ADR-010 (2026-07-18). Preservado como
+  referência, sem validade arquitetural vigente. Ver
+  `ADR/ADR-010-Arquitetura-Canonica-Memoria-MEM-001-STOR-001.md`.**
+* Replaces: ~~All previous memory logic~~ — esta autodeclaração está superada;
+  este documento é quem foi substituído, por `context.txt` v1.1.
 
 ---
 

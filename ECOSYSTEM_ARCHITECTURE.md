@@ -33,7 +33,7 @@ Este é o último prompt macro da arquitetura. Toda evolução futura ocorre por
 |---|---|---|---|---|
 | Gateway | Superfície de execução de capacidades do organismo | Registro, autorização, auditoria e execução de capacidades (GitHub, Filesystem; Railway e n8n preparados e desabilitados) | Ativo, 19 capacidades registradas, testado | Alta |
 | Cognitive Engine | Orquestração da cognição | Coordena retrieveMemory → Context Hub → Provider Router → Hipocampo, sem persistir ou chamar provider diretamente | Ativo | Alta (fronteiras verificadas por teste automatizado) |
-| Hipocampo | Decisão de consolidação de memória (inclui Filtro Cognitivo) | Filtra conteúdo vazio/duplicado, delega persistência ao Memory Engine | Ativo, v1 determinística | Média (fórmula completa da ADR-003 não implementada) |
+| Hipocampo | Decisão de consolidação de memória (inclui Filtro Cognitivo) | Filtra conteúdo vazio/duplicado, delega persistência ao Memory Engine | Ativo, v1 determinística | Média (fórmula completa referenciada como ADR-003 — **Missing Reference**, ADR-003 não existe na pasta ADR/; ver ADR-010 §6. Fonte de verdade vigente para a fórmula é ADR-010.) |
 | Memory Engine | Persistência e recuperação de memória | Único módulo autorizado a tocar Supabase (`memoria_luna`) | Ativo | Média (retrieval é só recência, sem semântica) |
 | Provider Engine | Registro de modelos de IA | 5 adapters registrados (Groq real; ChatGPT/Claude/Grok/Manus honestamente "não configurado") | Ativo | Baixa (só 1 de 5 providers funcional) |
 | Provider Router | Seleção e fallback entre providers | Itera providers configurados, checa orçamento, faz fallback real em falha | Ativo | Média (critério de seleção é só disponibilidade, não custo/qualidade/latência real) |
@@ -164,7 +164,7 @@ Isso é uma violação sutil da regra "Convergia nunca pode persistir diretament
 - [x] MVP: SSMA (transformação/normalização ASO) — feito
 - [x] MVP: Memória (integração com Hipocampo/Memory Engine) — feito, com a inconsistência do `checkpoint()` direto registrada acima
 - [ ] MVP: DOCX (parser + renderer) — não iniciado, precisa de modelo de documento em árvore/seções
-- [ ] MVP: PPTX — parcialmente feito (renderer existe; sem template de conteúdo real além do genérico tabular)
+- [ ] MVP: PPTX — correção de documentação (2026-07-19): esta linha estava desatualizada. O renderer (`luna-core/src/convergia/renderers/pptx-renderer.ts`) já estava completo antes desta correção — título + tabela paginada (18 linhas/slide), registrado em `renderers/registry.ts` — não "parcialmente feito" como descrito. O que era real e faltava era rigor de teste: a suíte só checava buffer não-vazio, sem abrir o arquivo. Corrigido (`luna-core` commit `fe5b354`, branch `claude/pptx-renderer-test-rigor`, PR aberto para `main`): teste agora abre o `.pptx` como zip real (`jszip`), lê o XML dos slides e confere conteúdo (título, cabeçalho, valores), com dados no padrão SSMA/ASO — mais um teste de paginação (25 registros → 3 slides). Segue incompleto **apenas** quanto a templates de conteúdo reais para os 13 tipos de documento corporativo — mesma pendência que já existia, não específica do PPTX (ver item de templates abaixo e `GENESIS/ROADMAP.md` P4).
 - [ ] MVP: PDF (parser + renderer) — não iniciado
 - [ ] MVP: cada um dos 13 tipos de documento corporativo catalogados (APR, PGR, DDS, etc.) — catalogados, nenhum com conteúdo real; cada um é seu próprio MVP futuro, dependente de validação de especialista SSMA
 

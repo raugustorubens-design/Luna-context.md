@@ -158,3 +158,16 @@ Auditoria direta do ZIP oficial do `Luna-reporter` revelou maturidade menor que 
 ### Divergência estrutural adicional — Luna-context.md
 
 O `README.md` e o `INDEX.md` deste repositório referenciam uma estrutura contendo `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` como parte da documentação oficial. Nenhum desses existe no repositório na data desta auditoria — apenas `ADR/` foi de fato criado. `INFERENCIAS.md` existe, mas continha apenas o template de regras e estrutura sugerida, sem nenhuma inferência registrada até esta sessão (a entrada de 2026-07-11 acima é a primeira registrada de fato).
+## Guardian como Órgão Interno — DA-001, emenda ao ADR-002, 2026-07-12
+
+Durante a implementação da capability `guardian.memory_index_search` (Gateway, `luna-core`, parte do MVP de arquitetura de memória — ver `luna-guardian` PR #2), a primeira versão roteou a comunicação Gateway→Guardian pelo Connector Hub, tratando o Guardian como mais um sistema externo (GitHub, Supabase, etc.). Isso seguiu o texto literal da seção "Restrições Arquiteturais" do ADR-002 (proibição de HTTP direto fora do Connector Hub, sem exceção declarada) — mas contradizia a própria seção "Arquitetura" do mesmo documento, que sempre desenhou o Guardian como filho direto do Gateway, irmão do Connector Hub, não um de seus conectores. A tensão foi sinalizada explicitamente na PR (`luna-core` #8) em vez de resolvida silenciosamente.
+
+**Decisão dos arquitetos (DA-001):** o Guardian não é um sistema externo — é órgão interno do organismo, mesma categoria de qualquer futuro Hipocampo ou Reporter. A seção "Arquitetura" do ADR-002 estava certa; a seção "Restrições Arquiteturais" precisava de uma exceção explícita, agora formalizada como Emenda 001 no próprio `ADR-002-Gateway-ConnectorHub.md` (texto anterior preservado inline como histórico, não descartado).
+
+**Execução**
+- `luna-core` PR #8 (atualizada in-place, não recriada) — comunicação Guardian movida do Connector Hub para `src/gateway/organs/` (novo): `GuardianOrganAdapter` fala HTTP direto com o Guardian, autossuficiente (sem injeção de conector externo, mesmo padrão já usado por `FilesystemRestAdapter`); `connector_hub/` não tem mais nenhuma referência a Guardian. `scripts/architecture-check.mjs` passou a reconhecer `gateway/organs/` como exceção legítima à proibição de `fetch()` fora do Connector Hub, e como único leitor autorizado de `GUARDIAN_BASE_URL`.
+- `ADR-002-Gateway-ConnectorHub.md` emendado com o texto proposto pelos arquitetos (seção "Emenda 001"), preservando o texto original da seção "Restrições Arquiteturais" como histórico em bloco de citação.
+- `luna-guardian` PR #2 e `luna-frontend` PR #6 não precisaram de nenhum ajuste — a divergência era isolada na fronteira Gateway↔Guardian dentro do `luna-core`.
+
+**Próximo passo em aberto**
+- Se/quando Hipocampo ou Reporter existirem como órgãos deployados, seguem o mesmo padrão (`gateway/organs/`) por convenção já estabelecida — não é preciso uma nova ADR/DA só para replicar o padrão a um órgão adicional, a menos que surja alguma particularidade nova.

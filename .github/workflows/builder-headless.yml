@@ -1,0 +1,159 @@
+name: Builder Headless (Claude Code)
+
+# GEN-002 v2 — Fase 1 (GENESIS/ENGINEER.md). Só Claude Code, sem fallback
+# ainda (OpenCode/Aider são Fase 2/3). Nunca aceita instrução em texto
+# livre: `package_path` tem que apontar pra um arquivo já commitado neste
+# repositório — é a trava de governança da decisão original.
+
+on:
+  workflow_dispatch:
+    inputs:
+      package_path:
+        description: >-
+          Caminho de um arquivo já commitado em Luna-context.md (ex.:
+          pending-packages/2026-07-20-nome-do-pacote.md) com a instrução
+          completa para o Builder. Nunca texto livre.
+        required: true
+        type: string
+      target_repo:
+        description: "Repositório onde o pacote deve ser aplicado, formato owner/repo (ex.: raugustorubens-design/luna-core)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  run-builder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Luna-context.md
+        uses: actions/checkout@v4
+        with:
+          path: luna-context
+
+      - name: Read package (must already be committed — never free text)
+        id: package
+        run: |
+          PACKAGE_PATH="${{ inputs.package_path }}"
+          FULL_PATH="luna-context/${PACKAGE_PATH}"
+
+          if [ ! -f "$FULL_PATH" ]; then
+            echo "::error::package_path '${PACKAGE_PATH}' não existe em Luna-context.md. A instrução tem que ser um arquivo já commitado e revisado — nunca texto livre digitado no dispatch."
+            exit 1
+          fi
+
+          {
+            echo 'content<<BUILDER_PACKAGE_EOF'
+            cat "$FULL_PATH"
+            echo 'BUILDER_PACKAGE_EOF'
+          } >> "$GITHUB_OUTPUT"
+
+      # O GITHUB_TOKEN padrão deste Action só enxerga o repositório
+      # Luna-context.md — não alcança target_repo (repositório diferente).
+      # BUILDER_REPO_TOKEN precisa ser um PAT (ou token de GitHub App) com
+      # permissão de escrita nos repositórios-alvo, cadastrado como secret
+      # aqui em Luna-context.md — mesma lógica de token dedicado por
+      # serviço já usada no GITHUB_TOKEN do luna-frontend (ver ENG-019).
+      - name: Checkout target repo
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.target_repo }}
+          token: ${{ secrets.BUILDER_REPO_TOKEN }}
+          path: target
+          fetch-depth: 0
+
+      - name: Create working branch
+        working-directory: target
+        run: git checkout -b "builder/${{ github.run_id }}"
+
+      - name: Install Claude Code CLI
+        run: npm install --global @anthropic-ai/claude-code
+
+      # Sintaxe/flags de invocação headless a confirmar na documentação
+      # vigente da ferramenta no momento de rodar isto — não travar aqui
+      # num comando que pode já ter mudado (mesma ressalva do GEN-002 v2).
+      # --dangerously-skip-permissions é necessário porque não há humano
+      # pra aprovar edições interativamente num runner de CI.
+      - name: Run Claude Code headless
+        id: run_claude
+        working-directory: target
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PACKAGE_CONTENT: ${{ steps.package.outputs.content }}
+        run: |
+          claude -p "$PACKAGE_CONTENT" --dangerously-skip-permissions
+
+      - name: Check for changes
+        id: changes
+        working-directory: target
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit and push branch (only on success with real changes)
+        id: push_branch
+        if: steps.run_claude.outcome == 'success' && steps.changes.outputs.has_changes == 'true'
+        working-directory: target
+        run: |
+          git config user.name "luna-builder[bot]"
+          git config user.email "builder@luna.local"
+          git add -A
+          git commit -m "Builder (Claude Code headless, run ${{ github.run_id }}): ${{ inputs.package_path }}"
+          git push origin "builder/${{ github.run_id }}"
+          echo "branch_url=https://github.com/${{ inputs.target_repo }}/tree/builder/${{ github.run_id }}" >> "$GITHUB_OUTPUT"
+
+      # Registra sucesso ou falha sempre — nunca falha silenciosa (Regra 6,
+      # evidência antes de intervenção, já usada em ENG-019). if: always()
+      # é necessário porque, sem ele, um step anterior que falhar (ex.:
+      # "Checkout target repo" sem token válido) pula todos os steps
+      # seguintes que não usam always()/failure() — a atestação ficaria
+      # silenciosamente ausente (achado real, run 29791039096, 2026-07-21).
+      - name: Append self-attestation to BUILDER.md
+        if: always()
+        working-directory: luna-context
+        env:
+          RUN_ID: ${{ github.run_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PACKAGE_PATH: ${{ inputs.package_path }}
+          TARGET_REPO: ${{ inputs.target_repo }}
+          CLAUDE_OUTCOME: ${{ steps.run_claude.outcome }}
+          HAS_CHANGES: ${{ steps.changes.outputs.has_changes }}
+          BRANCH_URL: ${{ steps.push_branch.outputs.branch_url }}
+        run: |
+          DATE=$(date -u +%Y-%m-%d)
+
+          if [ "$CLAUDE_OUTCOME" = "success" ] && [ "$HAS_CHANGES" = "true" ]; then
+            STATUS_LINE="Sucesso. Branch criada: ${BRANCH_URL}."
+          elif [ "$CLAUDE_OUTCOME" = "success" ] && [ "$HAS_CHANGES" != "true" ]; then
+            STATUS_LINE="Execução terminou sem erro, mas não produziu nenhuma mudança no repositório-alvo — nada commitado."
+          else
+            STATUS_LINE="Falhou (ver log do run) — nenhuma mudança foi commitada ou enviada."
+          fi
+
+          {
+            echo ""
+            echo "## ${DATE} — Builder headless run ${RUN_ID}"
+            echo ""
+            echo "Eu fiz (via Claude Code, headless, GitHub Actions): apliquei o"
+            echo "pacote \`${PACKAGE_PATH}\` em \`${TARGET_REPO}\`. ${STATUS_LINE}"
+            echo ""
+            echo "Run: ${RUN_URL}"
+          } >> GENESIS/BUILDER.md
+
+          git config user.name "luna-builder[bot]"
+          git config user.email "builder@luna.local"
+          git add GENESIS/BUILDER.md
+          git commit -m "docs(BUILDER): autoatestação — run ${RUN_ID} (${TARGET_REPO})"
+          git push origin main
+
+      - name: Fail the run if Claude Code failed
+        if: steps.run_claude.outcome != 'success'
+        run: |
+          echo "::error::Claude Code headless falhou nesta execução — ver o passo 'Run Claude Code headless' acima. Fallback pra OpenCode/Aider é Fase 2, ainda não implementado."
+          exit 1
