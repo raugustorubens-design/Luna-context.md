@@ -109,8 +109,13 @@ jobs:
           echo "branch_url=https://github.com/${{ inputs.target_repo }}/tree/builder/${{ github.run_id }}" >> "$GITHUB_OUTPUT"
 
       # Registra sucesso ou falha sempre — nunca falha silenciosa (Regra 6,
-      # evidência antes de intervenção, já usada em ENG-019).
+      # evidência antes de intervenção, já usada em ENG-019). if: always()
+      # é necessário porque, sem ele, um step anterior que falhar (ex.:
+      # "Checkout target repo" sem token válido) pula todos os steps
+      # seguintes que não usam always()/failure() — a atestação ficaria
+      # silenciosamente ausente (achado real, run 29791039096, 2026-07-21).
       - name: Append self-attestation to BUILDER.md
+        if: always()
         working-directory: luna-context
         env:
           RUN_ID: ${{ github.run_id }}
