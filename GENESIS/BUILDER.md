@@ -1288,3 +1288,10 @@ essa mudança porque é uma alteração ao próprio workflow (GEN-002 Fase 1),
 não ao pacote de teste; aguardando decisão. Depois de cadastrar os
 secrets, redisparar o mesmo pacote (`2026-07-21-teste-gen-002-fase1.md`)
 sem alterações.
+
+## 2026-07-21 — Builder headless run 29791773565
+
+Eu fiz (via Claude Code, headless, GitHub Actions): apliquei o
+pacote `pending-packages/2026-07-21-teste-gen-002-fase1.md` em `raugustorubens-design/luna-core`. Sucesso. Branch criada: https://github.com/raugustorubens-design/luna-core/tree/builder/29791773565.
+
+Run: https://github.com/raugustorubens-design/Luna-context.md/actions/runs/29791773565
