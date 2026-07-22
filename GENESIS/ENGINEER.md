@@ -454,6 +454,46 @@ identificado); causa raiz final (por que o Guardian retorna 400) e as
 causas do Git/Terminal seguem não confirmadas. Painel de Contexto e
 GITHUB_TOKEN — resolvidos e confirmados por reteste real.
 
+## ID: ENG-020
+Data: 2026-07-22
+Tópico: Sessões repetidamente aplicando correções no repositório errado quando um ADR já portou o código — regra permanente de confirmação
+
+Observação: numa única sessão, duas tarefas separadas (fix de `git-panel`/
+Forge, fix de `POST /chat` nunca vazar erro cru de provider) foram
+inicialmente direcionadas ao monorepo `luna`, que ainda contém as cópias
+pré-porte de ambos (`forge/`, `apps/frontend/artifacts/api-server/`) —
+código que compila, tem teste passando e estrutura de pasta idêntica ao
+destino real, então não tem nenhum sinal automático de que é código morto.
+`forge/README.md` já registrava o porte (ADR de Forge → `luna-frontend`,
+"não desenvolva aqui"); o backend não tinha aviso equivalente antes desta
+sessão — só o comentário de cabeçalho `// Porte de ... — ADR-012` no
+arquivo de destino (`luna-core/src/routes/chat.ts`), nunca uma nota na
+origem. Mesma classe de risco já registrada em ENG-004 (Convergia) e
+ENG-014 (chat/context) — não é acidente isolado, é padrão recorrente
+sempre que um ADR de porte deixa a cópia de origem sem remoção nem aviso.
+
+Risco: qualquer sessão futura que receba uma tarefa descrevendo só um
+caminho de arquivo, sem repositório explícito, tende a bater no monorepo
+`luna` primeiro (mais antigo, mais familiar, estrutura idêntica ao
+destino) e aplicar/testar a correção lá — trabalho real, PR real, tempo
+gasto — antes de descobrir que o alvo vivo é outro repositório. Cada
+ocorrência é individualmente barata de corrigir (fechar PR, redirecionar),
+mas o padrão em si não estava registrado como risco conhecido a checar
+antes de começar.
+
+Ação sugerida: antes de escrever código num caminho específico, se o
+repositório tiver histórico de porte/consolidação documentado em ADR
+(ADR-004, ADR-012, ou futuro equivalente), a sessão deve confirmar o
+repositório de destino real antes de prosseguir — mesmo se o caminho
+existir e compilar onde já está. Sinal prático: procurar por comentário
+"Porte de ..." no topo de arquivos candidatos nos repositórios de destino
+conhecidos (`luna-core`, `luna-frontend`) antes de assumir que o monorepo
+`luna` é o alvo. Mitigação estrutural complementar (não substitui esta
+regra): aviso explícito no `README.md` raiz do monorepo `luna` (aplicado
+nesta sessão) e avaliação, pelo Architect, de remover fisicamente as
+cópias pré-porte em vez de só sinalizá-las.
+Status: regra ativa a partir de 2026-07-22.
+
 ## ID: GEN-002
 Data: 2026-07-19
 Tópico: Workflow multi-agente de Builder (Claude Code → OpenCode → Aider), via GitHub Actions — v2
