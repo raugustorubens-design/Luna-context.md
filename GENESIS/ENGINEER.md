@@ -494,6 +494,17 @@ nesta sessão) e avaliação, pelo Architect, de remover fisicamente as
 cópias pré-porte em vez de só sinalizá-las.
 Status: regra ativa a partir de 2026-07-22.
 
+Atualização (2026-07-22): mais uma ocorrência do mesmo padrão encontrada e
+corrigida — `luna` PR #20 mergeou um documento de GENESIS (ADR-014,
+Sistema Sensorial Fluxo A) direto em `docs/architecture/` do monorepo,
+violando o Princípio 8 da Constitution (documentação de GENESIS centralizada
+em `Luna-context.md`) e colidindo de número com o ADR-014 já existente aqui
+(Arquitetura Imunológica de Segurança Cognitiva, Aceito 2026-07-20). Corrigido:
+conteúdo movido para `Luna-context.md` como `ADR-016-Sistema-Sensorial-Fluxo-A.md`
+(Status atualizado para Aceito, ratificado pelo Architect em 2026-07-19), e a
+cópia em `luna` removida fisicamente (não só marcada como superada) — mesmo
+raciocínio já aplicado a `forge/`/`apps/frontend/artifacts/api-server`.
+
 ## ID: GEN-002
 Data: 2026-07-19
 Tópico: Workflow multi-agente de Builder (Claude Code → OpenCode → Aider), via GitHub Actions — v2
