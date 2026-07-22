@@ -45,6 +45,7 @@ Este documento aponta onde cada tipo de informação deve viver.
 | Plano Mestre — Autoprogramação Aderente e Segura da LUNA (tronco, raiz, galhos 1-8, ordem de prioridade) | `GENESIS/PLANO_MESTRE.md` |
 | ADR-014 Arquitetura Imunológica de Segurança Cognitiva (Aceito, ancorado em Art. AAAB.9) | `ADR/ADR-014-Arquitetura-Imunologica-Seguranca-Cognitiva.md` |
 | ADR-015 Gestão de Segredos — nome no código, valor nunca no GitHub (Proposto) | `ADR/ADR-015-Gestao-de-Segredos-Env-Vars.md` |
+| ADR-016 Sistema Sensorial, Fluxo A — navegador controlado pelo servidor, painel lateral no Forge, gate de aprovação (Aceito) | `ADR/ADR-016-Sistema-Sensorial-Fluxo-A.md` |
 | Inferências registradas (auditoria de código, maturidade real de órgãos) | `INFERENCIAS.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).
