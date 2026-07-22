@@ -201,6 +201,22 @@ ARCH-001 (retomar após Forge v0.1 em uso diário). Status revisado:
 bloqueado por congelamento de implementação (ARCH-001), não mais por
 decisão de especificação pendente.
 
+Atualização (2026-07-22): ao portar `luna` PR #15 (capability packs
+Supabase/Railway/Reporter do Gateway) para `luna-core`, o `SupabaseRestAdapter`
+original (`query`/`insert`/`update`/`delete`/`rpc`/`uploadFile`/`downloadFile`)
+foi portado como código de referência para dentro do `SupabaseHubConnector`
+já existente no Connector Hub (`luna-core`
+`src/connector_hub/adapters/supabase-connector.ts`) — não como capability do
+Gateway. As 7 operações continuam sem consumidor no Gateway, no mesmo
+status "bloqueado" que `query`/`insert` já tinham; nenhuma linha de código
+nova viola o Princípio 4. `uploadFile`/`downloadFile` foram avaliadas
+especificamente (são Supabase Storage, não linha de tabela relacional) e
+mantidas bloqueadas também: o Princípio 4 diz "toda persistência", sem
+qualificar como só-relacional, então persistência de arquivo em object
+storage cai na mesma regra. Isto não é o redesenho de STOR-001 — é só
+código de referência pronto, esperando a decisão do Architect. Ver PR
+correspondente em `luna-core` para o diff completo.
+
 ## ID: ENG-012
 Data: 2026-07-18
 Tópico: ENG-006/ENG-008 passam de regra rígida a boa prática ajustável pelo fundador
