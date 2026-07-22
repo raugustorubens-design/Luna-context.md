@@ -23,7 +23,12 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 - [ ] STOR-001 — Redesenhar storage.query/storage.insert do Gateway mediado
   pelo Hipocampo — **especificação decidida via ADR-010 (2026-07-18)**;
   implementação segue bloqueada pelo congelamento do P0 (ARCH-001), não é
-  mais bloqueio de decisão.
+  mais bloqueio de decisão. Atualização (2026-07-22, ver ENG-011): código
+  de referência para as 7 operações do Supabase (`query`/`insert`/`update`/
+  `delete`/`rpc`/`uploadFile`/`downloadFile`, porte de `luna` PR #15) já
+  existe em `luna-core` (`SupabaseHubConnector`), sem consumidor no Gateway
+  — não é implementação do redesenho, só disponibiliza o que o redesenho
+  vai precisar quando destravado.
 - [ ] GEN-001 — Adotar IDs estáveis por domínio em todo item de Roadmap/Framework
 - [ ] REP-001 — Redefinir escopo do Reporter (propagação por evidência)
 - [x] ~~INFRA-001 — Corrigir permissão do GitHub App~~ — correção (2026-07-18, ver BLD-003): confirmado resolvido (ver item correspondente em P1); registrado aqui só por consistência com o ID, não é trabalho novo sob o congelamento do P0.
