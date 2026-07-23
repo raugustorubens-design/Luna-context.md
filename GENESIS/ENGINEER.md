@@ -659,3 +659,47 @@ viabilizar isso — é justamente o oposto: evitar depender de um mecanismo
 automático que já provou side-effects reais e documentados.
 Status: decidido — merge sempre com confirmação explícita, sem
 auto-merge. Não é mais pendência aberta.
+
+## ID: ENG-028
+Data: 2026-07-23
+Tópico: Capacidade de visão registrada (CONV-009) — nada implementado ainda
+
+*Nota de numeração:* pedido original desta entrada citava `ENG-033`; o
+último ID real usado em `GENESIS/*.md` é `ENG-027` — segue como
+`ENG-028`, sequência real, não a assumida.
+
+Observação: Architect precisa de interpretação de fotos para a
+auditoria real que vai conduzir, junto de `CONV-007`
+(relatório/checklist) e `CONV-008` (acompanhamento ao vivo) —
+**nenhum dos dois existe como ID rastreado em `GENESIS/ROADMAP.md` hoje**
+(só `CONV-001` a `CONV-006`, ver `GENESIS/STATUS.md` ENG-021); citados
+aqui como contexto de intenção do Architect, não como itens já
+registrados. Investigação confirmou: nenhum adaptador do luna-core
+processa imagem hoje — nem Groq, nem o AnthropicHubConnector (só texto,
+apesar da API real da Anthropic suportar imagem). Não é ligação de algo
+existente, é capacidade nova.
+
+Decisão de escopo: leitura de foto pela IA nasce `unverified`, não
+`corroborated` — a foto é evidência real, mas a interpretação da IA
+sobre ela ainda pode alucinar, mesma disciplina já aplicada a texto no
+ADR-014 Emenda 1. Só o Originador confirmando promove a leitura pra
+confiança alta.
+Status: registrado (`CONV-009`, `GENESIS/ROADMAP.md` P4), não
+especificado em detalhe, não iniciado.
+
+### Ordem de prioridade sugerida (dado o contexto da auditoria real)
+
+1. `CONV-001` a `CONV-004` (template/editor/preview/lote) — destrava um
+   eventual `CONV-007`, se e quando for registrado como ID real
+2. `CONV-007` (relatório/checklist de auditoria) — ainda não registrado
+   como ID neste roadmap, ver nota acima
+3. `CONV-009` (interpretação de fotos) — pode já ser útil mesmo antes
+   de um eventual `CONV-008` estar pronto (fotos soltas anexadas a um
+   relatório já ajudam, sem precisar do acompanhamento ao vivo completo)
+4. `CONV-008` (acompanhamento ao vivo) — ainda não registrado como ID
+   neste roadmap; o mais complexo dos quatro, precisa de especificação
+   própria de interface
+
+Nenhuma implementação nesta rodada — registro apenas. Architect decide
+quando priorizar `CONV-001`/`CONV-009` dado o prazo real da auditoria,
+e se `CONV-007`/`CONV-008` devem virar IDs rastreados formalmente.
