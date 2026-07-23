@@ -1405,3 +1405,35 @@ Next action: nenhuma minha além de persistir. Promoção formal a Theory
 (e eventual ADR) fica para quando o Architect decidir avançar — este
 commit só aplica o esclarecimento recebido, não abre a Theory nem o ADR
 por conta própria.
+
+## 2026-07-23 — Registro de Theory: Relatório Fotográfico de Auditoria via Convergia
+
+Eu fiz (Builder, via Claude Code, sessão de chat): criei
+`GENESIS/RESEARCH/luna-relatorio-fotografico-auditoria-convergia.md`,
+mesmo diretório e padrão estrutural de `luna-treinamento-adaptativo.md`
+(nenhuma pasta `THEORY/` dedicada existe neste repositório — o pipeline
+Hypothesis→Research→Theory→ADR fica todo em `GENESIS/RESEARCH/` até
+virar ADR de fato, ver `GENESIS/RESEARCH/README.md`). Documenta uma
+especificação completa (Theory, não Hypothesis — sem execução de campo
+ainda, diferente do documento irmão) que une cinco itens já registrados
+isoladamente no Roadmap (`CONV-001`, `CONV-003`, `CONV-005`, `CONV-007`,
+`CONV-009`) num único fluxo de produto: relatório fotográfico de
+auditoria com leitura de NC por IA, edição humana obrigatória, e
+renderização no template visual do cliente. `INDEX.md` ganhou a linha
+correspondente.
+
+Achado de dependência registrado no próprio documento: `CONV-009` e
+`CONV-007` já citavam depender de `CONV-001`-`CONV-004` em abstrato — a
+Theory mostra o motivo concreto (o fluxo fotográfico não fecha sem
+template/render funcionando).
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Três pontos seguem
+explicitamente em aberto no documento (formato de armazenamento de
+foto, se a edição humana retorna como correção ao Hipocampo/Guardian,
+tratamento de proveniência de NC inserida manualmente) — nenhum
+inventado. O próprio documento marca a promoção a ADR como condicionada
+a decisões de caminho técnico (modelo de visão, motor de PDF) ainda não
+tomadas — não é ação minha, é o gate que a Theory já declara.
