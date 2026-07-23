@@ -52,5 +52,6 @@ Este documento aponta onde cada tipo de informação deve viver.
 | Inferências registradas (auditoria de código, maturidade real de órgãos) | `INFERENCIAS.md` |
 | Lista mestra de pendências (ENG-021 a ENG-028 e itens não numerados, entre sessões) | `GENESIS/STATUS.md` |
 | Treinamento Adaptativo com Captura de Conhecimento Tácito (Research Hypothesis, resultado de campo real fora da arquitetura LUNA) | `GENESIS/RESEARCH/luna-treinamento-adaptativo.md` |
+| Relatório Fotográfico de Auditoria via Convergia (Theory — especificação completa, sem execução de campo; une CONV-001/003/005/007/009 num único fluxo) | `GENESIS/RESEARCH/luna-relatorio-fotografico-auditoria-convergia.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).
