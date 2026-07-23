@@ -1437,3 +1437,38 @@ tratamento de proveniência de NC inserida manualmente) — nenhum
 inventado. O próprio documento marca a promoção a ADR como condicionada
 a decisões de caminho técnico (modelo de visão, motor de PDF) ainda não
 tomadas — não é ação minha, é o gate que a Theory já declara.
+
+## 2026-07-23 — Registro de Theory: Editor de Layout do Convergia (Carteirinha/Certificado em Lote)
+
+Eu fiz (Builder, via Claude Code, sessão de chat): criei
+`GENESIS/RESEARCH/luna-editor-layout-carteirinha-certificado.md`, mesmo
+diretório/padrão dos dois documentos irmãos já registrados
+(`luna-treinamento-adaptativo.md`,
+`luna-relatorio-fotografico-auditoria-convergia.md`). Especifica em
+detalhe o que `CONV-002` só registrava de forma vaga no Roadmap: os 4
+tipos de campo do editor (texto, imagem, imagem com fundo transparente,
+flag/checkbox), a distinção carteirinha (1 face) vs. certificado (2
+faces, com Conteúdo Programático editável no verso — achado real de
+auditoria: mais conteúdo do que a norma exige já reprovou um cliente),
+as 3 chaves da entidade Funcionário (RE/Nome/Função Atual) compartilhada
+com os dois documentos irmãos, e duas decisões do Architect sobre dado
+sensível: (1) o Convergia processa sem armazenar o arquivo de dados do
+funcionário — só o layout é persistido, não o dado; (2) documentos
+gerados só ficam disponíveis para download no momento do processamento,
+sem cópia de segurança do lado da LUNA, com aviso obrigatório no início
+e no fim do fluxo — e nota explícita de que essa decisão é de estágio
+atual, não permanente. Também registra telemetria de serviço (KPIs
+operacionais do Convergia, não dado do cliente) como a primeira
+instância concreta de dois itens até então abstratos no Roadmap P5.
+`INDEX.md` ganhou a linha correspondente.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Quatro pontos seguem
+explicitamente em aberto no documento (remoção de fundo da assinatura,
+schema formal da entidade Funcionário, mecanismo/janela de tempo do
+download temporário, formato de persistência do modelo salvo) — nenhum
+inventado. Promoção a ADR segue condicionada, pelo próprio documento, a
+decisões de caminho técnico (motor de PDF, abordagem de transparência da
+assinatura) ainda não tomadas.
