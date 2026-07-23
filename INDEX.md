@@ -51,7 +51,8 @@ Este documento aponta onde cada tipo de informação deve viver.
 | ADR-019 Fechamento Trilhas 1/2 (Memória e Decision Engine) — Memory Signals, Signal Engine, Consolidation Engine v1, Decision Engine v1 escopado (**Proposto** — documenta código já mergeado em `luna-core` PR #19) | `ADR/ADR-019-Signal-Engine-Decision-Engine-Fechamento.md` |
 | Inferências registradas (auditoria de código, maturidade real de órgãos) | `INFERENCIAS.md` |
 | Lista mestra de pendências (ENG-021 a ENG-028 e itens não numerados, entre sessões) | `GENESIS/STATUS.md` |
-| Treinamento Adaptativo com Captura de Conhecimento Tácito (Research Hypothesis, resultado de campo real fora da arquitetura LUNA) | `GENESIS/RESEARCH/luna-treinamento-adaptativo.md` |
+| Treinamento Adaptativo com Captura de Conhecimento Tácito (Research Hypothesis pronta para promoção a Theory, resultado de campo real fora da arquitetura LUNA) | `GENESIS/RESEARCH/luna-treinamento-adaptativo.md` |
+| Relatório Fotográfico de Auditoria via Convergia (Theory — especificação completa, sem execução de campo; une CONV-001/003/005/007/009 num único fluxo) | `GENESIS/RESEARCH/luna-relatorio-fotografico-auditoria-convergia.md` |
 | Editor de Layout do Convergia — Carteirinha/Certificado em Lote (Theory — especificação completa de CONV-002, 4 tipos de campo, faces por template, decisão de processar-sem-armazenar dado sensível) | `GENESIS/RESEARCH/luna-editor-layout-carteirinha-certificado.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).

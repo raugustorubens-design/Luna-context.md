@@ -1373,6 +1373,71 @@ explicitamente não respondidos no documento — aguardam esclarecimento do
 Originador antes deste material poder avançar de Research Hypothesis
 para Theory.
 
+## 2026-07-23 — Atualização: pontos pedagógicos do Treinamento Adaptativo resolvidos
+
+Eu fiz (Builder, via Claude Code, sessão de chat): atualizei
+`GENESIS/RESEARCH/luna-treinamento-adaptativo.md` com o esclarecimento
+do Originador para os dois pontos que a entrada anterior deste mesmo
+arquivo (mais acima) deixou explicitamente em aberto. Mudanças:
+
+- Status promovido de "Research Hypothesis" para "Research Hypothesis
+  pronta para promoção a Theory".
+- Passo 5 do método ganhou os sub-passos 5.1 (reforço socrático por
+  tópico, durante a explicação inicial) e 5.2 (reforço por reformulação
+  de linguagem na revisão final, para distinguir erro de conteúdo de
+  erro de compreensão da pergunta).
+- Seção "Por que está aberto" virou "Pontos que estavam em aberto —
+  resolvidos": resposta do aluno em validação fica em espera explícita,
+  nunca propaga como fato antes de confirmada (mesmo comportamento
+  `unverified` do ADR-014 Emenda 1); reforço pós-revisão é reensino +
+  reformulação da pergunta, não mastery learning indefinido nem só
+  relatório passivo.
+- Novo ponto em aberto, não fabricado: limite de rodadas de reforço
+  antes de escalar ao Originador presencialmente — não mencionado pelo
+  método original, registrado como não bloqueante para a promoção a
+  Theory (pode ser resolvido na própria Theory).
+- `INDEX.md` atualizado para refletir o novo status.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Promoção formal a Theory
+(e eventual ADR) fica para quando o Architect decidir avançar — este
+commit só aplica o esclarecimento recebido, não abre a Theory nem o ADR
+por conta própria.
+
+## 2026-07-23 — Registro de Theory: Relatório Fotográfico de Auditoria via Convergia
+
+Eu fiz (Builder, via Claude Code, sessão de chat): criei
+`GENESIS/RESEARCH/luna-relatorio-fotografico-auditoria-convergia.md`,
+mesmo diretório e padrão estrutural de `luna-treinamento-adaptativo.md`
+(nenhuma pasta `THEORY/` dedicada existe neste repositório — o pipeline
+Hypothesis→Research→Theory→ADR fica todo em `GENESIS/RESEARCH/` até
+virar ADR de fato, ver `GENESIS/RESEARCH/README.md`). Documenta uma
+especificação completa (Theory, não Hypothesis — sem execução de campo
+ainda, diferente do documento irmão) que une cinco itens já registrados
+isoladamente no Roadmap (`CONV-001`, `CONV-003`, `CONV-005`, `CONV-007`,
+`CONV-009`) num único fluxo de produto: relatório fotográfico de
+auditoria com leitura de NC por IA, edição humana obrigatória, e
+renderização no template visual do cliente. `INDEX.md` ganhou a linha
+correspondente.
+
+Achado de dependência registrado no próprio documento: `CONV-009` e
+`CONV-007` já citavam depender de `CONV-001`-`CONV-004` em abstrato — a
+Theory mostra o motivo concreto (o fluxo fotográfico não fecha sem
+template/render funcionando).
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Três pontos seguem
+explicitamente em aberto no documento (formato de armazenamento de
+foto, se a edição humana retorna como correção ao Hipocampo/Guardian,
+tratamento de proveniência de NC inserida manualmente) — nenhum
+inventado. O próprio documento marca a promoção a ADR como condicionada
+a decisões de caminho técnico (modelo de visão, motor de PDF) ainda não
+tomadas — não é ação minha, é o gate que a Theory já declara.
+
 ## 2026-07-23 — Registro de Theory: Editor de Layout do Convergia (Carteirinha/Certificado em Lote)
 
 Eu fiz (Builder, via Claude Code, sessão de chat): criei
