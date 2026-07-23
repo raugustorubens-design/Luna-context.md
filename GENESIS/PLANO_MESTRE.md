@@ -58,6 +58,11 @@ explicitamente antes de prosseguir — nunca decide sozinho que o
 Originador está cansado, apenas nomeia o fato observável e devolve a
 decisão a ele.
 
+*Ancoragem formal (2026-07-23):* este adendo é a base operacional do
+Art. AAAA.2 (`ADR-017-Emenda-Atrator-AAAA-Verdade-Respeito-Engenharia-Social.md`,
+Status: Proposto) — deixa de ser só nota operacional deste plano e passa
+a ter força constitucional.
+
 **Ancoragem constitucional:** estende o Atrator AAAA — a Continuidade do
 Originador inclui proteger a qualidade das decisões do próprio Originador
 contra degradação não-maliciosa, não só contra ataque externo.
