@@ -76,6 +76,25 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 - [ ] Builder: implementar Fluxo A — acompanhamento de vídeos de curso organizados por tópico
 - [ ] Builder: implementar Fluxo B — aplicação do conhecimento em sessões de projeto frontend
 - [ ] Fluxo C (interrupção em tempo real): pendência sem prazo, fora deste ciclo
+- [ ] CONV-009 — Interpretação de fotos (visão computacional via LLM).
+  Nenhum adaptador do luna-core processa imagem hoje — nem Groq, nem o
+  AnthropicHubConnector real (que só manda texto, embora a API da
+  Anthropic suporte imagem nativamente). Caminho mais direto: estender
+  `AnthropicHubConnector` para aceitar blocos de imagem no `content`
+  (a API já suporta; o adapter que precisa mudar). Interpretação de
+  foto nasce com `provenance_state: "unverified"` (a leitura da IA
+  sobre a imagem pode errar, mesmo a foto em si sendo evidência real) —
+  mesma disciplina do ADR-014 Emenda 1, só que aplicada a imagem, não
+  só texto. Promove a `corroborated` só depois de confirmação do
+  Originador. Depende de: endpoint de upload de imagem (não existe
+  hoje), decisão de armazenamento (base64 direto vs. objeto em
+  storage), e escopo de uso real (fotos de auditoria: equipamento,
+  ambiente, documento fotografado). Correção ao pedido de registro:
+  `CONV-007`/`CONV-008` (relatório/checklist de auditoria e
+  acompanhamento ao vivo, citados como contexto para este item) não
+  existem como IDs rastreados neste roadmap hoje — só `CONV-001` a
+  `CONV-006` (ver `GENESIS/STATUS.md`, ENG-021). Ver `GENESIS/ENGINEER.md`
+  ENG-028 para a ordem de prioridade sugerida entre estes itens.
 
 ## P5 — Sistema de crescimento e sustentabilidade
 - [ ] Definir Atrator AAAC — Sustentabilidade (renomeado de AAAB em 2026-07-19: AAAB já é o Atrator Cognitivo, ver ADR-009/LUNA_CONSTITUTION.md)

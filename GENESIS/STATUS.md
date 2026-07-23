@@ -31,6 +31,7 @@ que inventar detalhe que não foi de fato entregue.
 | ENG-025 | Suspeita de alucinação por falta de contexto (FORGE.md) | Hipótese registrada |
 | ENG-026 | Plano de investigação de grounding/alucinação | Avaliado, investigação a iniciar — ver `GENESIS/ENGINEER.md` |
 | ENG-027 | Merge sempre com confirmação explícita, sem auto-merge | Decidido, prática já em uso — ver `GENESIS/ENGINEER.md` |
+| ENG-028 | Capacidade de visão registrada (CONV-009, interpretação de fotos) | Registrado no Roadmap P4, não especificado em detalhe, não iniciado — ver `GENESIS/ENGINEER.md` |
 | — | Recomendações da pesquisa Cursor/Antigravity (Trust Package, política do Connector Hub, etc.) | Só como pesquisa registrada, nunca formalizada em Roadmap — ver `GENESIS/RESEARCH/cursor-vs-antigravity-forge-sintese.md` |
 | — | Honeypot (`luna-security-lab`) | Decidido, repositório nunca criado |
 | — | Chave SSH/GPG do Atrator AAAA | Nunca gerada |

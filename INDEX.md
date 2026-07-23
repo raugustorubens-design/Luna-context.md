@@ -50,6 +50,6 @@ Este documento aponta onde cada tipo de informação deve viver.
 | ADR-018 Autoaperfeiçoamento via Ensino Ativo — índice de confiabilidade, AAAB como corroboração computável, `architect_teaching`, loop socrático via `trace` (**Proposto — aguardando ratificação do Architect**) | `ADR/ADR-018-Autoaperfeicoamento-Ensino-Ativo.md` |
 | ADR-019 Fechamento Trilhas 1/2 (Memória e Decision Engine) — Memory Signals, Signal Engine, Consolidation Engine v1, Decision Engine v1 escopado (**Proposto** — documenta código já mergeado em `luna-core` PR #19) | `ADR/ADR-019-Signal-Engine-Decision-Engine-Fechamento.md` |
 | Inferências registradas (auditoria de código, maturidade real de órgãos) | `INFERENCIAS.md` |
-| Lista mestra de pendências (ENG-021 a ENG-027 e itens não numerados, entre sessões) | `GENESIS/STATUS.md` |
+| Lista mestra de pendências (ENG-021 a ENG-028 e itens não numerados, entre sessões) | `GENESIS/STATUS.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).
