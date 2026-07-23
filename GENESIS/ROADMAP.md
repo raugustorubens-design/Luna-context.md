@@ -15,15 +15,21 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 
 ## FORGE-WORKSPACE-001 — Workspace nativo equivalente a Cursor + VS Code (pós-v0.1, sem prazo)
 
-## P0 — Continuidade Cognitiva Distribuída (CONGELADO, ver ARCH-001 — retomar após Forge v0.1 em uso diário)
+## P0 — Continuidade Cognitiva Distribuída (DESCONGELADO em 2026-07-22, ver ARCH-001)
+
+Condição de descongelamento cumprida: Forge v0.1 em uso diário real,
+confirmado em 2026-07-22 (chat funcionando de ponta a ponta com Groq).
+Retomado precisamente porque o Forge esbarrou na lacuna da fórmula de
+memória que o congelamento adiava — ver ADR-019 e o trabalho de Signal
+Engine já mergeado em luna-core (PRs #19/#20).
 
 - [ ] MEM-001 — Especificar a Operational Memory Layer — **especificação
-  decidida via ADR-010 (2026-07-18)**; implementação segue bloqueada pelo
-  congelamento do P0 (ARCH-001), não é mais bloqueio de decisão.
+  decidida via ADR-010 (2026-07-18)**; implementação liberada — Signal
+  Engine (parte de MEM-001) já implementado, ver ADR-019.
 - [ ] STOR-001 — Redesenhar storage.query/storage.insert do Gateway mediado
   pelo Hipocampo — **especificação decidida via ADR-010 (2026-07-18)**;
-  implementação segue bloqueada pelo congelamento do P0 (ARCH-001), não é
-  mais bloqueio de decisão. Atualização (2026-07-22, ver ENG-011): código
+  implementação liberada — Signal Engine (parte de MEM-001) já
+  implementado, ver ADR-019. Atualização (2026-07-22, ver ENG-011): código
   de referência para as 7 operações do Supabase (`query`/`insert`/`update`/
   `delete`/`rpc`/`uploadFile`/`downloadFile`, porte de `luna` PR #15) já
   existe em `luna-core` (`SupabaseHubConnector`), sem consumidor no Gateway
@@ -63,11 +69,36 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 - [ ] Manter COORDINATION.md como barramento de memória de trabalho, sem virar memória permanente
 - [ ] Fazer o Reporter atuar como gestor operacional: comparar proposto × executado e calcular percentual de conclusão
 - [ ] Criar um Framework Curator para transformar aprendizados consolidados em Frameworks reutilizáveis
+- [ ] ARCH-INV-001 — Reauditar e atualizar `GENESIS/ARCHITECTURE_INVENTORY.md`
+  — documento de 2026-07-19, nunca atualizado desde então, apesar de
+  mudanças reais confirmadas (ADR-012 no mesmo dia já resolveu o P1
+  crítico que o inventário registra como aberto; toda a sessão de
+  2026-07-22/23 não está refletida).
 
 ## P4 — Atividades de framework
 - [ ] Confirmar com GPT/LUNA o paradeiro do frontend de mapeamento de campo ("bolhas") — não encontrado em nenhum repositório auditado
 - [x] ~~Decisão de Architects: portar convergia/ do monorepo luna para luna-convergia (padrão ADR-004), ou manter arquitetura atual~~ — resolvido por ADR-012 (2026-07-19): portado para `luna-core`, não `luna-convergia` — ver nota equivalente em P2.
 - [x] ~~Escrever ADR de migração do Convergia (Engineer), análogo ao ADR-004~~ — é o próprio ADR-012 (2026-07-19).
+- [ ] CONV-001 — Upload de template visual (imagem/arquivo como plano de
+  fundo do documento) — hoje só existe catálogo de templates
+  pré-codificados, sem upload real
+- [ ] CONV-002 — Editor de layout: posicionamento de campos sobre o
+  template (drag, resize, exclusão), com persistência de layout
+  (save/load)
+- [ ] CONV-003 — Motor de preview — visualização prévia fiel ao
+  documento final, antes de gerar/baixar
+- [ ] CONV-004 — Motor de lote (batch) — geração explícita de múltiplos
+  documentos a partir de múltiplos registros, com indicação de progresso
+- [ ] CONV-005 — Renderizador de PDF — hoje só existem CSV/HTML/JSON/
+  Markdown/PPTX/XLSX
+- [ ] CONV-006 — Decisão do Architect: a aba "Conhecimento" (treinamento
+  do Guardian/Hipocampo) permanece dentro do painel Convergia, ou migra
+  para painel próprio
+- [ ] CONV-007 — Gerar relatório/checklist de auditoria a partir de
+  documentos enviados via Convergia. Depende de CONV-001 a CONV-004.
+- [ ] CONV-008 — Acompanhamento de auditoria ao vivo, item por item,
+  com evidência por item. Capacidade nova, sem especificação de
+  interface ainda.
 - [ ] Implementar templates reais dos 13 tipos de documento corporativo — deixa de ser "bloqueado por revisão de especialista": ADR-012 define que o conteúdo passa a ser alimentado via `/api/convergia/training` pelo especialista diretamente (mecanismo já portado), não mais uma revisão externa a esperar.
 - [x] ~~Convergia: renderer PPTX marcado como "parcialmente feito" em ECOSYSTEM_ARCHITECTURE.md~~ — correção (2026-07-19): a doc estava desatualizada, não o código. O renderer já era completo (título + tabela paginada, 18 linhas/slide) antes desta entrada; faltava rigor de teste (só buffer não-vazio). Endurecido em `luna-core` commit `fe5b354` (branch `claude/pptx-renderer-test-rigor`, PR aberto para `main`): teste abre o `.pptx` como zip real, lê XML dos slides, confere título/cabeçalho/valores com dados SSMA/ASO, mais teste de paginação. Ver ECOSYSTEM_ARCHITECTURE.md §Convergia para o texto completo. Templates reais dos 13 tipos de documento (item acima) seguem como pendência separada, não afetada por esta correção.
 - [x] ~~ADR-012 Decisão 2: Interface de Convergia em `luna-frontend`~~ — concluído (2026-07-19, ver `GENESIS/BUILDER.md`): nova área "Convergia" no Forge (`components/forge/convergia-panel.tsx`), mesmo padrão visual/estrutural de `components/forge/` (Tabs, ScrollArea, Button), com o fluxo Catálogo & Upload → Transformação → Conhecimento consumindo `/api/convergia/{catalog,templates,parse,transform,training}` em `luna-core` — `luna-frontend` commit `673b29c` (`main`). Correção adicional no mesmo commit: `sendChatMessage`/`fetchOrganismContext` ainda apontavam para a base antiga de `luna-guardian` (rotas removidas pelo porte da Decisão 1) — atualizados para `LUNA_GATEWAY_BASE_URL` (`luna-core`), junto de `.env.example`/`DEPLOY.md`.
@@ -89,12 +120,12 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
   Originador. Depende de: endpoint de upload de imagem (não existe
   hoje), decisão de armazenamento (base64 direto vs. objeto em
   storage), e escopo de uso real (fotos de auditoria: equipamento,
-  ambiente, documento fotografado). Correção ao pedido de registro:
-  `CONV-007`/`CONV-008` (relatório/checklist de auditoria e
-  acompanhamento ao vivo, citados como contexto para este item) não
-  existem como IDs rastreados neste roadmap hoje — só `CONV-001` a
-  `CONV-006` (ver `GENESIS/STATUS.md`, ENG-021). Ver `GENESIS/ENGINEER.md`
-  ENG-028 para a ordem de prioridade sugerida entre estes itens.
+  ambiente, documento fotografado). `CONV-007`/`CONV-008`
+  (relatório/checklist de auditoria e acompanhamento ao vivo) — quando
+  esta nota foi escrita ainda não existiam como IDs rastreados neste
+  roadmap; agora registrados, ver os dois itens logo acima. Ver
+  `GENESIS/ENGINEER.md` ENG-028 para a ordem de prioridade sugerida
+  entre estes itens.
 
 ## P5 — Sistema de crescimento e sustentabilidade
 - [ ] Definir Atrator AAAC — Sustentabilidade (renomeado de AAAB em 2026-07-19: AAAB já é o Atrator Cognitivo, ver ADR-009/LUNA_CONSTITUTION.md)
@@ -102,7 +133,13 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 - [ ] Definir telemetria econômica para o Reporter
 - [ ] Conectar valor econômico ao Atrator Evolução
 - [ ] Modelar o Sistema Metabólico da LUNA
-- [ ] Criar o Research Pipeline com n8n e IA open source
+- [ ] MEM-003 — Workflow de autoaperfeiçoamento via n8n: pesquisa
+  contínua na web, infere e testa respostas alternativas contra o
+  índice de confiabilidade (ADR-019), propõe correção — nunca aplica
+  sozinho, sujeito ao Gate de Aprovação (Plano Mestre Galho 3, ainda
+  não implementado). Depende de: Fatia 4/índice de confiabilidade em
+  produção (já mergeado), Gate de Aprovação generalizado (não
+  implementado ainda).
 - [ ] Padronizar fontes contínuas de pesquisa e classificação automática de conteúdo
 - [ ] Enviar conhecimento validado ao Guardian apenas após revisão do Reporter
 - [ ] Garantir que cada MVP gere valor mensurável sempre que possível
