@@ -1,12 +1,14 @@
 # Treinamento Adaptativo com Captura de Conhecimento Tácito — Research Hypothesis
 
-Status: Research Hypothesis, com resultado de campo real confirmando a
-teoria (não é hipótese não-testada — o método já rodou fora da
-arquitetura LUNA, com resultado positivo mensurado). Não implementado no
-Convergia/Cognitive Engine ainda. Registrado a partir de relato direto do
-Originador (2026-07-23), Engineer presente na sessão que extraiu e
-organizou o método, sem ter presenciado a execução original (que ocorreu
-numa sessão de ChatGPT, fora desta conversa).
+Status: Research Hypothesis pronta para promoção a Theory, com resultado
+de campo real confirmando a teoria (não é hipótese não-testada — o
+método já rodou fora da arquitetura LUNA, com resultado positivo
+mensurado) e com os dois pontos pedagógicos centrais já esclarecidos
+pelo Originador (ver "Pontos que estavam em aberto — resolvidos"). Não
+implementado no Convergia/Cognitive Engine ainda. Registrado a partir de
+relato direto do Originador (2026-07-23), Engineer presente na sessão
+que extraiu e organizou o método, sem ter presenciado a execução
+original (que ocorreu numa sessão de ChatGPT, fora desta conversa).
 
 ## Origem
 
@@ -28,6 +30,19 @@ integração de segurança, entre outros.
    consolidada: 1 pergunta por tópico.
 5. Critério de aprovação na revisão: o aluno precisa acertar pelo menos
    80% das questões.
+   5.1. Reforço por tópico, durante a explicação inicial (passo 3): se
+        o aluno erra 2 das 3 perguntas de um tópico, a IA explica a
+        matéria daquele tópico novamente e questiona sobre o
+        entendimento de forma socrática (perguntas que levam o aluno a
+        articular o raciocínio, não repetição direta da mesma
+        pergunta).
+   5.2. Reforço na revisão final (passo 4), se o aluno não atinge 80%:
+        a IA separa as questões que o aluno respondeu incorretamente,
+        explica novamente a matéria referente a cada questão, e
+        esclarece a questão em si reformulando-a de 2 a 3 maneiras
+        diferentes, em linguagem coloquial e menos técnica — o
+        objetivo explícito é distinguir erro por não saber a resposta
+        de erro por não ter entendido a pergunta.
 6. Captura de conhecimento tácito (o elemento mais novo do método):
    quando a IA identifica uma lacuna ou tem dúvida sobre como um assunto
    é tratado na prática real (não coberto, ou coberto de forma
@@ -77,27 +92,43 @@ confirmação do Originador — nunca aceita direto na palavra do aluno.
 Isto é extensão por analogia de um princípio já ratificado, não uma
 decisão nova sendo tomada aqui.
 
-## Por que está aberto (não fabricado)
+## Pontos que estavam em aberto — resolvidos (2026-07-23)
 
-- O que a IA faz com a resposta do aluno enquanto a validação não chega
-  (nem bate com documento, nem chegou confirmação do Originador a
-  tempo): usa como provisória na própria conversa (arriscando repetir
-  algo não confirmado a outro aluno), ou aguarda em silêncio até
-  confirmação? Não foi especificado pelo Originador ainda.
-- Se o aluno não atinge 80% na revisão final: não foi especificado se a
-  IA repete explicação + nova rodada de perguntas até o aluno passar
-  (loop fechado de mastery learning), ou se apenas reporta o resultado
-  (quais tópicos falharam) como insumo para o Originador tratar na parte
-  prática presencial.
+**O que a IA faz com a resposta do aluno enquanto a validação não
+chega:** não infere o conhecimento — fica em estado de espera explícito
+("como numa fila de framework", nas palavras do Originador). A resposta
+do aluno não é usada como fato em nenhuma outra conversa, com nenhum
+outro aluno, até ser validada por um dos dois caminhos do passo 7. Isto
+é o mesmo comportamento de `unverified` já usado em CONV-009/ADR-014
+Emenda 1 — não promove a `corroborated` sem confirmação, e enquanto
+isso, não propaga.
+
+**O que acontece se o aluno não atinge 80% na revisão final:** não é
+loop de mastery learning que insiste indefinidamente, nem é só
+relatório de diagnóstico sem ação — é uma combinação: a IA identifica
+exatamente quais questões o aluno errou, reensina a matéria
+correspondente, e reformula a própria pergunta de 2-3 formas diferentes
+em linguagem mais simples — porque o Originador quer isolar se o erro é
+de conteúdo (aluno não sabe) ou de formulação (aluno não entendeu o que
+foi perguntado). Isto é distinto do reforço socrático do passo 5.1 (que
+acontece durante a explicação inicial, tópico a tópico) — aqui o foco é
+reformulação de linguagem, não apenas reexplicação de conteúdo.
+
+## O que ainda não está definido (não fabricado, sinalizado como aberto)
+
 - Nenhuma decisão de arquitetura (ADR) foi tomada ainda sobre como ligar
   Convergia → Cognitive Engine → Guardian neste fluxo específico. Este
   documento é o registro do método e do resultado de campo — a
   especificação técnica (que capability, que contrato, que rota) é passo
   seguinte, não coberto aqui.
+- Não especificado: depois de quantas rodadas de reforço (5.1 ou 5.2)
+  sem sucesso a IA para de insistir e escala para o Originador
+  presencialmente — o método, como relatado, não menciona um limite.
 
 ## Próximo passo sugerido
 
-Arquitetar como Theory (segundo passo do pipeline Hypothesis → Research
-→ Theory → Architecture (ADR) → Implementation) depois que o Originador
-esclarecer os dois pontos em aberto acima. Só depois disso caberia um
-ADR formal.
+Os dois pontos pedagógicos centrais já estão resolvidos — este documento
+está pronto para promoção a Theory (segundo passo do pipeline
+Hypothesis → Research → Theory → Architecture (ADR) → Implementation).
+O único ponto remanescente (limite de rodadas de reforço) pode ser
+resolvido na própria Theory, não bloqueia a promoção.
