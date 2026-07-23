@@ -1372,3 +1372,36 @@ acontece se o aluno não atingir 80% na revisão) permanecem
 explicitamente não respondidos no documento — aguardam esclarecimento do
 Originador antes deste material poder avançar de Research Hypothesis
 para Theory.
+
+## 2026-07-23 — Atualização: pontos pedagógicos do Treinamento Adaptativo resolvidos
+
+Eu fiz (Builder, via Claude Code, sessão de chat): atualizei
+`GENESIS/RESEARCH/luna-treinamento-adaptativo.md` com o esclarecimento
+do Originador para os dois pontos que a entrada anterior deste mesmo
+arquivo (mais acima) deixou explicitamente em aberto. Mudanças:
+
+- Status promovido de "Research Hypothesis" para "Research Hypothesis
+  pronta para promoção a Theory".
+- Passo 5 do método ganhou os sub-passos 5.1 (reforço socrático por
+  tópico, durante a explicação inicial) e 5.2 (reforço por reformulação
+  de linguagem na revisão final, para distinguir erro de conteúdo de
+  erro de compreensão da pergunta).
+- Seção "Por que está aberto" virou "Pontos que estavam em aberto —
+  resolvidos": resposta do aluno em validação fica em espera explícita,
+  nunca propaga como fato antes de confirmada (mesmo comportamento
+  `unverified` do ADR-014 Emenda 1); reforço pós-revisão é reensino +
+  reformulação da pergunta, não mastery learning indefinido nem só
+  relatório passivo.
+- Novo ponto em aberto, não fabricado: limite de rodadas de reforço
+  antes de escalar ao Originador presencialmente — não mencionado pelo
+  método original, registrado como não bloqueante para a promoção a
+  Theory (pode ser resolvido na própria Theory).
+- `INDEX.md` atualizado para refletir o novo status.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Promoção formal a Theory
+(e eventual ADR) fica para quando o Architect decidir avançar — este
+commit só aplica o esclarecimento recebido, não abre a Theory nem o ADR
+por conta própria.
