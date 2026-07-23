@@ -46,6 +46,9 @@ Este documento aponta onde cada tipo de informação deve viver.
 | ADR-014 Arquitetura Imunológica de Segurança Cognitiva (Aceito, ancorado em Art. AAAB.9) | `ADR/ADR-014-Arquitetura-Imunologica-Seguranca-Cognitiva.md` |
 | ADR-015 Gestão de Segredos — nome no código, valor nunca no GitHub (Proposto) | `ADR/ADR-015-Gestao-de-Segredos-Env-Vars.md` |
 | ADR-016 Sistema Sensorial, Fluxo A — navegador controlado pelo servidor, painel lateral no Forge, gate de aprovação (Aceito) | `ADR/ADR-016-Sistema-Sensorial-Fluxo-A.md` |
+| ADR-017 Emenda ao Atrator AAAA — Verdade, Respeito à Decisão e Proibição de Engenharia Social (AAAA.1-5) (**Proposto — aguardando ratificação do Architect**) | `ADR/ADR-017-Emenda-Atrator-AAAA-Verdade-Respeito-Engenharia-Social.md` |
+| ADR-018 Autoaperfeiçoamento via Ensino Ativo — índice de confiabilidade, AAAB como corroboração computável, `architect_teaching`, loop socrático via `trace` (**Proposto — aguardando ratificação do Architect**) | `ADR/ADR-018-Autoaperfeicoamento-Ensino-Ativo.md` |
+| ADR-019 Fechamento Trilhas 1/2 (Memória e Decision Engine) — Memory Signals, Signal Engine, Consolidation Engine v1, Decision Engine v1 escopado (**Proposto** — documenta código já mergeado em `luna-core` PR #19) | `ADR/ADR-019-Signal-Engine-Decision-Engine-Fechamento.md` |
 | Inferências registradas (auditoria de código, maturidade real de órgãos) | `INFERENCIAS.md` |
 | Lista mestra de pendências (ENG-021 a ENG-027 e itens não numerados, entre sessões) | `GENESIS/STATUS.md` |
 
