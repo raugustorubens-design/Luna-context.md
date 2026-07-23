@@ -1338,3 +1338,37 @@ Next action: nenhuma minha além de persistir. A ordem de prioridade
 sugerida pelo próprio registro (ENG-027 primeiro — já decidido e em
 uso — depois ENG-022) fica registrada em `GENESIS/STATUS.md` para a
 próxima sessão consultar antes de abrir frente nova.
+
+## 2026-07-23 — Registro de Research Hypothesis: Treinamento Adaptativo com Captura de Conhecimento Tácito
+
+Eu fiz (Builder, via Claude Code, sessão de chat): persisti o pacote
+recebido do Engineer — que relatou não commitar diretamente, papel
+exclusivo do Builder — criando
+`GENESIS/RESEARCH/luna-treinamento-adaptativo.md` (mesmo padrão de
+`meta-cognitive-memory.md`: Status → seções → "Por que está aberto").
+Registra um método de treinamento adaptativo com captura de conhecimento
+tácito conduzido pelo Originador com ChatGPT (fora da arquitetura LUNA),
+com resultado de campo real (aprovação em prova teórica e prática) —
+Research Hypothesis com evidência, não ideia especulativa. `INDEX.md`
+ganhou a linha correspondente.
+
+**Gap sinalizado, não corrigido silenciosamente:** o pedido descrevia
+"mesma convenção usada para os outros arquivos de RESEARCH/" em
+`INDEX.md` — conferido: `INDEX.md` não tinha, antes desta entrada,
+nenhuma linha individual para arquivos de `GENESIS/RESEARCH/`
+(`meta-cognitive-memory.md` e `cursor-vs-antigravity-forge-sintese.md`
+não estão indexados lá; só `GENESIS/README.md` §Files menciona o
+diretório genericamente, e `GENESIS/STATUS.md` referencia
+`cursor-vs-antigravity-forge-sintese.md` como pendência, não como
+índice). Esta é a primeira linha de `RESEARCH/` em `INDEX.md` — não
+retroagi para adicionar as outras duas, fora do escopo deste pacote.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Os dois pontos em aberto
+(o que a IA faz enquanto uma resposta do aluno aguarda validação; o que
+acontece se o aluno não atingir 80% na revisão) permanecem
+explicitamente não respondidos no documento — aguardam esclarecimento do
+Originador antes deste material poder avançar de Research Hypothesis
+para Theory.
