@@ -1295,3 +1295,46 @@ Eu fiz (via Claude Code, headless, GitHub Actions): apliquei o
 pacote `pending-packages/2026-07-21-teste-gen-002-fase1.md` em `raugustorubens-design/luna-core`. Sucesso. Branch criada: https://github.com/raugustorubens-design/luna-core/tree/builder/29791773565.
 
 Run: https://github.com/raugustorubens-design/Luna-context.md/actions/runs/29791773565
+
+## 2026-07-22 — Registro consolidado da noite: ENG-026, ENG-027, GENESIS/STATUS.md
+
+Eu fiz (Builder, via Claude Code, sessão de chat): persisti o "Registro
+consolidado — 2026-07-22 (noite)" recebido nesta instrução —
+`GENESIS/ENGINEER.md` ganhou ENG-026 (plano de investigação de
+grounding/alucinação, ligado a ENG-025) e ENG-027 (decisão do Architect
+de nunca depender de auto-merge, sempre confirmação explícita). Criei
+`GENESIS/STATUS.md` — primeiro conteúdo real de um arquivo que só existia
+como item aspiracional em `GENESIS/README.md` §Files e no Roadmap P3
+("Criar/atualizar os arquivos do Genesis... STATUS.md, HISTORY.md e
+TASKS.md") — com a lista mestra de pendências (ENG-021 a ENG-027 + itens
+não numerados). `HISTORY.md`/`TASKS.md` seguem não criados; atualizei a
+linha correspondente do Roadmap P3 para refletir isso, sem marcar o item
+inteiro como concluído. `INDEX.md` ganhou a entrada de `STATUS.md`.
+
+**Correção aplicada durante a persistência, não silenciosa:** o texto
+original de ENG-026 citava "ADR-016" como a especificação já existente do
+conceito "Quarentena Cognitiva" (direção 4 do Architect, Guardian como
+filtro de saída). Conferi contra o ADR-016 real deste repositório
+(`ADR-016-Sistema-Sensorial-Fluxo-A.md`, mergeado mais cedo nesta mesma
+sessão de trabalho) — ele não menciona quarentena em lugar nenhum; é sobre
+Playwright/Provider Router/painel do navegador. O ADR real com
+"Quarentena Cognitiva" (Partes V e VII) é o ADR-014 (Arquitetura
+Imunológica de Segurança Cognitiva). Corrigido antes de commitar, com a
+correção anotada inline na própria entrada ENG-026 — não apaguei o erro
+silenciosamente, porque ENG-026 é justamente sobre esse tipo de falha de
+citação, e deixá-lo entrar errado no registro permanente seria o mesmo
+problema que o item existe para investigar.
+
+**Gap sinalizado, não escondido:** ENG-021 a ENG-025 aparecem na tabela de
+`GENESIS/STATUS.md` só com tópico e status — não tenho o conteúdo
+completo original de nenhum deles (só foi entregue o resumo), então não
+fabriquei entradas completas para eles em `GENESIS/ENGINEER.md`. Registrado
+explicitamente no próprio `STATUS.md` como pendência à parte.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/coordenação.
+
+Next action: nenhuma minha além de persistir. A ordem de prioridade
+sugerida pelo próprio registro (ENG-027 primeiro — já decidido e em
+uso — depois ENG-022) fica registrada em `GENESIS/STATUS.md` para a
+próxima sessão consultar antes de abrir frente nova.

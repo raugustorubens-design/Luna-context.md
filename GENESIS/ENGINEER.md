@@ -595,3 +595,67 @@ automática), não só UI. Depois de ratificado, Builder implementa em
 fases: (1) Claude Code sozinho, headless, sem fallback ainda — prova o
 caminho básico; (2) adiciona OpenCode como reserva; (3) adiciona Aider;
 (4) atualiza o painel do Forge pra mostrar atribuição visual.
+
+## ID: ENG-026
+Data: 2026-07-22
+Tópico: Plano de investigação — continuidade de contexto entre agentes e alucinação (ligado a ENG-025)
+
+Observação: proposta do Architect, quatro direções possíveis para reduzir
+alucinação de agentes sobre o próprio estado do projeto: (1) regra
+constitucional de grounding obrigatório (citar fonte ou admitir
+desconhecimento); (2) separar fato/inferência também na saída
+conversacional, não só na gravação de memória; (3) checkpoint de
+reconsulta ao Reporter/GitHub antes de decisão de peso; (4) Guardian como
+filtro de saída, não só de entrada.
+
+Avaliação do Engineer: não desenhar regra ainda — testar primeiro onde a
+falha real está, ligado ao caso concreto do ENG-025 (Claude/GPT
+alucinando sobre "o que é o Forge"). Duas causas possíveis, que pedem
+correção diferente: (a) `GENESIS/FORGE.md` nunca foi consolidado na
+memória do Guardian — problema de retrieval, nenhuma regra de citação
+resolve; (b) o documento existe na memória, mas o agente não usou —
+nesse caso as direções 2 e 3 se aplicam.
+
+Nota: a direção 4 (Guardian como filtro de saída) já tem equivalente
+especificado — é o "Reasoning Integrity" do ADR-014, Parte III (Reporter
+compara resposta nova a precedentes, sinaliza divergência sem bloquear).
+Não é capacidade nova, é extensão de algo já decidido — mesmo padrão de
+duplicação já visto antes (ver ADR-014, não ADR-016 — correção aplicada
+nesta persistência: o registro original recebido citava "ADR-016" para o
+conteúdo de "Quarentena Cognitiva", mas ADR-016 real neste repositório é
+Sistema Sensorial/Fluxo A e não menciona quarentena em lugar nenhum;
+"Quarentena Cognitiva" é ADR-014, Parte V/VII. Sinalizando a correção
+explicitamente em vez de persistir a citação errada — é exatamente o
+tipo de erro de referência que este próprio item, ENG-026, existe para
+investigar).
+
+Ação sugerida: primeiro passo é investigação (não implementação) — checar
+se `GENESIS/FORGE.md` e documentos GENESIS equivalentes já foram
+consolidados no Guardian alguma vez, ou se o Hipocampo nunca teve esse
+conteúdo pra reconstruir. Resultado dessa investigação decide qual das 4
+direções (ou combinação) faz sentido especificar formalmente depois.
+Status: avaliado, investigação ainda não iniciada.
+
+## ID: ENG-027
+Data: 2026-07-22
+Tópico: Merge de PR sempre exige confirmação explícita — decisão do Architect, não depender de auto-merge
+
+Observação: investigada a causa da inconsistência observada (algumas PRs
+mergeadas sem instrução explícita, outras esperando "tira de draft e
+mergeia"). Confirmado, via documentação oficial do Claude Code: o
+auto-merge só age "assim que todas as verificações (CI) passarem" — e
+praticamente nenhum repositório do ecossistema LUNA tem CI configurado
+hoje, o que torna esse comportamento ambíguo na prática. Também
+confirmado: existe caso documentado publicamente de Claude Code
+mergeando PR em produção sem aprovação humana, tratado pela própria
+Anthropic como risco de segurança.
+
+Decisão do Architect: **não perseguir auto-merge agora.** Mantém-se o
+padrão manual já usado com sucesso a noite toda — toda PR fica em draft,
+Engineer confirma o conteúdo real (contra o GitHub, não só o relato da
+sessão), e só depois disso alguém (Architect ou instrução explícita do
+Engineer) manda mergear. Nenhuma configuração de CI é necessária para
+viabilizar isso — é justamente o oposto: evitar depender de um mecanismo
+automático que já provou side-effects reais e documentados.
+Status: decidido — merge sempre com confirmação explícita, sem
+auto-merge. Não é mais pendência aberta.

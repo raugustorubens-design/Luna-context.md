@@ -47,5 +47,6 @@ Este documento aponta onde cada tipo de informação deve viver.
 | ADR-015 Gestão de Segredos — nome no código, valor nunca no GitHub (Proposto) | `ADR/ADR-015-Gestao-de-Segredos-Env-Vars.md` |
 | ADR-016 Sistema Sensorial, Fluxo A — navegador controlado pelo servidor, painel lateral no Forge, gate de aprovação (Aceito) | `ADR/ADR-016-Sistema-Sensorial-Fluxo-A.md` |
 | Inferências registradas (auditoria de código, maturidade real de órgãos) | `INFERENCIAS.md` |
+| Lista mestra de pendências (ENG-021 a ENG-027 e itens não numerados, entre sessões) | `GENESIS/STATUS.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).

@@ -50,7 +50,7 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 - [x] ~~Consolidar a decisão arquitetural sobre Convergia: portar a implementação real do monorepo luna para luna-convergia ou manter a arquitetura atual~~ — resolvido por ADR-012 (2026-07-19): nem um nem outro exatamente — o Convergia completo foi portado para `luna-core` (não para `luna-convergia`, que segue como esqueleto de 1 endpoint, órfão), com interface de usuário em `luna-frontend`. Decisão formal registrada no ADR, não a mesma alternativa binária que este item original enumerava.
 
 ## P3 — Genesis e coordenação do organismo
-- [ ] Criar/atualizar os arquivos do Genesis para coordenação em tempo real: STATUS.md, HISTORY.md e TASKS.md
+- [ ] Criar/atualizar os arquivos do Genesis para coordenação em tempo real: STATUS.md, HISTORY.md e TASKS.md — `STATUS.md` criado em 2026-07-22 (lista mestra de pendências, ver `GENESIS/STATUS.md`); `HISTORY.md`/`TASKS.md` seguem não criados, item continua aberto até os três existirem.
 - [ ] Manter COORDINATION.md como barramento de memória de trabalho, sem virar memória permanente
 - [ ] Fazer o Reporter atuar como gestor operacional: comparar proposto × executado e calcular percentual de conclusão
 - [ ] Criar um Framework Curator para transformar aprendizados consolidados em Frameworks reutilizáveis
