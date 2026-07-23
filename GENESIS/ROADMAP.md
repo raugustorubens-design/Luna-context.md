@@ -29,6 +29,15 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
   existe em `luna-core` (`SupabaseHubConnector`), sem consumidor no Gateway
   — não é implementação do redesenho, só disponibiliza o que o redesenho
   vai precisar quando destravado.
+- [ ] MEM-002 — LUNA compacta o próprio contexto de conversa usando a
+  mesma fórmula de consolidação de memória (Memory Signals/Signal
+  Engine, ver ADR-019), preservando um arquivo temporário completo (não
+  compactado) para consulta/auditoria sob demanda — mesmo padrão
+  observado no mecanismo de compactação do próprio Claude (resumo
+  estruturado + transcript de backup acessível). Depende de o Signal
+  Engine calcular sinais reais sobre um objeto genérico
+  (`ConversationObject` em vez de `MemoryObject`) — não implementado
+  ainda (registrado, ADR-019 Parte 0/3).
 - [ ] GEN-001 — Adotar IDs estáveis por domínio em todo item de Roadmap/Framework
 - [ ] REP-001 — Redefinir escopo do Reporter (propagação por evidência)
 - [x] ~~INFRA-001 — Corrigir permissão do GitHub App~~ — correção (2026-07-18, ver BLD-003): confirmado resolvido (ver item correspondente em P1); registrado aqui só por consistência com o ID, não é trabalho novo sob o congelamento do P0.
