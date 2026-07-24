@@ -1472,3 +1472,42 @@ download temporário, formato de persistência do modelo salvo) — nenhum
 inventado. Promoção a ADR segue condicionada, pelo próprio documento, a
 decisões de caminho técnico (motor de PDF, abordagem de transparência da
 assinatura) ainda não tomadas.
+
+## 2026-07-24 — LUNA_COGNITIVE_LEXICON.md + correção de repositório-alvo
+
+Eu fiz (Builder, via Claude Code): criei `LUNA_COGNITIVE_LEXICON.md` na
+raiz deste repositório, conteúdo exatamente como formulado pelo Architect
+(via GPT) — vocabulário ECP, CIL, Attention Layer, Episodic Memory,
+Consolidation Layer, Reflection Layer, Self-Model, Memory Normalization
+Layer, L-Cell, Memória Associativa, Salience + Reinforcement, Continuidade
+Cognitiva, Economia Cognitiva, Memória Distribuída — cada termo cruzado
+com sua contrapartida real em ADR/código quando conhecida, sem decidir
+nenhuma reconciliação de nome. Adicionei a entrada correspondente em
+`INDEX.md` § "Documentos principais" e na tabela "Conteúdo atual".
+
+Corrigi também a entrada obsoleta de Convergia em `GENESIS/ARCHITECTS.md`
+("Novo item — Convergia: decisão de migração pendente"): ainda descrevia a
+migração para `luna-convergia` como pendente, mas ADR-012 (Aceito,
+2026-07-19) já decidiu e aplicou o porte para `luna-core`, e o repositório
+`luna-convergia` foi removido. Adicionei nota de atualização no topo da
+seção, preservando o texto original abaixo como registro histórico — não
+apaguei a decisão original (Princípio 8 da Constituição).
+
+Nota de processo — autocorreção de repositório: a primeira tentativa desta
+mesma tarefa foi commitada por engano no monorepo `luna`
+(`raugustorubens-design/luna`, PR #26, `GENESIS/LEXICO_ARQUITETURA_COGNITIVA.md`),
+não no repositório-alvo correto `raugustorubens-design/Luna-context.md`
+que a instrução original especificava explicitamente. Mesmo padrão de erro
+já registrado neste arquivo para `GENESIS/PLANO_MESTRE.md` numa sessão
+anterior. Aplicado aqui, no repositório certo, com o nome de arquivo e
+localização corretos (raiz, não `GENESIS/`); a PR #26 em `luna` não deve
+ser mergeada — fica aberta e sinalizada como erro de repositório, não
+fechada por esta sessão sem confirmação do Originador.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação GENESIS/léxico.
+
+Next action: nenhuma minha além de persistir. Reconciliação de nomes
+(CIL ↔ `indice-cognitivo.ts`/`context-hub.ts`; Self-Model ↔ Identity
+Layer) segue em aberto, registrada no próprio léxico como decisão futura
+do Architect.

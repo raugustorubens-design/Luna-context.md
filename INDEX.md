@@ -5,6 +5,7 @@ Este documento aponta onde cada tipo de informação deve viver.
 ## Documentos principais
 
 - `LUNA_CONSTITUTION.md` — regras permanentes do organismo.
+- `LUNA_COGNITIVE_LEXICON.md` — vocabulário da arquitetura cognitiva (ECP, CIL, L-Cell, etc.), cruzado com o que já existe em ADR/código.
 - `LUNA_CONTEXT.md` — contexto global, visão e estado atual.
 - `ECOSYSTEM_ARCHITECTURE.md` — arquitetura de alto nível do ecossistema.
 - `GENESIS/ARCHITECTURE_INVENTORY.md` — inventário canônico dos 7 repositórios (responsabilidades, dependências, conexões externas, ambientes, Railway/Vercel/Supabase), com evidência citada e status "Não confirmado" onde aplicável. Documento vivo — atualizar, não recriar.
@@ -54,5 +55,6 @@ Este documento aponta onde cada tipo de informação deve viver.
 | Treinamento Adaptativo com Captura de Conhecimento Tácito (Research Hypothesis pronta para promoção a Theory, resultado de campo real fora da arquitetura LUNA) | `GENESIS/RESEARCH/luna-treinamento-adaptativo.md` |
 | Relatório Fotográfico de Auditoria via Convergia (Theory — especificação completa, sem execução de campo; une CONV-001/003/005/007/009 num único fluxo) | `GENESIS/RESEARCH/luna-relatorio-fotografico-auditoria-convergia.md` |
 | Editor de Layout do Convergia — Carteirinha/Certificado em Lote (Theory — especificação completa de CONV-002, 4 tipos de campo, faces por template, decisão de processar-sem-armazenar dado sensível) | `GENESIS/RESEARCH/luna-editor-layout-carteirinha-certificado.md` |
+| Léxico da Arquitetura Cognitiva — vocabulário ECP/CIL/L-Cell/etc., cruzado com ADR/código existentes, termos de reconciliação em aberto marcados | `LUNA_COGNITIVE_LEXICON.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).
