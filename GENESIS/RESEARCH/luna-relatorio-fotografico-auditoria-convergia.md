@@ -20,7 +20,7 @@ produto concreto. Não implementado.
    relatório final não fica limitado ao que a IA percebeu.
 6. Ao final, geração de uma conclusão consolidada do relatório, no
    mesmo padrão do documento real já usado como referência (Relatório
-   de Acompanhamento Operacional, Sylvamo — Unidade Luís Antônio:
+   de Acompanhamento Operacional, SMX eXperience teCnollogy — Unidade Luís Antônio:
    Objetivo + Atividades Acompanhadas → Tabela de Oportunidades de
    Melhoria → Legenda de critérios → Conclusão → Anexo de fotos →
    Referências normativas).

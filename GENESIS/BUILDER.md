@@ -1511,3 +1511,46 @@ Next action: nenhuma minha além de persistir. Reconciliação de nomes
 (CIL ↔ `indice-cognitivo.ts`/`context-hub.ts`; Self-Model ↔ Identity
 Layer) segue em aberto, registrada no próprio léxico como decisão futura
 do Architect.
+
+## 2026-07-24 — Convergia consolidado + tabela de risco ISO/outcome + substituição de nomes de cliente
+
+Eu fiz (Builder, via Claude Code, sessão de chat), as 5 ações do pacote,
+num único commit — confirmei antes de começar que este repositório
+(`raugustorubens-design/Luna-context.md`) é o alvo correto, exatamente
+como a instrução pedia (não `raugustorubens-design/luna`, o mesmo erro
+já registrado neste arquivo para `GENESIS/PLANO_MESTRE.md` e para o
+Léxico Cognitivo em sessões anteriores):
+
+1. Criei `GENESIS/RESEARCH/convergia-spec-tecnica-consolidada.md` — conteúdo
+   exatamente como entregue no pacote, sem edição.
+2. Criei `GENESIS/RESEARCH/luna-tabela-risco-iso-outcome.md` — conteúdo
+   exatamente como entregue, sem edição.
+3. Substituí "Sylvamo"/"Manserv" por "SMX eXperience teCnollogy" nos 3
+   arquivos indicados (`luna-treinamento-adaptativo.md`,
+   `luna-relatorio-fotografico-auditoria-convergia.md`,
+   `luna-editor-layout-carteirinha-certificado.md`) — 4 ocorrências ao
+   todo (2 no arquivo do editor de layout, que exigiram 2 edições
+   separadas por causa de quebra de linha diferente em cada uma).
+   Rodei `grep -rni "sylvamo|manserv"` em todo o repositório antes e
+   depois: nada mais existia fora desses 3 arquivos (`ARCHITECTURE_INVENTORY.md`,
+   `ARCHITECTS.md`, `ROADMAP.md` e `LUNA_COGNITIVE_LEXICON.md`, citados
+   explicitamente na instrução, conferidos e limpos), e a busca final
+   confirma zero ocorrências no repositório inteiro.
+4. Adicionei as 2 entradas novas em `INDEX.md` § "Conteúdo atual".
+5. Esta entrada — autoatestação única cobrindo as 5 ações no mesmo commit,
+   como pedido.
+
+**Achado não pedido, sinalizado e corrigido, não ignorado:** o texto
+recebido para a Especificação Técnica Consolidada do Convergia cita
+"ADR-019" para a limitação de busca léxica do Signal Engine — conferi
+contra o `ADR-019-Signal-Engine-Decision-Engine-Fechamento.md` real
+(mergeado nesta mesma sessão de trabalho, antes deste pacote) e a
+citação está correta (Signal Engine usa Jaccard, sem embedding), então
+não precisou de correção — registrando que conferi, não que assumi.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Ambos os documentos estão
+marcados como prontos para virar ADR/decisão formal — depende de revisão
+do Architect, não deste commit.

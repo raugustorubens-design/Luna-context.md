@@ -97,8 +97,8 @@ carteirinha usa 1, certificado usa 2.
 Consolidação do que já aparecia de forma consistente em todos os
 documentos reais analisados nesta conversa (Planilha de Riscos, PGR,
 Carteirinha, OSSM) — agora confirmado explicitamente pelo Originador
-como modelo de dado, mais a planilha-mestre real (Manserv Logística)
-que alimenta o processamento em lote.
+como modelo de dado, mais a planilha-mestre real (SMX eXperience
+teCnollogy) que alimenta o processamento em lote.
 
 As 3 chaves relacionais:
 
@@ -118,8 +118,7 @@ As 3 chaves relacionais:
     como campos fixos; Cargo determina quais categorias de autorização
     (flags do tipo 4 acima) fazem sentido para aquela pessoa.
 
-Campos completos confirmados na planilha-mestre real (Manserv
-Logística, exemplo real inspecionado nesta conversa): RE, Nome, Função
+Campos completos confirmados na planilha-mestre real (SMX eXperience teCnollogy, exemplo real inspecionado nesta conversa): RE, Nome, Função
 Atual, Data de Admissão, PCE, Status, Setor, Turno, Mobilização, Data de
 Nascimento, Idade, Sexo, PIS, CPF, RG — e um bloco de contato separado:
 Telefone, Endereço, Nº, Bairro, Cidade.

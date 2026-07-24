@@ -12,7 +12,7 @@ original (que ocorreu numa sessão de ChatGPT, fora desta conversa).
 
 ## Origem
 
-O Originador (técnico de segurança do trabalho, Manserv/Sylvamo) já
+O Originador (técnico de segurança do trabalho, SMX eXperience teCnollogy) já
 conduziu, em pelo menos uma ocasião real, um treinamento em que a IA
 (ChatGPT, não a LUNA) ministrou a parte teórica de um treinamento de
 segurança do trabalho, enquanto o Originador conduziu a parte prática
