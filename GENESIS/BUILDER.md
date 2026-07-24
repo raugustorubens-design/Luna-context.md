@@ -1554,3 +1554,41 @@ documentação/pesquisa.
 Next action: nenhuma minha além de persistir. Ambos os documentos estão
 marcados como prontos para virar ADR/decisão formal — depende de revisão
 do Architect, não deste commit.
+
+## 2026-07-24 — Correção de empacotamento: separar domínio Hipocampo/Signal Engine do Convergia
+
+Eu fiz (Builder, via Claude Code, sessão de chat): o pacote anterior
+(commit anterior, mesma sessão) empacotou dois documentos de domínios de
+arquitetura diferentes — `convergia-spec-tecnica-consolidada.md`
+(Convergia, órgão de processamento de documento) e
+`luna-tabela-risco-iso-outcome.md` (Hipocampo/Signal Engine,
+formalização de `outcome`/`V(s)`/ADR-019) — no mesmo commit, sugerindo
+associação de domínio que não existe só por terem sido registrados no
+mesmo dia. Instrução revisada pediu a separação.
+
+**O que fiz, sem reescrever histórico:** não desfiz nem recriei o commit
+anterior (já pushado para `main`; reescrever/forçar histórico público
+sem necessidade real é evitado por princípio, e o objetivo de fundo —
+impedir que uma sessão futura presuma associação de domínio errada — se
+resolve pelo conteúdo, não pela forma do commit). Em vez disso:
+adicionei ao topo de `luna-tabela-risco-iso-outcome.md` o parágrafo
+"Domínio: Hipocampo / Signal Engine — não Convergia" (texto exato
+entregue no pacote revisado); atualizei a linha correspondente em
+`INDEX.md` para carregar a mesma marcação de domínio; este commit em si
+é distinto do commit anterior, cobrindo só esta correção — não misturo
+de novo os dois documentos.
+
+Confirmei antes de aplicar: a única menção a "convergia" já existente no
+corpo da tabela de risco (linha do incidente "PR errada em `luna` em vez
+de `Luna-context.md`", que cita `luna-convergia` como exemplo de
+alucinação por conteúdo desatualizado) é factualmente correta e não é
+confusão de escopo — não precisou de nenhuma edição além do cabeçalho
+novo.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação.
+
+Next action: nenhuma minha. Daqui em diante, qualquer novo documento
+sobre `outcome`/Signal Engine/Hipocampo deve continuar em commit
+separado de qualquer documento sobre Convergia, mesmo na mesma sessão —
+prática agora registrada, não só intenção verbal.

@@ -1,4 +1,10 @@
 # Tabela de Gerenciamento de Riscos da LUNA (Auto-Aplicada)
+**Domínio: Hipocampo / Signal Engine — não Convergia.** Este documento
+resolve um buraco específico do `outcome` no Signal Engine (ADR-019,
+parte da arquitetura de memória/Hipocampo), sem relação de escopo com o
+Convergia (órgão de processamento de documento). Registrado
+separadamente do pacote de especificação do Convergia — mesma sessão,
+domínios de arquitetura diferentes.
 Status: Theory — primeira operacionalização real de `outcome`/distância ao
 Atrator (`V(s)`), discutida na sessão de 2026-07-24. Usa a mesma estrutura
 da Planilha de Gerenciamento de Riscos real (SMX eXperience teCnollogy, já analisada
