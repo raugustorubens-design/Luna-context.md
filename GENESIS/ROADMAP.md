@@ -89,6 +89,17 @@ Engine já mergeado em luna-core (PRs #19/#20).
   documento final, antes de gerar/baixar
 - [ ] CONV-004 — Motor de lote (batch) — geração explícita de múltiplos
   documentos a partir de múltiplos registros, com indicação de progresso
+- [x] ~~CONV-010 — Leitura de imagem em PPTX (posição/dimensão/bytes)~~ —
+  metade de leitura concluída (2026-07-30, ver ENG-029 em
+  `GENESIS/ENGINEER.md`): `pptx-parser.ts` extrai imagens por slide
+  (`<p:pic>`, resolução via `.rels`), `CanonicalRecord.images?` novo no
+  Canonical Model. `luna-core` PR #24, branch
+  `claude/convergia-generation-ingestion-250w1z`. **Não confundir com
+  CONV-009** (interpretação semântica de foto via LLM) — são capacidades
+  diferentes, ver ENG-029. Metade de escrita (posicionar imagem em
+  `pptx-renderer.ts`) segue pendente, não coberta por este item — CONV-001
+  a CONV-004 (editor de posicionamento, Capacidade 1) e a Capacidade 2
+  (ingestão pra memória) continuam bloqueadas até isso existir.
 - [ ] CONV-005 — Renderizador de PDF — hoje só existem CSV/HTML/JSON/
   Markdown/PPTX/XLSX
 - [ ] CONV-006 — Decisão do Architect: a aba "Conhecimento" (treinamento

@@ -1592,3 +1592,66 @@ Next action: nenhuma minha. Daqui em diante, qualquer novo documento
 sobre `outcome`/Signal Engine/Hipocampo deve continuar em commit
 separado de qualquer documento sobre Convergia, mesmo na mesma sessão —
 prática agora registrada, não só intenção verbal.
+
+## 2026-07-30 — CONV-010: leitura de imagem em PPTX (metade de leitura da dependência compartilhada)
+
+Eu fiz (Builder, via Claude Code, sessão de chat): antes de qualquer
+código, auditei o estado real do pacote "Convergia — Capacidades de
+Geração e Ingestão" contra `BUILDER.md` (este arquivo, lido inteiro) e
+contra `luna-core` — confirmei que a branch de trabalho estava idêntica
+a `main` (zero commit próprio) e que nenhum dos 7 itens mecânicos de um
+pacote anterior (memória fracionada, alias `.pptm`, validação
+pptx/pptm, numeração hierárquica em `extractProcedures`, células
+mescladas em `xlsx-parser.ts`) tinha sido aplicado — código conferido
+arquivo por arquivo, não assumido pela documentação. Também conferi
+que "CONV-009" (interpretação semântica de foto via LLM,
+`GENESIS/ENGINEER.md`) não é a mesma dependência que "leitura e
+posicionamento de imagem em PPTX" citada como bloqueio compartilhado
+das duas capacidades novas — são coisas diferentes, achado registrado
+em ENG-029 antes de escrever qualquer linha de parser.
+
+Implementei, em `luna-core` (branch
+`claude/convergia-generation-ingestion-250w1z`, PR #24, draft): (1)
+`CanonicalRecord.images?: CanonicalImage[]` novo em
+`src/convergia/contracts.ts` (nome, mimeType, bytes, posição em EMU) —
+aditivo, `CanonicalField.value` continua escalar, nenhum consumidor
+existente (validação/transforms/renderers xlsx/csv/json/html)
+precisou mudar; (2) `pptx-parser.ts` extrai imagens por slide, lendo
+`<p:pic>` e resolvendo `r:embed` via `ppt/slides/_rels/slideN.xml.rels`
+até o arquivo real em `ppt/media/`; (3) 2 testes novos em
+`pptx-parser.test.ts` — um com fixture PNG real (confere assinatura de
+bytes, não só tamanho), outro confirmando que slides sem imagem
+continuam com `images` `undefined`.
+
+Escopo que fiz questão de não ultrapassar (Regra 6, Builder persiste,
+não especifica): não toquei em `pptx-renderer.ts` (metade de escrita
+da mesma dependência — falta pra Capacidade 1 gerar documento final
+com foto/assinatura posicionada), nem em CONV-001 a CONV-004 (editor
+de posicionamento no Forge, ainda não localizado em nenhum
+repositório, ver P4 linha 79), nem em nada da Capacidade 2 (fila
+assíncrona, quarentena Supabase Storage, escolha de retenção por
+upload) — nenhum desses tinha ratificação de Architect para
+implementação nesta rodada, só a peça mínima de leitura de imagem,
+que desbloqueia as duas capacidades sem decidir nenhuma delas.
+
+Ordem seguida: código primeiro (commit `040d35c` em `luna-core`,
+testado e pushado), documentação por último (esta entrada + ENG-029 +
+`GENESIS/ROADMAP.md`, commitados só agora, depois do código já
+existir) — regra explícita desta rodada, pra não repetir o padrão de
+"Luna lembrando de algo que nunca foi implementado".
+
+Test status: `luna-core` — `npm install` (dependências não estavam
+instaladas nesta sessão), `npm run typecheck` limpo, `npm run
+test:architecture` aprovado, `npm test` 258/258 (256 pré-existentes +
+2 novos).
+
+O que está bloqueado: nada quanto ao que foi implementado. PR #24
+aberto como draft, aguardando revisão/merge.
+
+Next action: Architect decidir prioridade entre (a) `pptx-renderer.ts`
+— metade de escrita da mesma dependência, ou (b) seguir com
+CONV-001/002/003/004 usando só a leitura por enquanto (editor de
+posicionamento pode consumir `images` sem renderer ainda pronto, para
+preview). Localizar ou confirmar definitivamente a ausência do
+frontend de "bolhas" citado em P4 (linha 79) antes de decidir se
+CONV-002 é implementação nova ou recuperação de algo existente.

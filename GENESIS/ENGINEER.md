@@ -703,3 +703,55 @@ especificado em detalhe, não iniciado.
 Nenhuma implementação nesta rodada — registro apenas. Architect decide
 quando priorizar `CONV-001`/`CONV-009` dado o prazo real da auditoria,
 e se `CONV-007`/`CONV-008` devem virar IDs rastreados formalmente.
+
+## ID: ENG-029
+Data: 2026-07-30
+Tópico: Dependência compartilhada "leitura e posicionamento de imagem em PPTX" — distinta de CONV-009
+
+Achado, antes de qualquer implementação: o pacote "Convergia — Capacidades
+de Geração e Ingestão" (Capacidade 1, mala direta/relatório agregado;
+Capacidade 2, ingestão pra memória da Luna) cita como dependência
+compartilhada das duas "leitura e posicionamento de imagem — não existe
+hoje em nenhum parser/renderer do Convergia" — confirmado por auditoria
+direta do código antes de aceitar a premissa: `pptx-parser.ts` só lia
+`<a:t>` (texto), `pptx-renderer.ts` só escreve tabela, nenhum dos dois
+tocava imagem.
+
+**Distinção que o pacote original não fazia e que precisa ficar registrada:**
+essa dependência **não é `CONV-009`**. `CONV-009` (acima, nesta mesma
+seção) é interpretação semântica de foto via LLM — o modelo olha a imagem
+e descreve o que vê (equipamento, ambiente, NC), com proveniência
+`unverified`→`corroborated`. A dependência compartilhada da Capacidade
+1/2 é mecânica: extrair posição/dimensão/bytes de uma imagem já presente
+num `.pptx` (parser) e escrever imagem posicionada num template
+renderizado (renderer) — geometria, não semântica. `CONV-009` não
+desbloqueia nenhuma das duas capacidades; são capacidades independentes
+que só coincidem em usar "imagem" como palavra.
+
+O que mudou no Canonical Model (`luna-core`, `src/convergia/contracts.ts`):
+`CanonicalRecord` ganhou um campo opcional `images?: CanonicalImage[]`
+(nome, mimeType, bytes brutos, posição em EMU — mesma unidade que o XML
+do PPTX já usa em `<a:off>`/`<a:ext>`, sem conversão pra polegada/pixel
+aqui, decisão de renderer). Aditivo: `CanonicalField.value` continua
+escalar (string/number/boolean/null), então validação/transforms/
+renderers existentes (xlsx/csv/json/html) não precisaram mudar.
+
+O que foi implementado (só a metade de leitura): `pptx-parser.ts` agora
+extrai imagens por slide — lê blocos `<p:pic>`, resolve `r:embed` via
+`ppt/slides/_rels/slideN.xml.rels`, lê os bytes reais de `ppt/media/`.
+Testado com fixture PNG real (assinatura de bytes conferida, não só
+tamanho > 0) e com EMU de posição/tamanho calculados a partir de valores
+conhecidos em polegadas.
+
+O que NÃO foi implementado, deliberadamente fora desta rodada: escrever/
+posicionar imagem em `pptx-renderer.ts` (metade de saída da mesma
+dependência — necessária pra Capacidade 1 gerar o documento final com
+foto/assinatura no lugar certo do template) e qualquer trabalho de
+Capacidade 1 (CONV-001 a CONV-004, editor de posicionamento no Forge) ou
+Capacidade 2 (fila assíncrona, quarentena no Supabase Storage, escolha de
+retenção). Isso é a peça mínima que desbloqueia as duas, não as duas
+capacidades em si.
+
+Status: parser implementado e testado (`luna-core`, PR #24, branch
+`claude/convergia-generation-ingestion-250w1z`); renderer e as duas
+capacidades completas seguem não iniciados.
