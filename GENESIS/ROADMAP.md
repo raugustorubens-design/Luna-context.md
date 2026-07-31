@@ -135,6 +135,37 @@ Engine já mergeado em luna-core (PRs #19/#20).
   decide sozinho). Utilitário de apoio, ainda sem rota HTTP — CONV-001/
   002/004 continuam bloqueados por decisões abaixo, não por falta desta
   peça.
+- [x] ~~Bug de produção: upload de PPTX real rejeitado na validação~~ —
+  corrigido (2026-07-31, `luna-core` PR #26, commit `54a1bcf`, ver
+  BUILDER.md): não é item novo do roadmap, é aplicação do que já
+  estava especificado desde o início desta iniciativa (ingestão de
+  PPTX via Convergia, ver CONV-010/011 acima) — `pptx-parser.ts` já
+  extraía corretamente (61 registros num upload real reproduzido em
+  2026-07-30), mas `validateCanonicalDocument` (`validation.ts`) tinha
+  ficado com o enum de `sourceFormat` desatualizado (`xlsx`/`csv`/
+  `json` só), rejeitando todo documento PPTX na etapa de validação.
+  `"pptx"`/`"pptm"` adicionados, teste de regressão incluído.
+- [ ] Capacidade 2 (ingestão pra memória) — avanço real, ainda parcial
+  (2026-07-31, `luna-core` PR #26, commit `54a1bcf`, ver BUILDER.md):
+  (a) suporte a `.ppt` (binário OLE2 legado, pré-2007) via conversão
+  para `.pptx` usando LibreOffice headless (`soffice --convert-to
+  pptx`), reaproveitando o `PptxParser` já existente — não é parser
+  novo. **Pendência de infraestrutura, não de código**: o container de
+  deploy do `luna-core` no Railway precisa do LibreOffice instalado
+  (mudança de Dockerfile/build), fora do escopo deste repositório —
+  Rubens precisa resolver isso separadamente antes de `.ppt` funcionar
+  em produção; (b) roteamento automático síncrono/assíncrono por
+  tamanho de arquivo — decisão do Architect: arquivo ≤ 20MB
+  (`MAX_SYNC_FILE_SIZE_BYTES`) segue síncrono, sem mudança; arquivo
+  maior recebe `202` com aviso ("Arquivo grande, processando em
+  segundo plano — avisamos quando terminar"), sem perguntar ao
+  usuário. **Só o roteamento** — quarentena, fila e worker
+  assíncronos em si não existem ainda neste repositório, não foram
+  inventados numa versão simplificada; a resposta 202 já avisa
+  explicitamente (campo `warning`) que o arquivo não é persistido nem
+  processado até essa peça existir. Não marcado como concluído porque
+  é só a primeira peça de uma capacidade bem maior, ainda não
+  especificada em fila/worker/quarentena.
 - [ ] CONV-005 — Renderizador de PDF — hoje só existem CSV/HTML/JSON/
   Markdown/PPTX/XLSX
 - [ ] CONV-006 — Decisão do Architect: a aba "Conhecimento" (treinamento
