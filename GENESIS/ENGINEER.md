@@ -828,3 +828,56 @@ formato da Matriz de Treinamento antes de qualquer código novo nessas
 frentes; anexar `luna-frontend` numa sessão futura para CONV-002;
 decidir fila (Supabase table vs. serviço Railway) antes de iniciar
 Capacidade 2.
+
+## ID: ENG-031
+Data: 2026-07-30
+Tópico: Correção de ENG-030 — bloqueio de persistência de template já resolvido, em paralelo, mesma branch
+
+Achado, ao sincronizar a branch local após o merge do PR #25: o commit
+mergeado (`60aa158`) tem 3 commits, não 2 — os 2 que eu escrevi nesta
+sessão (renderer + matching, ver ENG-030) mais um terceiro, de uma
+**sessão diferente do Claude Code** (`Claude-Session:
+.../session_014gEcpV5efitgXmZKXuACAx`, não a desta entrada), empurrado
+pra mesma branch antes do Rubens marcar o PR como pronto e mergear.
+Esse terceiro commit implementa `GET`/`PUT
+/convergia/templates/:id/positions` (`routes/convergia.ts`) e
+`TemplatePositionStore` (`convergia/templates/position-store.ts`) —
+exatamente o primeiro dos três bloqueios que ENG-030 (minutos antes)
+tinha registrado como "decisão de arquitetura não tomada".
+
+**Correção, não silenciosa (Princípio 8):** ENG-030 estava certo sobre
+o estado do código no momento em que foi escrito — não fabriquei o
+bloqueio, era real até aquele commit acontecer. A questão em si já
+tinha resposta conhecida no próprio repositório: o padrão de coleção
+genérica do `GuardianContract` (mesmo caminho já usado por
+`luna/memory-engine.ts`) — persistência de posição de template não
+precisava de decisão de arquitetura nova, só de aplicar um padrão já
+existente. A outra sessão aplicou; eu não tinha visto essa saída antes
+de escrever ENG-030, porque a sessão paralela ainda não tinha
+empurrado o commit quando registrei.
+
+Conferido nesta sessão, código real (não só a mensagem do commit):
+`position-store.ts` usa `HttpGuardianClient`/`GuardianContract`,
+coleção `convergia_template_positions`, validação de shape antes de
+salvar (`TemplatePositionValidationError`, capturado no error handler
+de `routes/convergia.ts`, 404 se o template não existe). `npm run
+typecheck` limpo, `npm run test:architecture` aprovado, `npm test`
+278/278 (270 anteriores + 8 novos da própria sessão paralela).
+
+**O que não verifiquei, e não devo apresentar como confirmado:** a
+mensagem do commit cita `luna-frontend` PR #9
+(`convergia-position-editor.tsx`) como o consumidor desse endpoint —
+`luna-frontend` não está no escopo desta sessão, não anexei o
+repositório, não li o PR #9 diretamente. Trato essa parte como não
+verificada, não como fato.
+
+Escopo que continua real, não resolvido por este achado: CONV-001 em
+si (upload do arquivo de template, não só a posição dos campos que já
+tem endpoint) segue sem implementação; CONV-003/CONV-004 continuam
+bloqueados por isso; Matriz de Treinamento e Capacidade 2 (fila,
+streaming) seguem exatamente como ENG-030 registrou, nenhuma novidade
+sobre eles.
+
+Status: `ROADMAP.md` corrigido nesta mesma rodada (CONV-002 backend
+marcado `[x]`, nota de correção em CONV-001, CONV-003/004 com bloqueio
+atualizado).

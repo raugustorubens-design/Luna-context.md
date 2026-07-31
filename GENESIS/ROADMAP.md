@@ -81,19 +81,31 @@ Engine já mergeado em luna-core (PRs #19/#20).
 - [x] ~~Escrever ADR de migração do Convergia (Engineer), análogo ao ADR-004~~ — é o próprio ADR-012 (2026-07-19).
 - [ ] CONV-001 — Upload de template visual (imagem/arquivo como plano de
   fundo do documento) — hoje só existe catálogo de templates
-  pré-codificados, sem upload real
-- [ ] CONV-002 — Editor de layout: posicionamento de campos sobre o
-  template (drag, resize, exclusão), com persistência de layout
-  (save/load)
+  pré-codificados, sem upload real. **Correção 2026-07-30 (ver
+  ENG-031)**: a pergunta "onde o template persiste entre inspeção e
+  geração" que ENG-030 registrou como bloqueio real foi resolvida no
+  mesmo PR #25 (commit adicional, sessão diferente da que abriu o PR)
+  — reaproveita o padrão já existente de coleção genérica do
+  `GuardianContract` (mesmo caminho de `luna/memory-engine.ts`), não é
+  decisão nova de arquitetura. O que falta de CONV-001 em si (upload
+  do arquivo de template, não só a posição dos campos) segue em aberto.
+- [x] ~~CONV-002 (backend) — Persistência de layout (posições de campo
+  por template)~~ — concluído (2026-07-30, `luna-core` PR #25, commit
+  `60aa158`, ver ENG-031): `GET`/`PUT /convergia/templates/:id/positions`
+  em `routes/convergia.ts`, `TemplatePositionStore` em
+  `convergia/templates/position-store.ts`, mesmo padrão de coleção
+  genérica do Guardian já citado acima. Front-end consumidor
+  (`luna-frontend` PR #9, `convergia-position-editor.tsx`, citado na
+  mensagem de commit) **não verificado nesta sessão** — `luna-frontend`
+  não está no escopo desta sessão de trabalho, então não confirmei o
+  PR #9 diretamente, só o lado do `luna-core` (testado, 278/278).
 - [ ] CONV-003 — Motor de preview — visualização prévia fiel ao
-  documento final, antes de gerar/baixar
+  documento final, antes de gerar/baixar. Ainda bloqueado: depende de
+  CONV-001 (upload de arquivo de template) estar completo.
 - [ ] CONV-004 — Motor de lote (batch) — geração explícita de múltiplos
   documentos a partir de múltiplos registros, com indicação de progresso.
-  **Bloqueado, ver ENG-030**: CONV-001 (persistência de template entre
-  inspeção e geração — não decidido se o template persiste em algum
-  lugar ou se o cliente reenvia os bytes a cada chamada); CONV-002 é
-  frontend em `luna-frontend`, repositório fora do escopo desta sessão;
-  CONV-003 depende dos dois acima.
+  Ainda bloqueado por CONV-001 (upload de arquivo de template) e
+  CONV-003.
 - [x] ~~CONV-010 — Leitura e posicionamento de imagem em PPTX (posição/
   dimensão/bytes)~~ — as duas metades concluídas: leitura (2026-07-30,
   `luna-core` PR #24, mergeado, commit `0f26320`) e escrita

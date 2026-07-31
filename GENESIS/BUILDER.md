@@ -1693,3 +1693,38 @@ Next action: Architect decide persistência de template e formato da
 Matriz de Treinamento; anexar `luna-frontend` numa sessão futura antes
 de CONV-002; decidir infra de fila antes de Capacidade 2. Nenhum
 desses eu decido sozinho — Regra 6.
+
+## 2026-07-30 — Correção: bloqueio de CONV-001 (persistência de template) já resolvido em commit paralelo do mesmo PR
+
+Eu fiz (Builder, via Claude Code, sessão de chat): ao sincronizar a
+branch local depois do merge do PR #25, encontrei um terceiro commit
+que não era meu — outra sessão do Claude Code (`Claude-Session`
+diferente da minha, ver ENG-031) empurrou pra mesma branch, antes do
+merge, `GET`/`PUT /convergia/templates/:id/positions` +
+`TemplatePositionStore`, resolvendo exatamente o bloqueio de
+persistência de template que eu tinha acabado de registrar como "não
+decidido" em ENG-030/BUILDER.md, minutos antes.
+
+Não deixei a entrada anterior errada no ar: registrei a correção em
+ENG-031 (`GENESIS/ENGINEER.md`) e atualizei `GENESIS/ROADMAP.md`
+(CONV-002 backend marcado `[x]`, nota de correção em CONV-001,
+CONV-003/004 com a lista de bloqueio atualizada — só CONV-001 em si,
+upload do arquivo de template, continua faltando). Conferi o código
+real antes de aceitar a mensagem do commit paralelo: `npm run
+typecheck` limpo, `npm run test:architecture` aprovado, `npm test`
+278/278. Não confirmei a parte de `luna-frontend` (PR #9, citado na
+mensagem do commit) — fora do escopo desta sessão, registrado
+explicitamente como não verificado, não como fato.
+
+Test status: `luna-core`, `main` atual (`60aa158`) — 278/278,
+typecheck limpo, architecture-check aprovado.
+
+O que está bloqueado: CONV-001 em si (upload de arquivo de template)
+segue sem implementação; CONV-003/CONV-004 continuam bloqueados por
+isso; Matriz de Treinamento (formato de storage) e Capacidade 2 (fila,
+streaming) sem mudança — exatamente como ENG-030/BUILDER já tinham
+registrado, este pacote não avançou essas frentes.
+
+Next action: nenhuma implementação nova nesta rodada — próxima sessão
+de código pode seguir para CONV-001 (upload real do arquivo de
+template) já sabendo que a persistência de posição está resolvida.
