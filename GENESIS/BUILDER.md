@@ -1728,3 +1728,49 @@ registrado, este pacote não avançou essas frentes.
 Next action: nenhuma implementação nova nesta rodada — próxima sessão
 de código pode seguir para CONV-001 (upload real do arquivo de
 template) já sabendo que a persistência de posição está resolvida.
+
+## 2026-07-31 — Verificação e merge de `luna-frontend` PR #9; merge de `luna-core` PR #25; reconciliação com sessão paralela (ENG-032)
+
+Eu fiz (Builder, via Claude Code, sessão de chat, com os três
+repositórios anexados — `luna-core`, `luna-frontend`,
+`Luna-context.md`): mergeei `luna-core` PR #25 em `main`
+(squash, commit `60aa158`) e, na sequência, `luna-frontend` PR #9
+(squash, commit `7e5c230`) — ordem lógica, o front-end depende do
+endpoint existir. Antes do merge do PR #9, li o diff completo e
+conferi que `lib/forge/api-client.ts` já apontava pro contrato exato
+da rota nova (`{ positions: [...] }`), então nenhuma mudança de código
+foi necessária ali — só atualizei a descrição do PR removendo a
+linguagem de bloqueio, já resolvida.
+
+Ao preparar a documentação, encontrei que uma sessão paralela já tinha
+empurrado direto pra `main` (commits `79dfc55`/`c33c7e3`, antes do meu
+push) o mesmo achado de correção que eu ia registrar — ENG-030/ENG-031
+em `GENESIS/ENGINEER.md`, mais atualização de `ROADMAP.md`. Descartei
+minha primeira versão da documentação (que reescrevia tudo do zero,
+sem saber da sessão paralela) e reconciliei em vez de duplicar:
+`git reset --hard origin/main` pra pegar o estado real, depois só
+acrescentei o que aquela sessão não tinha — confirmação de
+`luna-frontend` PR #9 (fora do escopo dela) — como ENG-032, mais nota
+complementar em `ROADMAP.md` (CONV-002 agora concluído dos dois lados,
+não só o backend) e em `STATUS.md` (ENG-021).
+
+Ordem seguida: os dois merges de código primeiro (PR #25, depois PR
+#9), documentação por último — e, dentro da documentação, reconciliação
+com o que já estava em `main` antes de escrever qualquer coisa nova,
+para não contradizer nem duplicar uma sessão paralela que chegou
+primeiro.
+
+Test status: `luna-frontend` — `npm run typecheck` limpo, `npm run
+test:constitution` aprovado (46 arquivos), `npm test` 24/24. `luna-core`
+reconferido no mesmo estado de `main` pós-merge — 278/278, typecheck e
+`test:architecture` limpos (mesmo resultado já registrado em ENG-031).
+
+O que está bloqueado, sinalizado e não forçado: CONV-001 (upload de
+template visual) segue sem implementação. Sem visibilidade sobre
+`luna-api` (fora do escopo dos três repositórios desta sessão) para
+confirmar se a coleção `convergia_template_positions` já existe do
+lado do Guardian real em produção. Teste manual no browser do editor
+de posicionamento não foi executado.
+
+Next action: nenhuma minha até o Originador confirmar os merges e esta
+documentação diretamente no GitHub.

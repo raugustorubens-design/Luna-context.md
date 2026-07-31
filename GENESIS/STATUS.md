@@ -24,7 +24,7 @@ que inventar detalhe que não foi de fato entregue.
 
 | ID | Tópico | Status |
 |---|---|---|
-| ENG-021 | Gap do Convergia MVP (CONV-001 a CONV-006) | Pacote entregue, aplicação não confirmada |
+| ENG-021 | Gap do Convergia MVP (CONV-001 a CONV-006) | Pacote entregue, aplicação não confirmada. **Atualização 2026-07-31**: CONV-010/011 (imagem em PPTX, normalização/correspondência RE) concluídos; CONV-002 concluído dos dois lados (backend `luna-core` PR #25 + editor `luna-frontend` PR #9, ambos mergeados em `main`), mas só sobre templates pré-codificados — a experiência completa segue bloqueada por CONV-001 (upload real), que continua sem implementação, assim como CONV-003/004/006. Ver `GENESIS/ROADMAP.md` P4 e `GENESIS/ENGINEER.md` ENG-029 a ENG-032. |
 | ENG-022 | Chat sem histórico de conversas | Causa raiz confirmada, correção não implementada |
 | ENG-023 | Ajuste de janelas do Workspace (painéis expansíveis) | Pedido reforçado, implementação não confirmada |
 | ENG-024 | Terminal desconecta imediatamente | Diagnosticado (sem PTY real), sem correção |
