@@ -755,3 +755,76 @@ capacidades em si.
 Status: parser implementado e testado (`luna-core`, PR #24, branch
 `claude/convergia-generation-ingestion-250w1z`); renderer e as duas
 capacidades completas seguem não iniciados.
+
+## ID: ENG-030
+Data: 2026-07-30
+Tópico: Metade de escrita da dependência de imagem (ENG-029) + motor de normalização/correspondência — três bloqueios reais registrados, não contornados
+
+Eu fiz (código já mergeado antes desta entrada, `luna-core` PR #25,
+commit `60aa158` em `main`): completei a metade de escrita da
+dependência compartilhada registrada em ENG-029 —
+`pptx-renderer.ts` agora posiciona qualquer `CanonicalImage` presente
+num registro, na posição EMU original convertida pra polegada, usando
+`sizing: { type: "contain" }` do `pptxgenjs` — nunca corta, sempre
+encolhe pra caber na caixa. Essa é a regra de negócio que o Architect
+definiu para campo do tipo imagem no editor de posicionamento (CONV-002)
+— apliquei na primitiva de renderização em si, não só na UI que ainda
+não existe, porque a primitiva é reutilizável por qualquer capacidade
+que precise posicionar imagem (Capacidade 1 e 2 ambas).
+
+Também implementei `src/convergia/matching/`: `identifier.ts`
+(`normalizeIdentifier` — zero-pad a 6 dígitos, sempre, sem exceção por
+quantidade de dígitos faltando, exatamente como especificado) e
+`record-file-matcher.ts` (`matchFilesToRecords`), que aplica as duas
+regras de negócio do Architect para o lote de arquivos soltos: chave
+sem arquivo correspondente → `status: "missing"`, nunca trava o resto
+do lote; chave com mais de um arquivo → `status: "ambiguous"`, nunca
+decide sozinho, exige resolução explícita do usuário. Nenhuma rota
+HTTP chama isso ainda — é utilitário de apoio, testado isoladamente
+(12 testes novos, 270/270 no total).
+
+**Três bloqueios reais, sinalizados em vez de contornados (Regra 6):**
+
+1. **CONV-001 (upload de template) não é falta de parsing.** O parser
+   já devolve texto + posição/bytes de imagem via `/convergia/parse`
+   — tecnicamente já é "leitura de template". O que falta é decisão de
+   arquitetura: um template enviado persiste em algum lugar entre a
+   inspeção (usuário vê os campos) e a geração em lote (dias depois,
+   talvez), ou o cliente reenvia os bytes do template a cada chamada
+   (stateless, mesmo padrão que o resto do Convergia já usa,
+   sem introduzir camada de persistência nova)? Não decidi sozinho —
+   é exatamente o tipo de escolha que muda o formato de storage/sessão
+   do resto da Capacidade 1.
+
+2. **CONV-002 (editor de "bolha" no Forge) é frontend, fora do
+   repositório desta sessão.** Vive em `luna-frontend`, não anexado
+   nesta sessão de trabalho (só `luna-core` e `Luna-context.md`
+   estavam no escopo). Não implementei nem posso implementar sem esse
+   repositório ser anexado explicitamente.
+
+3. **CONV-003 (preview) depende dos dois itens acima existirem** — não
+   é bloqueio próprio, é bloqueio derivado.
+
+Também não avancei a Matriz de Treinamento (formato de armazenamento
+segue "não decidido", pergunta em aberto do pacote original, não
+resolvida em nenhuma instrução recebida até agora) nem a Capacidade 2
+(fila assíncrona Supabase vs. Railway e a mudança de forma
+síncrono→streaming, ambos riscos já sinalizados em rodada anterior,
+seguem sem decisão).
+
+Test status: `luna-core` — `npm run typecheck` limpo, `npm run
+test:architecture` aprovado, `npm test` 270/270 (258 pré-existentes +
+12 novos: posicionamento de imagem no renderer, normalização de
+identificador, correspondência arquivo↔linha incluindo os casos
+`missing`/`ambiguous`/nome de arquivo sem dígito).
+
+O que está bloqueado: os três itens acima — decisão de persistência de
+template (CONV-001), anexação de `luna-frontend` a uma sessão futura
+(CONV-002), formato de storage da Matriz de Treinamento, decisão de
+infra de fila para Capacidade 2.
+
+Next action: Architect decide persistência de template (CONV-001) e
+formato da Matriz de Treinamento antes de qualquer código novo nessas
+frentes; anexar `luna-frontend` numa sessão futura para CONV-002;
+decidir fila (Supabase table vs. serviço Railway) antes de iniciar
+Capacidade 2.

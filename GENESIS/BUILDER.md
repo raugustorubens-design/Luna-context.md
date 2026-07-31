@@ -1655,3 +1655,41 @@ posicionamento pode consumir `images` sem renderer ainda pronto, para
 preview). Localizar ou confirmar definitivamente a ausência do
 frontend de "bolhas" citado em P4 (linha 79) antes de decidir se
 CONV-002 é implementação nova ou recuperação de algo existente.
+
+## 2026-07-30 — CONV-010 (metade de escrita) + CONV-011: normalização e motor de correspondência
+
+Eu fiz (Builder, via Claude Code, sessão de chat): código primeiro,
+commitado e mergeado antes desta entrada — `luna-core` PR #25, commit
+`60aa158` em `main`. Duas peças: (1) `pptx-renderer.ts` posiciona
+`CanonicalImage` na saída (EMU→polegada, `sizing: contain` — nunca
+corta, sempre encolhe, regra do Architect aplicada na primitiva de
+render); (2) `src/convergia/matching/` novo —
+`normalizeIdentifier` (zero-pad a 6 dígitos, sempre) e
+`matchFilesToRecords` (chave sem arquivo → `"missing"`, nunca trava o
+lote; chave com mais de um arquivo → `"ambiguous"`, nunca decide
+sozinho). Detalhe técnico completo em ENG-030
+(`GENESIS/ENGINEER.md`), incluindo os 3 bloqueios reais que impedem
+seguir para CONV-001/002/003 nesta sessão — não repito aqui, ver a
+entrada de Engineer.
+
+Ordem seguida: os dois PRs (#24 leitura, #25 escrita+matching) foram
+mergeados antes de eu tocar em `ROADMAP.md`/`ENGINEER.md`/este
+arquivo — nenhuma entrada de documentação entrou no repositório antes
+do código correspondente já estar em `main`, disciplina explícita
+desta rodada.
+
+Test status: `luna-core` — `npm run typecheck` limpo, `npm run
+test:architecture` aprovado, `npm test` 270/270 (258 + 12 novos desta
+rodada).
+
+O que está bloqueado: CONV-001 (persistência de template — decisão de
+arquitetura não tomada), CONV-002 (frontend em `luna-frontend`, fora
+do escopo desta sessão), CONV-003 (dependente dos dois acima), Matriz
+de Treinamento (formato de armazenamento segue sem decisão), Capacidade
+2 (fila assíncrona e mudança síncrono→streaming, riscos já sinalizados
+em rodada anterior, sem decisão nova).
+
+Next action: Architect decide persistência de template e formato da
+Matriz de Treinamento; anexar `luna-frontend` numa sessão futura antes
+de CONV-002; decidir infra de fila antes de Capacidade 2. Nenhum
+desses eu decido sozinho — Regra 6.
