@@ -1774,3 +1774,77 @@ de posicionamento não foi executado.
 
 Next action: nenhuma minha até o Originador confirmar os merges e esta
 documentação diretamente no GitHub.
+
+## 2026-07-31 — Bug de validação pptx/pptm + suporte a `.ppt` + roteamento >20MB (Capacidade 2, primeira peça)
+
+Eu fiz (Builder, via Claude Code, sessão de chat, `luna-core` PR #26,
+3 commits separados, mergeado — commit `54a1bcf`): três peças pedidas
+explicitamente pelo Originador, nesta ordem.
+
+**Commit 1 — bug de produção**: `src/convergia/validation.ts` tinha o
+enum de `sourceFormat` desatualizado (`xlsx`/`csv`/`json`, sem
+`"pptx"`) — reproduzido em produção em 2026-07-30, um upload PPTX real
+parseado corretamente (61 registros) foi rejeitado só por isso.
+Corrigi, adicionei `"pptm"` também (nenhum parser produz esse valor
+ainda, só evita rejeitar quando um existir). Teste de regressão em
+`validation.test.ts`.
+
+**Commit 2 — `.ppt` via conversão**: `PptParser`
+(`src/convergia/parsers/ppt-parser.ts`) chama `soffice --headless
+--convert-to pptx` (`ppt-converter.ts`) e entrega o resultado ao
+`PptxParser` já existente — sem duplicar extração. `"ppt"` adicionado
+a `ConvergiaInputFormat`, `SUPPORTED_INPUT_FORMATS` e ao enum de
+`validation.ts`.
+
+Achado que preciso registrar com honestidade, porque contradiz o que
+constava no pedido ("testado e confirmado nesta sessão... round-trip
+real, texto sobrevivendo intacto"): **não consegui reproduzir isso
+nesta sessão**. `soffice` está instalado aqui e `--version` funciona,
+mas toda chamada `--convert-to` falha silenciosamente ("Error: source
+file could not be loaded", exit code 0, nenhum arquivo gerado) —
+reproduzi isso até convertendo um `.txt` trivial pra `.pdf`, então não
+é peculiaridade do PPTX nem bug deste código. Tentei matar processos
+`soffice` travados, limpar perfil, `strace` (sem causa óbvia) — sem
+sucesso, parece limitação do sandbox deste container, não persegui
+além disso (retorno decrescente, fora do escopo real da tarefa). Não
+escondi isso: o teste de round-trip faz uma sondagem funcional real
+antes de decidir rodar, e se pula sozinho com o motivo exato quando a
+conversão não funciona de verdade, em vez de fingir que passou.
+
+**Pendência de infraestrutura, sinalizada, não presumida como
+resolvida**: mesmo com o código correto, `.ppt` só funciona em
+produção depois que o Rubens instalar o LibreOffice no container de
+deploy do Railway (`luna-core`) — mudança de Dockerfile/build, fora do
+código deste repositório. Não declaro isso como "concluído" — só o
+código de conversão está pronto e testado onde dá pra testar; a peça
+de infraestrutura que o torna real em produção continua pendente.
+
+**Commit 3 — roteamento >20MB**: decisão do Architect, recebida via
+Originador — arquivo ≤ `MAX_SYNC_FILE_SIZE_BYTES` (20MB,
+`src/convergia/async-routing.ts`) segue síncrono, sem mudança; arquivo
+maior recebe `202` com a mensagem exata pedida ("Arquivo grande,
+processando em segundo plano — avisamos quando terminar"), sem
+perguntar ao usuário. Aplicado em `POST /convergia/parse` e
+`/transform`. Só o roteamento — quarentena/fila/worker não existem
+neste repositório e não inventei versão simplificada deles; a resposta
+`202` já avisa isso explicitamente no campo `warning`.
+
+Ordem seguida: os três commits (validação, `.ppt`, roteamento) antes
+de qualquer documentação — código primeiro, como sempre. PR aberto
+como draft, Originador confirmou, mergeado só depois disso.
+
+Test status: `npm run typecheck` limpo, `npm run test:architecture`
+aprovado, `npm test` 285 total — 284 passando, 1 pulado com motivo
+explícito (o round-trip do `.ppt`, ver achado acima).
+
+O que está bloqueado, sinalizado, não forçado: `.ppt` em produção
+depende de ação de infraestrutura do Rubens (instalar LibreOffice no
+Railway) — não presumida disponível. Capacidade 2 completa
+(quarentena/fila/worker) segue não especificada em detalhe nem
+implementada — o roteamento desta rodada é só o primeiro passo, não a
+capacidade inteira.
+
+Next action: Rubens decide/executa a instalação do LibreOffice no
+Railway antes de `.ppt` funcionar de fato em produção. Especificação
+da Capacidade 2 completa fica para quando esse trabalho de arquitetura
+for aberto — não implementada por conta própria nesta rodada.
