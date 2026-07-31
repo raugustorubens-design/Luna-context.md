@@ -881,3 +881,63 @@ sobre eles.
 Status: `ROADMAP.md` corrigido nesta mesma rodada (CONV-002 backend
 marcado `[x]`, nota de correção em CONV-001, CONV-003/004 com bloqueio
 atualizado).
+
+## ID: ENG-032
+Data: 2026-07-31
+Tópico: Verificação e merge de `luna-frontend` PR #9 — fecha a ressalva "não verificado" de ENG-031
+
+Eu fiz (sessão com os três repositórios anexados —
+`luna-core`/`luna-frontend`/`Luna-context.md`, o que ENG-030/ENG-031
+não tinham): li o PR #9 (`luna-frontend`) inteiro — descrição, diff
+completo — e o código real de `lib/forge/api-client.ts` e
+`components/forge/convergia-position-editor.tsx` antes de mexer em
+qualquer coisa. Confirmei que `fetchConvergiaTemplatePositions`/
+`saveConvergiaTemplatePositions` já apontavam para o contrato exato
+que a rota nova de `luna-core` (PR #25) devolve (`{ positions: [...] }`
+em GET e PUT) — nenhuma mudança de código foi necessária no
+front-end. Rodei `npm run typecheck` (limpo), `npm run
+test:constitution` (46 arquivos, aprovado) e `npm test` (24/24) antes
+de considerar o PR pronto.
+
+Também identifiquei, comparando os dois repositórios lado a lado, que
+o editor de posicionamento não depende de CONV-001 (upload) para
+funcionar — ele opera sobre `TemplateDescriptor.variables` de
+qualquer template já registrado no catálogo (`GET
+/convergia/templates`), não sobre um arquivo enviado. Isso não muda o
+que falta (CONV-001 continua sem implementação), mas corrige uma
+suposição implícita que eu tinha antes de ler o código: CONV-002 não
+estava "bloqueado" por CONV-001 no sentido de não poder rodar sem ele
+— só a experiência completa (posicionar sobre um template visual real)
+é que depende disso.
+
+Mergeei os dois PRs em `main`, nesta ordem: `luna-core` PR #25
+primeiro (`60aa158`), `luna-frontend` PR #9 depois (`7e5c230`) — ordem
+lógica, já que o front-end depende do endpoint existir. Depois de
+confirmar os dois merges, sincronizei esta branch de documentação com
+o que uma sessão paralela já tinha empurrado direto pra `main`
+(ENG-030/ENG-031, mesmo achado de bloqueio) para não duplicar
+conteúdo — esta entrada só acrescenta o que aquela sessão não tinha
+(acesso a `luna-frontend`), não repete o que já está registrado lá.
+
+Test status: `luna-frontend` — `npm run typecheck` limpo, `npm run
+test:constitution` aprovado (46 arquivos), `npm test` 24/24. `luna-core`
+— reconferido nesta sessão também, mesmo resultado de ENG-031 (278/278,
+typecheck e `test:architecture` limpos). `npm run lint` não rodou em
+nenhum dos dois repositórios (setup interativo do ESLint, mesmo motivo
+já registrado no PR #9 original). Nenhum CI configurado em `luna-core`
+para PRs (`get_check_runs` vazio); Vercel do `luna-frontend` passou
+antes do merge.
+
+O que está bloqueado: CONV-001 (upload de template visual) segue sem
+implementação — nada nesta rodada avançou isso. Sem visibilidade sobre
+`luna-api` (fora do escopo desta sessão) para confirmar se a coleção
+`convergia_template_positions` já existe do lado do Guardian real em
+produção — a chamada via `HttpGuardianClient` está correta e testada
+com fake da interface, mas o comportamento contra o Guardian real não
+foi verificado. Teste manual no browser (arrastar/redimensionar bolha)
+não foi executado.
+
+Next action: nenhuma minha até o Originador revisar os merges e esta
+documentação. Se o Guardian real não tiver a coleção provisionada, o
+próximo passo é abrir isso em `luna-api`, fora do escopo dos três
+repositórios desta sessão.

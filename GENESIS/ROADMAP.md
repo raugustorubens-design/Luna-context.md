@@ -89,16 +89,25 @@ Engine já mergeado em luna-core (PRs #19/#20).
   `GuardianContract` (mesmo caminho de `luna/memory-engine.ts`), não é
   decisão nova de arquitetura. O que falta de CONV-001 em si (upload
   do arquivo de template, não só a posição dos campos) segue em aberto.
-- [x] ~~CONV-002 (backend) — Persistência de layout (posições de campo
-  por template)~~ — concluído (2026-07-30, `luna-core` PR #25, commit
-  `60aa158`, ver ENG-031): `GET`/`PUT /convergia/templates/:id/positions`
-  em `routes/convergia.ts`, `TemplatePositionStore` em
-  `convergia/templates/position-store.ts`, mesmo padrão de coleção
-  genérica do Guardian já citado acima. Front-end consumidor
-  (`luna-frontend` PR #9, `convergia-position-editor.tsx`, citado na
-  mensagem de commit) **não verificado nesta sessão** — `luna-frontend`
-  não está no escopo desta sessão de trabalho, então não confirmei o
-  PR #9 diretamente, só o lado do `luna-core` (testado, 278/278).
+- [x] ~~CONV-002 (backend + editor) — Persistência de layout (posições
+  de campo por template) e editor de arrastar/redimensionar~~ —
+  concluído dos dois lados (2026-07-31, ver ENG-032 e correção de
+  `luna-frontend` como "não verificado" abaixo): backend em `luna-core`
+  PR #25, commit `60aa158` (`GET`/`PUT
+  /convergia/templates/:id/positions`, `TemplatePositionStore`, coleção
+  genérica do Guardian já citada acima). O front-end consumidor
+  (`luna-frontend` PR #9, `components/forge/convergia-position-editor.tsx`)
+  — que ENG-031 tinha marcado como "não verificado nesta sessão" por
+  `luna-frontend` estar fora do escopo daquela sessão — foi verificado
+  e mergeado em `main` numa sessão seguinte com os três repositórios
+  anexados: `npm run typecheck` limpo, `npm run test:constitution`
+  aprovado (46 arquivos), `npm test` 24/24, commit `7e5c230`. Nenhuma
+  mudança de código foi necessária no front-end — o contrato já batia
+  com a rota nova. Ambos os PRs mergeados em `main` nos respectivos
+  repositórios. Ainda vale a ressalva já registrada: o editor só
+  posiciona campos sobre templates pré-codificados do catálogo, não
+  sobre um template visual enviado pelo usuário — isso segue
+  dependendo de CONV-001, abaixo.
 - [ ] CONV-003 — Motor de preview — visualização prévia fiel ao
   documento final, antes de gerar/baixar. Ainda bloqueado: depende de
   CONV-001 (upload de arquivo de template) estar completo.
