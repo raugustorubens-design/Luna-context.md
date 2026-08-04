@@ -1,4 +1,4 @@
-# ENGINEER
+ # ENGINEER
 
 Owner: Claude
 
@@ -941,3 +941,60 @@ Next action: nenhuma minha até o Originador revisar os merges e esta
 documentação. Se o Guardian real não tiver a coleção provisionada, o
 próximo passo é abrir isso em `luna-api`, fora do escopo dos três
 repositórios desta sessão.
+
+## ID: ENG-033
+Data: 2026-08-02
+Tópico: React error #418 (hidratação) — achado ao vivo no Forge, `luna-frontend`
+
+Observação: durante o teste manual de UI de CONV-002 (posicionamento
+de campos, template `documento_tabular_generico_csv`, 2026-08-02), o
+Originador abriu o DevTools do navegador em
+`https://luna-frontend-production-ffcc.up.railway.app/forge` e
+capturou o seguinte no Console (texto verbatim, não editado):
+
+```
+Unchecked runtime.lastError: The message port closed before
+a response was received.
+    forge:1
+```
+
+```
+Uncaught Error: Minified React error #418; visit
+https://react.dev/errors/418?args[]=HTML&args[]= for the
+full message or use the non-minified dev environment for full errors
+and additional helpful warnings.
+    at rD (8e74727f-4e3abe8ce9d63ec1.js:1:35060)
+    at oq (8e74727f-4e3abe8ce9d63ec1.js:1:85082)
+    at ik (8e74727f-4e3abe8ce9d63ec1.js:1:114680)
+    at 8e74727f-4e3abe8ce9d63ec1.js:1:110728
+    at iu (8e74727f-4e3abe8ce9d63ec1.js:1:110829)
+    at iX (8e74727f-4e3abe8ce9d63ec1.js:1:132932)
+    at MessagePort.w (675-a9a39ee12f945b7d.js:1:61400)
+```
+
+```
+Failed to load resource: the server responded with a status of 400 ()
+    uvicorn-main-production...(truncado na captura)/api/gateway/execute:1
+```
+
+DevTools reportava "8 Issues" no total nessa sessão de página — só os
+3 acima foram capturados na tela, os demais não estão documentados.
+
+Classificação, já feita:
+- `runtime.lastError` → artefato de extensão do Chrome, não é bug do
+  projeto, só citado para registro completo do que apareceu.
+- `/api/gateway/execute → 400` → não é achado novo, é o bug já
+  conhecido do Guardian Memory Index (`searchGuardianMemoryIndex`,
+  painel de Contexto do Forge) — não usa o mesmo caminho do `PUT` de
+  posições, que é `fetch` direto. Não misturar com CONV-002.
+- React error #418 é o único item realmente novo desta observação.
+
+Risco: desconhecido — erro de hidratação pode ser cosmético (React
+recupera sozinho) ou sintoma de um problema real de SSR/CSR mismatch
+em `luna-frontend`. Sem investigação ainda, não dá pra dizer qual.
+
+Ação sugerida: sessão futura, com `luna-frontend` anexado, para
+localizar o componente que causa o mismatch de hidratação e decidir
+severidade.
+
+Status: observado, não investigado, não corrigido.
