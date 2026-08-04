@@ -74,6 +74,19 @@ Engine já mergeado em luna-core (PRs #19/#20).
   mudanças reais confirmadas (ADR-012 no mesmo dia já resolveu o P1
   crítico que o inventário registra como aberto; toda a sessão de
   2026-07-22/23 não está refletida).
+- [ ] DRIFT-001 — Reconciliar o histórico de migrations do Supabase
+  (`jdbzhrtovpoaafpytgza`) com o que está versionado em
+  `luna-core/supabase/migrations/`. Achado em 2026-08-02 (ver
+  `luna-core` `BUILDER.md`, entrada CONV-002): o projeto já tinha 4
+  migrations aplicadas diretamente (`enable_rls_on_exposed_tables`,
+  `enable_pgvector_and_add_embedding_column`,
+  `create_hnsw_index_memoria_luna_embedding`,
+  `create_semantic_search_function`) contra só 1 arquivo versionado no
+  repo antes da migration de `convergia_template_positions` (a 2ª a
+  virar arquivo). Ou seja, migrations têm sido aplicadas ao vivo no
+  Supabase sem sempre virar arquivo versionado — pendência de decisão
+  do Architect (script de reconciliação retroativa vs. só disciplinar
+  daqui para frente), não resolvida nesta entrada.
 
 ## P4 — Atividades de framework
 - [ ] Confirmar com GPT/LUNA o paradeiro do frontend de mapeamento de campo ("bolhas") — não encontrado em nenhum repositório auditado
@@ -108,13 +121,21 @@ Engine já mergeado em luna-core (PRs #19/#20).
   posiciona campos sobre templates pré-codificados do catálogo, não
   sobre um template visual enviado pelo usuário — isso segue
   dependendo de CONV-001, abaixo.
-- [ ] CONV-003 — Motor de preview — visualização prévia fiel ao
-  documento final, antes de gerar/baixar. Ainda bloqueado: depende de
-  CONV-001 (upload de arquivo de template) estar completo.
-- [ ] CONV-004 — Motor de lote (batch) — geração explícita de múltiplos
-  documentos a partir de múltiplos registros, com indicação de progresso.
-  Ainda bloqueado por CONV-001 (upload de arquivo de template) e
-  CONV-003.
+  **Correção 2026-08-02 (ver `luna-core` `BUILDER.md`):** o `[x]` acima
+  cobria só código mergeado dos dois lados — o recurso nunca tinha
+  funcionado em produção, porque a tabela `convergia_template_positions`
+  nunca tinha sido criada no Supabase (`GET`/`PUT
+  /api/convergia/templates/:id/positions` retornava `400` real em
+  produção, confirmado por logs do Railway). Fechado agora de fato:
+  migration criada e aplicada (`20260802_convergia_template_positions.sql`,
+  projeto `jdbzhrtovpoaafpytgza`), testado nesta ordem — Guardian direto
+  contra `strong-celebration` (save/search/update/delete), API do
+  Convergia contra `uvicorn-main` (`GET`/`PUT` → `200`, dado real
+  persistido para `documento_tabular_generico_csv`), e a UI real do
+  Forge (Rubens, clique real em "Salvar posições", mensagem "Posições
+  salvas." confirmada por inspeção de DOM). CONV-002 está, agora sim,
+  testado em produção via UI real — não só backend + frontend
+  mergeados.
 - [x] ~~CONV-010 — Leitura e posicionamento de imagem em PPTX (posição/
   dimensão/bytes)~~ — as duas metades concluídas: leitura (2026-07-30,
   `luna-core` PR #24, mergeado, commit `0f26320`) e escrita
@@ -135,6 +156,13 @@ Engine já mergeado em luna-core (PRs #19/#20).
   decide sozinho). Utilitário de apoio, ainda sem rota HTTP — CONV-001/
   002/004 continuam bloqueados por decisões abaixo, não por falta desta
   peça.
+- [ ] CONV-003 — Motor de preview — visualização prévia fiel ao
+  documento final, antes de gerar/baixar. Ainda bloqueado: depende de
+  CONV-001 (upload de arquivo de template) estar completo.
+- [ ] CONV-004 — Motor de lote (batch) — geração explícita de múltiplos
+  documentos a partir de múltiplos registros, com indicação de progresso.
+  Ainda bloqueado por CONV-001 (upload de arquivo de template) e
+  CONV-003.
 - [ ] CONV-005 — Renderizador de PDF — hoje só existem CSV/HTML/JSON/
   Markdown/PPTX/XLSX
 - [ ] CONV-006 — Decisão do Architect: a aba "Conhecimento" (treinamento
