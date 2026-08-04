@@ -660,6 +660,23 @@ automático que já provou side-effects reais e documentados.
 Status: decidido — merge sempre com confirmação explícita, sem
 auto-merge. Não é mais pendência aberta.
 
+Atualização (2026-08-04, correção não silenciosa — mesmo padrão já
+usado em ENG-031): a premissa "praticamente nenhum repositório do
+ecossistema LUNA tem CI configurado hoje" estava certa para a data em
+que foi escrita, não é mais verdade agora. `luna-core` e
+`luna-frontend` ganharam `.github/workflows/ci.yml` (typecheck +
+testes + check específico de cada repo — `test:architecture` em
+`luna-core`, `test:constitution` em `luna-frontend`), com branch
+protection ativa em `main` nos dois repositórios (status check `test`
+obrigatório, PR obrigatório, branch atualizada obrigatória antes de
+merge). A decisão em si não muda: merge continua sempre com
+confirmação explícita, sem auto-merge — CI configurado não altera quem
+aperta o botão de merge, só adiciona um gate técnico obrigatório antes
+disso ser possível. Não é o mesmo mecanismo que o texto original
+descartou (auto-merge do Claude Code por CI verde); branch protection
+com status check obrigatório é pré-condição pro merge manual continuar
+seguro, não substituição dele.
+
 ## ID: ENG-028
 Data: 2026-07-23
 Tópico: Capacidade de visão registrada (CONV-009) — nada implementado ainda
@@ -998,3 +1015,63 @@ localizar o componente que causa o mismatch de hidratação e decidir
 severidade.
 
 Status: observado, não investigado, não corrigido.
+
+## ID: ENG-034
+Data: 2026-08-04
+Tópico: `luna-core` PR #23 mergeado — 3 bugs reais de produção corrigidos (zeragem de memória, PPTX/PPTM rejeitado na validação, planilha mesclada corrompendo dado)
+
+Observação: PR #23, aberto em 2026-07-27 e retomado/rebaseado em
+2026-08-04 (ver `luna-core` `BUILDER.md`, entradas "2026-07-27 —
+Pacote de 5 consertos do Convergia" e "2026-08-04 — Rebase do PR #23
+sobre `main`..."), mergeado em `main` (commit de merge `ee57fb6`).
+Corrige três bugs reais de produção, não hipotéticos:
+
+1. **Zeragem de memória (incidente de produção, 2026-07-26)** — 10
+   registros de memória virando 0 mantidos quando um único registro
+   não cabia no orçamento de caracteres restante do payload.
+   `shrinkMemoryToFit` (`src/luna/adapters/memory-payload.ts`) agora
+   encolhe o `conteudo` do registro que não cabe, em vez de descartar
+   o registro inteiro (e o loop, via `break` antes de qualquer `push`)
+   quando isso acontece.
+2. **PPTX/PPTM rejeitado na etapa de Validação, mesmo com parsing
+   perfeito** — `validateCanonicalDocument` rejeitava
+   `sourceFormat: "pptx"`/`"pptm"` por essas strings não estarem no
+   `z.enum` de `validation.ts` — bug de drift entre parser e
+   validador, não do parser em si.
+3. **Planilha XLSX com célula mesclada corrompendo dado
+   silenciosamente** — antes, uma planilha com células mescladas
+   virava um documento com colunas erradas ou vazias, sem nenhum
+   erro visível. `xlsx-parser.ts` agora checa
+   `worksheet.model.merges` logo após abrir a planilha e lança um
+   erro claro em vez de seguir.
+
+Testado, não só implementado — resumo (ver `luna-core` `BUILDER.md`
+para o relato sessão a sessão completo, incluindo o rebase sobre
+`main` que essa branch precisou por ter ficado parada enquanto CONV-002
+e o CI avançavam): `npm run typecheck` limpo, `npm run test:architecture`
+passou, `npm test` **286/286** (285 pass + 1 skip pré-existente,
+LibreOffice, não relacionado a este PR). Verificação com arquivo real
+— pendência da versão original do PR, fechada nesta rodada: `.pptm`
+sintético e planilha com célula mesclada sintética, gerados por
+script (não documentos reais de produção, mas exercitam os formatos
+de verdade). Contra produção (`uvicorn-main-production`), antes do
+merge: os dois bugs ainda ativos, confirmando que a correção era de
+fato necessária. Contra um `luna-core` local rodando o código já
+rebaseado: `.pptm` parseado corretamente, planilha mesclada rejeitada
+com erro claro — exatamente o comportamento que o PR promete.
+
+Achado colateral, registrado mas não corrigido (fora do escopo desta
+entrega): um `.pptm` parseado localmente reporta
+`metadata.sourceFormat: "pptx"`, não `"pptm"` — `PptxParser.parse()`
+grava esse valor de forma hardcoded, independente de qual chave do
+registry levou até ele. Consequência direta do desenho "mesmo OOXML,
+reaproveita a mesma instância" que o próprio PR já documenta, não um
+problema introduzido pelo rebase.
+
+Status: mergeado em `main`, testado (typecheck limpo,
+`test:architecture` passou, 286/286 testes, verificação com arquivo
+sintético real contra servidor local). Não verificado diretamente
+contra produção pós-deploy nesta sessão — ver `BUILDER.md` para a
+distinção exata entre o que foi confirmado contra produção (bug ainda
+ativo, antes do merge) e o que foi confirmado só localmente (a
+correção em si).

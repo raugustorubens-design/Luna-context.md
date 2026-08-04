@@ -92,16 +92,29 @@ Engine já mergeado em luna-core (PRs #19/#20).
 - [ ] Confirmar com GPT/LUNA o paradeiro do frontend de mapeamento de campo ("bolhas") — não encontrado em nenhum repositório auditado
 - [x] ~~Decisão de Architects: portar convergia/ do monorepo luna para luna-convergia (padrão ADR-004), ou manter arquitetura atual~~ — resolvido por ADR-012 (2026-07-19): portado para `luna-core`, não `luna-convergia` — ver nota equivalente em P2.
 - [x] ~~Escrever ADR de migração do Convergia (Engineer), análogo ao ADR-004~~ — é o próprio ADR-012 (2026-07-19).
-- [ ] CONV-001 — Upload de template visual (imagem/arquivo como plano de
-  fundo do documento) — hoje só existe catálogo de templates
-  pré-codificados, sem upload real. **Correção 2026-07-30 (ver
-  ENG-031)**: a pergunta "onde o template persiste entre inspeção e
-  geração" que ENG-030 registrou como bloqueio real foi resolvida no
-  mesmo PR #25 (commit adicional, sessão diferente da que abriu o PR)
-  — reaproveita o padrão já existente de coleção genérica do
-  `GuardianContract` (mesmo caminho de `luna/memory-engine.ts`), não é
-  decisão nova de arquitetura. O que falta de CONV-001 em si (upload
-  do arquivo de template, não só a posição dos campos) segue em aberto.
+- [x] ~~CONV-001 — Upload de template visual (imagem/arquivo como plano de
+  fundo do documento)~~ — concluído (2026-08-04): `luna-core` PR #29
+  (commit de merge `8ebbcf2`) e `luna-frontend` PR #11 (commit de merge
+  `736249b`), ambos mergeados em `main`. Decisão de escopo já
+  ratificada antes da implementação: template visual é uma imagem
+  (PNG/JPG) de fundo com campos posicionados por cima (reaproveitando
+  `pptx-renderer.ts`/CONV-010), não upload de `.pptx`; persistência via a
+  mesma coleção genérica do `GuardianContract` que CONV-002 já usa
+  (nova coleção `convergia_visual_templates`, migration própria aplicada
+  em `jdbzhrtovpoaafpytgza`). Verificado ponta a ponta — upload de
+  imagem → catálogo unificado → editor abrindo sobre a imagem real →
+  posições com fonte/tamanho salvas → `transform` → `.pptx` real aberto
+  como zip, XML conferido campo a campo — contra o Guardian real de
+  produção (`strong-celebration`) e via browser real (Playwright), a
+  partir de um `luna-core`/`luna-frontend` locais rodando o código das
+  duas branches; dados de teste removidos do Guardian depois. Ver
+  `luna-core` `BUILDER.md`, entrada "2026-08-04 — CONV-001", para o
+  relato completo — inclui um achado corrigido na própria sessão
+  (`listAllTemplates()` derrubava o catálogo inteiro se o Guardian
+  estivesse inalcançável, corrigido pra degradar) e a ressalva de que a
+  verificação foi feita antes do deploy (o PR não estava em produção no
+  momento do teste — `POST /convergia/templates/visual` contra
+  `uvicorn-main-production` ainda respondia 404 então).
 - [x] ~~CONV-002 (backend + editor) — Persistência de layout (posições
   de campo por template) e editor de arrastar/redimensionar~~ —
   concluído dos dois lados (2026-07-31, ver ENG-032 e correção de
@@ -119,8 +132,10 @@ Engine já mergeado em luna-core (PRs #19/#20).
   com a rota nova. Ambos os PRs mergeados em `main` nos respectivos
   repositórios. Ainda vale a ressalva já registrada: o editor só
   posiciona campos sobre templates pré-codificados do catálogo, não
-  sobre um template visual enviado pelo usuário — isso segue
-  dependendo de CONV-001, abaixo.
+  sobre um template visual enviado pelo usuário — isso dependia de
+  CONV-001, que estava em aberto quando este parágrafo foi escrito.
+  **Correção 2026-08-04:** CONV-001 está concluído (ver acima) — essa
+  ressalva não vale mais, o editor já abre sobre imagem de fundo real.
   **Correção 2026-08-02 (ver `luna-core` `BUILDER.md`):** o `[x]` acima
   cobria só código mergeado dos dois lados — o recurso nunca tinha
   funcionado em produção, porque a tabela `convergia_template_positions`
@@ -153,27 +168,55 @@ Engine já mergeado em luna-core (PRs #19/#20).
   `src/convergia/matching/identifier.ts` (zero-pad a 6 dígitos, sempre)
   e `record-file-matcher.ts` (chave sem arquivo → `"missing"`, nunca
   trava o lote; chave com mais de um arquivo → `"ambiguous"`, nunca
-  decide sozinho). Utilitário de apoio, ainda sem rota HTTP — CONV-001/
-  002/004 continuam bloqueados por decisões abaixo, não por falta desta
-  peça.
-- [ ] CONV-003 — Motor de preview — visualização prévia fiel ao
-  documento final, antes de gerar/baixar. Ainda bloqueado: depende de
-  CONV-001 (upload de arquivo de template) estar completo.
+  decide sozinho). Utilitário de apoio, ainda sem rota HTTP.
+  **Correção 2026-08-04:** o texto original dizia "CONV-001/002/004
+  continuam bloqueados por decisões abaixo" — CONV-001 e CONV-002 estão
+  concluídos hoje; só CONV-004 segue não implementado, e não por
+  decisão pendente, ver correção no próprio item CONV-004 abaixo.
+- [x] ~~CONV-003 — Motor de preview — visualização prévia fiel ao
+  documento final, antes de gerar/baixar~~ — **só escopo A**, decidido
+  explicitamente como redução de escopo (Architect + Engineer), não a
+  especificação original completa: preview instantâneo 100% client-side
+  em CSS, só para templates visuais (imagem de fundo real, CONV-001) —
+  sem chamar `/transform`, sem gerar `.pptx` real a cada ajuste.
+  Concluído (2026-08-04, `luna-frontend` PR #12, commit de merge
+  `ae56c2f`): cada campo
+  ganha um "valor de exemplo" opcional; preenchido, a caixa no canvas
+  passa a renderizar esse texto com `fontSize`/`fontFamily` reais do
+  campo via CSS (conversão pt→`cqw`, baseada nos 720pt de largura do
+  slide padrão do `pptxgenjs`, mesmo default de `pptx-renderer.ts`),
+  sobreposto na imagem de fundo real — sem valor preenchido, continua
+  mostrando o nome do campo. Verificado contra um template visual real
+  (upload no Guardian real, dados removidos depois) e via browser real:
+  dois campos com fonte/tamanho distintos (26pt Georgia, 14pt Verdana)
+  renderizados visivelmente diferentes na tela.
+  **Escopo B — preview gerando o `.pptx` real (ex. via LibreOffice) —
+  não foi decidido nem implementado.** Não tratar este item como
+  fechado no sentido mais amplo que a especificação original sugeria;
+  "pixel-perfect" segue em aberto, sem decisão de quando/se será feito.
 - [ ] CONV-004 — Motor de lote (batch) — geração explícita de múltiplos
   documentos a partir de múltiplos registros, com indicação de progresso.
-  Ainda bloqueado por CONV-001 (upload de arquivo de template) e
-  CONV-003.
+  **Atualização 2026-08-04:** CONV-001 e CONV-003 (escopo A) estão
+  concluídos — este item não está mais bloqueado por eles nem por
+  decisão de arquitetura pendente. Continua simplesmente não
+  implementado, sem especificação de interface própria ainda
+  (reconstruir essa especificação não é escopo desta atualização).
 - [ ] CONV-005 — Renderizador de PDF — hoje só existem CSV/HTML/JSON/
   Markdown/PPTX/XLSX
 - [ ] CONV-006 — Decisão do Architect: a aba "Conhecimento" (treinamento
   do Guardian/Hipocampo) permanece dentro do painel Convergia, ou migra
   para painel próprio
 - [ ] CONV-007 — Gerar relatório/checklist de auditoria a partir de
-  documentos enviados via Convergia. Depende de CONV-001 a CONV-004.
+  documentos enviados via Convergia. **Atualização 2026-08-04:** CONV-001
+  e CONV-003 (escopo A) concluídos, CONV-002 já estava concluído desde
+  2026-08-02 — não está mais bloqueado por eles nem por decisão de
+  arquitetura pendente. Segue não implementado; a única dependência real
+  restante é CONV-004 (lote), que também está só "não implementado
+  ainda", não bloqueado.
 - [ ] CONV-008 — Acompanhamento de auditoria ao vivo, item por item,
   com evidência por item. Capacidade nova, sem especificação de
   interface ainda.
-- [ ] Implementar templates reais dos 13 tipos de documento corporativo — deixa de ser "bloqueado por revisão de especialista": ADR-012 define que o conteúdo passa a ser alimentado via `/api/convergia/training` pelo especialista diretamente (mecanismo já portado), não mais uma revisão externa a esperar.
+- [ ] Implementar templates reais dos 13 tipos de documento corporativo — deixa de ser "bloqueado por revisão de especialista": ADR-012 define que o conteúdo passa a ser alimentado via `/api/convergia/training` pelo especialista diretamente (mecanismo já portado), não mais uma revisão externa a esperar. **Nota 2026-08-04:** a exibição desses 13 tipos na aba Catálogo & Upload do Forge foi reorganizada por legibilidade (`luna-frontend` PR #12, commit de merge `ae56c2f`, mesma sessão de CONV-003) — agrupamento por categoria com cabeçalho de grupo em vez de duas colunas soltas com tag desalinhada, ordem alfabética, nota deixando claro que são tipos planejados, não clicáveis. Mudança só de apresentação — `CORPORATE_DOCUMENT_CATALOG` (`luna-core`) e o contrato de `/convergia/catalog` continuam intactos, este item de pendência (templates reais) não avançou.
 - [x] ~~Convergia: renderer PPTX marcado como "parcialmente feito" em ECOSYSTEM_ARCHITECTURE.md~~ — correção (2026-07-19): a doc estava desatualizada, não o código. O renderer já era completo (título + tabela paginada, 18 linhas/slide) antes desta entrada; faltava rigor de teste (só buffer não-vazio). Endurecido em `luna-core` commit `fe5b354` (branch `claude/pptx-renderer-test-rigor`, PR aberto para `main`): teste abre o `.pptx` como zip real, lê XML dos slides, confere título/cabeçalho/valores com dados SSMA/ASO, mais teste de paginação. Ver ECOSYSTEM_ARCHITECTURE.md §Convergia para o texto completo. Templates reais dos 13 tipos de documento (item acima) seguem como pendência separada, não afetada por esta correção.
 - [x] ~~ADR-012 Decisão 2: Interface de Convergia em `luna-frontend`~~ — concluído (2026-07-19, ver `GENESIS/BUILDER.md`): nova área "Convergia" no Forge (`components/forge/convergia-panel.tsx`), mesmo padrão visual/estrutural de `components/forge/` (Tabs, ScrollArea, Button), com o fluxo Catálogo & Upload → Transformação → Conhecimento consumindo `/api/convergia/{catalog,templates,parse,transform,training}` em `luna-core` — `luna-frontend` commit `673b29c` (`main`). Correção adicional no mesmo commit: `sendChatMessage`/`fetchOrganismContext` ainda apontavam para a base antiga de `luna-guardian` (rotas removidas pelo porte da Decisão 1) — atualizados para `LUNA_GATEWAY_BASE_URL` (`luna-core`), junto de `.env.example`/`DEPLOY.md`.
 - [ ] luna-convergia: acoplar frontend (uma vez localizado) ao pipeline real
