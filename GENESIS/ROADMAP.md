@@ -227,9 +227,7 @@ Engine já mergeado em luna-core (PRs #19/#20).
 - [ ] CONV-009 — Interpretação de fotos (visão computacional via LLM).
   Nenhum adaptador do luna-core processa imagem hoje — nem Groq, nem o
   AnthropicHubConnector real (que só manda texto, embora a API da
-  Anthropic suporte imagem nativamente). Caminho mais direto: estender
-  `AnthropicHubConnector` para aceitar blocos de imagem no `content`
-  (a API já suporta; o adapter que precisa mudar). Interpretação de
+  Anthropic suporte imagem nativamente). Interpretação de
   foto nasce com `provenance_state: "unverified"` (a leitura da IA
   sobre a imagem pode errar, mesmo a foto em si sendo evidência real) —
   mesma disciplina do ADR-014 Emenda 1, só que aplicada a imagem, não
@@ -243,6 +241,58 @@ Engine já mergeado em luna-core (PRs #19/#20).
   roadmap; agora registrados, ver os dois itens logo acima. Ver
   `GENESIS/ENGINEER.md` ENG-028 para a ordem de prioridade sugerida
   entre estes itens.
+  **Correção 2026-08-05 (ADR-021, reconciliação com
+  `GENESIS/RESEARCH/convergia-spec-tecnica-consolidada.md`):** o
+  caminho técnico original acima ("estender `AnthropicHubConnector`")
+  está **superado** — a especificação consolidada recomenda **Qwen-VL
+  via Groq**, provider já configurado em `luna-core`, evitando
+  dependência de imagem via Anthropic. Não estender
+  `AnthropicHubConnector`; usar o provider Groq já existente, com
+  modelo da família Qwen-VL. Caso de uso real que finalmente justifica
+  implementar esta capacidade: ADR-021 (ronda fotográfica), Fase 4 —
+  ver `CONV-016` abaixo.
+- [ ] CONV-012 — Pipeline assíncrono de ingestão de documento grande no
+  Hipocampo (ex. cartilhas de treinamento, procedimento completo em
+  PDF) — hoje só documento pequeno é ingerido via `/api/convergia/
+  training`. Sem isto, não há como carregar procedimento real (NR, PGR)
+  para a busca semântica que a Decisão 3/Fase 4 do ADR-021 depende.
+  Existe pelo menos um arquivo real já disponível para quando este item
+  for implementado: cartilha de treinamento de operador de empilhadeira
+  (Manserv), hoje só acessível como arquivo enviado ao Engineer, não
+  ingerida no organismo. Bloqueia `CONV-016` (ADR-021 Fase 4).
+- [ ] CONV-013 — ADR-021 Fase 1: Wizard PWA de coleta de ronda
+  fotográfica (foto + campo + voz nativa + fila offline via IndexedDB
+  com reenvio automático ao detectar rede — evento `online`, não
+  Background Sync API), gravidade escolhida manualmente nesta fase. Não
+  depende de infraestrutura nova de backend — service worker + fila
+  offline são só front (`luna-frontend`). Ver ADR-021 Decisão 1.
+- [ ] CONV-014 — ADR-021 Fase 2: Geração do relatório a partir do
+  coletado na Fase 1 (`CONV-013`), usando a segunda forma de entrada do
+  Convergia (metadata + achados[] + encerramento, ADR-021 Decisão 2) —
+  formato PPT no curto prazo, docx (`CONV-015` abaixo) como upgrade
+  quando disponível. Depende de `CONV-013`.
+- [ ] CONV-015 — Infraestrutura compartilhada: parser de PDF
+  (`pdf-parse`, plano B `pdfjs-dist`) e renderer docx (lib `docx`, npm)
+  — desbloqueia caso de uso ASO e o formato de saída editável
+  prioritário do ADR-021 Decisão 4 (docx rebaixa PDF de prioridade).
+  Infraestrutura pura, sem caso de uso específico embutido; não depende
+  de nenhum outro item desta lista.
+- [ ] CONV-016 — ADR-021 Fase 3+4 combinadas (Decisão 6 já incorpora
+  Decisão 3 — gravidade nasce da mesma leitura diagnóstica da foto,
+  fundamentada em procedimento, não de um passo separado): separação
+  sensível/lógica alimentando `memoria_luna` com tokenização de
+  cliente/local (nome de pessoa nunca entra, ADR-021 Decisão 5) +
+  leitura de risco na imagem via Qwen-VL/Groq (`CONV-009`, caminho
+  técnico corrigido acima) + embedding (`pgvector`/HNSW já em produção)
+  + comparação com achados anteriores. `provenance_state: "unverified"`
+  até confirmação do responsável pela ronda. Depende de `CONV-014` e de
+  `CONV-012` (pipeline assíncrono — sem ele não há procedimento real
+  ingerido no Hipocampo para a busca semântica fundamentar a leitura).
+- [ ] CONV-017 — ADR-021 Fase 5: renderizador de PDF (`CONV-005`) e,
+  depois, exportação BI real (hoje "BI" é só o estilo visual
+  dashboard já validado — KPI cards + gráfico nativo, não exportação
+  para Power BI). Fica por último de propósito — sem prazo, entra só
+  quando fizer sentido de negócio.
 
 ## P5 — Sistema de crescimento e sustentabilidade
 - [ ] Definir Atrator AAAC — Sustentabilidade (renomeado de AAAB em 2026-07-19: AAAB já é o Atrator Cognitivo, ver ADR-009/LUNA_CONSTITUTION.md)

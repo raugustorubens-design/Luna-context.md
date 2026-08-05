@@ -1075,3 +1075,57 @@ contra produção pós-deploy nesta sessão — ver `BUILDER.md` para a
 distinção exata entre o que foi confirmado contra produção (bug ainda
 ativo, antes do merge) e o que foi confirmado só localmente (a
 correção em si).
+
+## ID: ENG-035
+Data: 2026-08-05
+Tópico: ADR-021 registrado (Convergia Mobile — Ronda Fotográfica), reconciliado com `convergia-spec-tecnica-consolidada.md`, `luna-tabela-risco-iso-outcome.md` e o relatório real da Manserv
+
+Decisão: coleta de ronda fotográfica ganha superfície própria, mobile,
+fora do Forge — PWA (não app nativo), service worker + fila offline em
+IndexedDB, reenvio automático ao detectar rede. Foto nunca é obrigatória
+para avançar — cada categoria de risco tem um seletor de estado explícito
+(não avaliado / risco identificado / risco considerado e inexistente),
+crítica de usabilidade sobre a ferramenta real da Manserv, que trava o
+usuário pedindo imagem mesmo quando não há nada a fotografar. Gravidade de não
+conformidade deixa de ser um número solto: passa a usar o mesmo motor de
+Probabilidade+Gravidade=Resultado (nomenclatura ISO/IEC 42001/23894) já
+desenhado para o `outcome` (`O`) do Signal Engine (ADR-019),
+parametrizado por domínio em vez de duplicado. A leitura de foto (Decisão
+6) é diagnóstica, não descritiva — interpreta a implicação de risco da
+cena à luz do procedimento já ingerido no Hipocampo, não descreve o que
+aparece. Correção de caminho técnico relevante: CONV-009 (interpretação
+de foto) deixa de propor estender `AnthropicHubConnector` — usa **Qwen-VL
+via Groq**, provider já configurado, evitando dependência de imagem via
+Anthropic.
+
+Aprendizado de longo prazo (`memoria_luna`) nunca guarda nome de pessoa,
+em nenhuma forma; guarda departamento/local/cliente tokenizados (código
+estável, ex. `CLI-042`), com tabela de mapeamento código→nome cujo acesso
+começa restrito só ao Architect. Achado do tipo EPI/comportamental
+(envolve pessoa) segue disciplina de dado sensível mais estrita que
+achado Estrutural (sem pessoa na cena) — nunca entra com identificação de
+pessoa, mesmo tokenizado. Referência de dado real encontrada nesta
+sessão: relatório de campo real da Manserv (SSMA, NR-16, Sylvamo/Mogi
+Guaçu) — usado só como fonte de taxonomia de risco (7 categorias) e
+estilo de texto diagnóstico para a leitura de imagem; o layout visual do
+relatório final continua sendo o já validado no protótipo do ADR-020, não
+o da Manserv.
+
+Fases do ADR-021 registradas como itens próprios em `GENESIS/ROADMAP.md`
+P4 (`CONV-013` a `CONV-017`), depois de confirmar que `CONV-009` a
+`CONV-011` eram os últimos IDs realmente em uso — nenhum ID assumido sem
+checar. `CONV-012` (pipeline assíncrono de ingestão de documento grande
+no Hipocampo) registrado como item próprio também, por já ser referenciado
+como bloqueio explícito da Fase 4 (`CONV-016`) dentro do próprio ADR.
+
+Ver ADR-021 completo (`ADR/ADR-021-convergia-mobile-ronda-fotografica.md`)
+para as 9 decisões e a tabela de fases — Decisão 9 (adicionada depois
+desta entrada) consolida 3 documentos de referência trazidos pelo
+Architect num motor de conformidade PERIGO→RISCO→CONTROLE→ADERÊNCIA:
+percepção (Qwen-VL) separada de julgamento (regras determinísticas via
+`biblioteca_risco`/`controle_risco` reais), YOLO registrado como
+evolução futura, não fase atual.
+
+Status: registrado, aguardando ratificação final do Architect — nenhuma
+implementação de código nesta entrada (ver Etapa 2 do plano de ação,
+tratada em `luna-core` separadamente, PR próprio).
