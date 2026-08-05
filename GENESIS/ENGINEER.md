@@ -1154,3 +1154,77 @@ correspondente, por decisão explícita do Architect — não é pendência
 esquecida, é aceito como está.
 
 Status: regra ativa.
+
+## ID: ENG-037
+Data: 2026-08-05
+Tópico: Matriz de Treinamento importada e cruzada no Supabase (fecha a pendência de formato de armazenamento aberta em ENG-030)
+
+Observação: nesta sessão, duas fontes de dado real foram importadas e
+cruzadas no Supabase (`jdbzhrtovpoaafpytgza`), fechando a pendência da
+"Matriz de Treinamento" registrada desde ENG-030 (2026-07-30, "formato
+de armazenamento segue não decidido"):
+
+1. Planilha real de gerenciamento de riscos (11 GHE/cargos reais —
+   Operador Logístico, Líder Operacional, Auxiliar Logístico, TST,
+   Artífice Civil, etc.) — 386 linhas originais, deduplicadas para 81
+   riscos únicos + 36 atividades, com controles reais (eliminação/
+   substituição, administrativo, EPI), citando NRs reais. Nomes de
+   cliente/empresa (Sylvamo, Manserv, LSI) removidos do conteúdo antes
+   de persistir — confirmado por busca de palavra inteira no banco,
+   zero ocorrências.
+2. Caderno de treinamento real (27 temas extraídos por sessão externa,
+   formato estruturado padronizado, regra "só o que está no material,
+   nunca completar com conhecimento geral") — vira 13 protocolos de
+   gestão (PGR, Inspeção de Riscos Comportamentais, IPS, AP, APR, IPR,
+   DDSMS, RSMS, TGSMS, RCI, PAE, Brigada de Incêndio, Primeiros
+   Socorros) + mais 16 riscos temáticos (NR-35, NR-33, LOTO, Produtos
+   Químicos, PCA, PERG, PPR, Riscos de Incêndio, Mapa de Riscos NR-5,
+   etc.), com referência normativa real onde o caderno citava,
+   gravidade só onde o caderno atribuía explicitamente (nunca
+   inventada).
+
+Correção de terminologia do Architect, aplicada: PDS→PGR (Plano/
+Programa de Gerenciamento de Riscos, NR-01), OPAI→Inspeção de Riscos
+Comportamentais, IPSMA (citado em `convergia-spec-tecnica-consolidada.md`,
+nunca antes registrado como linha)→Inspeção em Máquinas e Equipamentos
+(novo registro).
+
+Tabela nova: `risco_relacionado` (`risco_id`, `risco_relacionado_id`,
+`observacao`) — liga risco real da planilha ao tema equivalente do
+caderno, quando existe correspondência real (buscada por nome, não
+adivinhada). 22 vínculos confirmados. Isso é o elo que faltava:
+cargo/atividade (planilha) → risco real → risco temático (caderno) →
+protocolo/treinamento — a cadeia completa que responde "que treinamento
+este cargo precisa", rastreável no banco.
+
+Correção de precisão do Architect, aplicada: queda de mesmo nível (até
+1,2m) e queda de nível diferente (1,2m-1,99m) não são NR-35 — NR-35/
+queda de altura é só a partir de 2m. Regra final, simplificada pelo
+Architect: texto do risco contém "altura" → NR-35; "nível diferente"
+sem "altura" → outra faixa. As duas faixas abaixo de 2m (mesmo nível +
+nível diferente) compartilham treinamento próprio, distinto de NR-35:
+"Escorregões, Tropeções e Quedas" (protocolo novo). Verificado
+sistematicamente no banco (3 consultas de auditoria, todas vazias) que
+a regra está aplicada sem exceção em toda a tabela.
+
+Contagem final, confirmada no banco: `biblioteca_atividade` 56,
+`biblioteca_risco` 114, `biblioteca_protocolo` 18, `controle_risco`
+262, `atividade_risco` 358, `risco_protocolo` 10, `risco_relacionado`
+22 (tabela nova).
+
+Risco: existe uma segunda estrutura de tabelas paralela (`risco`/
+`atividade`/`treinamento`, sem prefixo `biblioteca_`) com integridade
+referencial real (FK de verdade) mas conteúdo quase vazio/com linha
+duplicada de teste — mesmo padrão do `hipocampo-temp` já registrado
+antes nesta sessão. Não decidido qual schema é o "certo" para a Fase 4
+do ADR-021 (`CONV-016`) usar.
+
+Ação sugerida: decisão de qual schema (`biblioteca_*` populado vs.
+`risco`/`atividade`/`treinamento` com FK real) é o canônico fica para
+quando a Fase 4 do ADR-021 virar tarefa de Builder — não decidir agora,
+sem código consumindo nenhum dos dois ainda.
+
+Status: dado real importado e cruzado no Supabase, documentação
+sincronizada (ver `ADR/ADR-021-convergia-mobile-ronda-fotografica.md`
+Fase 4/`CONV-016` e `GENESIS/ROADMAP.md`). Pendência de schema duplicado
+registrada, não resolvida.

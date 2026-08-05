@@ -296,6 +296,13 @@ Engine já mergeado em luna-core (PRs #19/#20).
   até confirmação do responsável pela ronda. Depende de `CONV-014` e de
   `CONV-012` (pipeline assíncrono — sem ele não há procedimento real
   ingerido no Hipocampo para a busca semântica fundamentar a leitura).
+  **Nota 2026-08-05 (ver ENG-037):** a base de conhecimento de apoio
+  (`biblioteca_risco`/`biblioteca_atividade`/`biblioteca_protocolo`/
+  `controle_risco`/`risco_relacionado`) já está populada com dado real
+  e cruzada (cargo↔risco↔treinamento) — não é mais dependência em
+  aberto desta fase. Pendência de schema duplicado (`biblioteca_*` vs.
+  a estrutura paralela `risco`/`atividade`/`treinamento`) segue em
+  aberto, ver ENG-037.
 - [ ] CONV-017 — ADR-021 Fase 5: renderizador de PDF (`CONV-005`) e,
   depois, exportação BI real (hoje "BI" é só o estilo visual
   dashboard já validado — KPI cards + gráfico nativo, não exportação
