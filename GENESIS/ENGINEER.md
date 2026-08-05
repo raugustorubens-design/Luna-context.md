@@ -1119,7 +1119,12 @@ no Hipocampo) registrado como item próprio também, por já ser referenciado
 como bloqueio explícito da Fase 4 (`CONV-016`) dentro do próprio ADR.
 
 Ver ADR-021 completo (`ADR/ADR-021-convergia-mobile-ronda-fotografica.md`)
-para as 8 decisões e a tabela de fases.
+para as 9 decisões e a tabela de fases — Decisão 9 (adicionada depois
+desta entrada) consolida 3 documentos de referência trazidos pelo
+Architect num motor de conformidade PERIGO→RISCO→CONTROLE→ADERÊNCIA:
+percepção (Qwen-VL) separada de julgamento (regras determinísticas via
+`biblioteca_risco`/`controle_risco` reais), YOLO registrado como
+evolução futura, não fase atual.
 
 Status: registrado, aguardando ratificação final do Architect — nenhuma
 implementação de código nesta entrada (ver Etapa 2 do plano de ação,

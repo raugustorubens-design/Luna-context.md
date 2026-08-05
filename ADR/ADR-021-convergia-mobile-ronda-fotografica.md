@@ -338,6 +338,57 @@ Status do documento: reconciliado com `convergia-spec-tecnica-consolidada.md`,
 2026-08-05 — pronto para ratificação final do Architect, sem pendência
 de investigação adicional conhecida.
 
+## Decisão 9 — Motor de conformidade (PERIGO→RISCO→CONTROLE→ADERÊNCIA), consolidação de 3 referências
+
+Três documentos de referência trazidos pelo Architect (2026-08-05)
+convergem na mesma arquitetura, de fontes independentes — não é
+suposição, é padrão reconhecido:
+
+**Separação percepção/julgamento (adotada):** o modelo de visão só
+reporta fatos observáveis (`{"capacete": true, "talabarte": false}`),
+nunca julga conformidade diretamente. A decisão de conformidade fica
+num motor de regras determinístico, fora da IA — reduz alucinação
+porque a pergunta à IA fica fechada ("isto está presente?"), não aberta
+("isto é seguro?").
+
+**O "motor de regras" já existe como dado real, não como dicionário
+hardcoded:** os três documentos propõem uma estrutura tipo
+`REGRAS = {"tema": {"obrigatorio": [...], "gravidade": ...}}` — isso já
+é, literalmente, `biblioteca_risco`/`controle_risco`/`atividade_risco`,
+importados nesta sessão (98 riscos reais, 233 controles, ligados a
+cargo real). Não implementar um dicionário separado no código —
+consultar essas tabelas via Guardian.
+
+**Achado adicional na planilha real:** ela tem duas colunas de
+Probabilidade/Gravidade — bruta (antes do controle) e residual (depois
+do controle aplicado). Isso já modela o "score de aderência" que os
+documentos descrevem — controle ausente na leitura da foto → aproxima
+do risco bruto; controle presente → aproxima do residual. Não é
+conceito a inventar, é interpolação sobre dado já importado.
+
+**Caminho técnico — Qwen-VL faz o papel de detecção + contexto,
+YOLO fica como evolução futura, não fase atual:** os três documentos
+recomendam YOLO/RT-DETR (detecção de objeto especificamente treinada)
+como camada 1, mas também documentam explicitamente a alternativa —
+"Imagem → LLM multimodal → Descrição → Auditoria" (citando GPT-4o,
+Gemini, Claude Vision) — como caminho válido sem treinar modelo
+próprio. Treinar YOLO exige milhares de fotos rotuladas por classe,
+pipeline de treinamento e retreinamento contínuo — trabalho de
+semanas/meses, incompatível com o cronograma das fases do ADR-021.
+**Decisão:** Qwen-VL (já adotado, Decisão 6 original) cumpre o papel de
+percepção + contexto num só passo, respondendo em JSON estruturado
+(objetos presentes/ausentes, atividade identificada) — as camadas de
+regras/avaliação continuam sendo `biblioteca_risco`/`controle_risco`
+reais, não um LLM "achando" a resposta. YOLO registrado como evolução
+futura: migrar para lá só quando houver volume real de fotos rotuladas
+do próprio uso do wizard (que só existe depois de meses de Fase 1-2 em
+produção) — não é decisão a tomar agora.
+
+**Classificação adotada** (dos três documentos, convergente): Conforme
+/ Parcialmente Conforme / Não Conforme / Crítico — mapeada sobre o
+critério já existente na planilha real (`<5 Aceitável`, `=5 Tolerável`,
+`>5 Não Aceitável`), não como escala nova e paralela.
+
 ## Consequência
 
 Se aceito, Convergia ganha uma terceira forma de entrada (não-tabular),
