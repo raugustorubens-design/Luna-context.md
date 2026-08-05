@@ -42,6 +42,28 @@ tela inicial, acesso à câmera nativa via input padrão do navegador.
 Ditado por voz continua de graça (teclado nativo Android/iOS em qualquer
 campo de texto simples), independente da escolha PWA vs. nativo.
 
+**Correção 2026-08-05 (crítica de usabilidade sobre ferramenta real
+existente, Manserv):** foto **nunca é condição obrigatória para
+avançar**, em nenhum achado. Especificamente, quando a classificação do
+achado é "não há risco"/inexistente para aquela categoria, o wizard
+precisa permitir registrar isso **sem exigir foto** — a falha observada
+na ferramenta atual da Manserv é travar o usuário pedindo imagem mesmo
+quando não há nada a fotografar.
+
+**Refinamento 2026-08-05:** "risco inexistente" não é campo em branco
+nem pergunta pulada — é uma **resposta explícita e registrada**. Cada
+categoria de risco (Fase 1, mesmas 7 categorias do relatório real da
+Manserv — ver Decisão 8) tem um seletor de estado, no mínimo três
+opções: **não avaliado** (ainda pendente, bloqueia conclusão da ronda),
+**risco identificado** (exige severidade/probabilidade/foto, como já
+descrito), **risco considerado e inexistente** (não exige foto, mas
+precisa da marcação explícita — é essa marcação, não a ausência de
+resposta, que libera avançar). Distinção importa para auditoria: o
+relatório final deve mostrar que cada categoria foi de fato avaliada,
+não que ficou vazia por esquecimento. Campos de severidade/
+probabilidade/foto só ficam desabilitados quando o estado é
+explicitamente "considerado e inexistente" — nunca por padrão/silêncio.
+
 **Impacto no tamanho da Fase 1** (ver tabela de fases): isso é mais
 trabalho do que "página responsiva simples" — service worker + fila
 offline + sincronização automática são peças reais de engenharia, não

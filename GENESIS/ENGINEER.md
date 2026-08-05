@@ -1082,7 +1082,11 @@ Tópico: ADR-021 registrado (Convergia Mobile — Ronda Fotográfica), reconcili
 
 Decisão: coleta de ronda fotográfica ganha superfície própria, mobile,
 fora do Forge — PWA (não app nativo), service worker + fila offline em
-IndexedDB, reenvio automático ao detectar rede. Gravidade de não
+IndexedDB, reenvio automático ao detectar rede. Foto nunca é obrigatória
+para avançar — cada categoria de risco tem um seletor de estado explícito
+(não avaliado / risco identificado / risco considerado e inexistente),
+crítica de usabilidade sobre a ferramenta real da Manserv, que trava o
+usuário pedindo imagem mesmo quando não há nada a fotografar. Gravidade de não
 conformidade deixa de ser um número solto: passa a usar o mesmo motor de
 Probabilidade+Gravidade=Resultado (nomenclatura ISO/IEC 42001/23894) já
 desenhado para o `outcome` (`O`) do Signal Engine (ADR-019),
