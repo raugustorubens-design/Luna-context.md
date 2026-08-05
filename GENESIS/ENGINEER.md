@@ -1129,3 +1129,28 @@ evolução futura, não fase atual.
 Status: registrado, aguardando ratificação final do Architect — nenhuma
 implementação de código nesta entrada (ver Etapa 2 do plano de ação,
 tratada em `luna-core` separadamente, PR próprio).
+
+## ID: ENG-036
+Data: 2026-08-05
+Tópico: Regra permanente — migration de schema do Supabase precisa existir como arquivo `.sql` antes de ser aplicada (fecha DRIFT-001)
+
+Observação: Rubens (Architect) decidiu, ao resolver `DRIFT-001`
+(`GENESIS/ROADMAP.md` P3, achado em 2026-08-02 — 4 migrations aplicadas
+diretamente no Supabase sem arquivo versionado correspondente:
+`enable_rls_on_exposed_tables`, `enable_pgvector_and_add_embedding_column`,
+`create_hnsw_index_memoria_luna_embedding`,
+`create_semantic_search_function`), não reconstruir esse histórico
+retroativamente — o banco funciona, a reconstrução não vale o esforço
+agora. Mesmo tipo de regra que `ENG-006` (toda etapa concluída atualiza
+`BUILDER.md`): um padrão operacional permanente, não uma decisão de uma
+tarefa específica.
+
+**Regra:** toda migration de schema do Supabase precisa existir como
+arquivo `.sql` commitado em `luna-core/supabase/migrations/` **antes**
+de ser aplicada no banco — nunca o caminho inverso (aplicar direto via
+MCP/dashboard e documentar depois). Vale a partir de 2026-08-05; as 4
+migrations anteriores a essa data permanecem sem arquivo
+correspondente, por decisão explícita do Architect — não é pendência
+esquecida, é aceito como está.
+
+Status: regra ativa.

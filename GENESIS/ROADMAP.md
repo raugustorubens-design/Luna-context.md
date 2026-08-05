@@ -74,19 +74,23 @@ Engine já mergeado em luna-core (PRs #19/#20).
   mudanças reais confirmadas (ADR-012 no mesmo dia já resolveu o P1
   crítico que o inventário registra como aberto; toda a sessão de
   2026-07-22/23 não está refletida).
-- [ ] DRIFT-001 — Reconciliar o histórico de migrations do Supabase
+- [x] ~~DRIFT-001 — Reconciliar o histórico de migrations do Supabase
   (`jdbzhrtovpoaafpytgza`) com o que está versionado em
-  `luna-core/supabase/migrations/`. Achado em 2026-08-02 (ver
-  `luna-core` `BUILDER.md`, entrada CONV-002): o projeto já tinha 4
-  migrations aplicadas diretamente (`enable_rls_on_exposed_tables`,
+  `luna-core/supabase/migrations/`~~ — decisão do Architect (2026-08-05):
+  **disciplina daqui pra frente, não reconciliação do passado.** Achado
+  em 2026-08-02 (ver `luna-core` `BUILDER.md`, entrada CONV-002): o
+  projeto já tinha 4 migrations aplicadas diretamente
+  (`enable_rls_on_exposed_tables`,
   `enable_pgvector_and_add_embedding_column`,
   `create_hnsw_index_memoria_luna_embedding`,
   `create_semantic_search_function`) contra só 1 arquivo versionado no
   repo antes da migration de `convergia_template_positions` (a 2ª a
-  virar arquivo). Ou seja, migrations têm sido aplicadas ao vivo no
-  Supabase sem sempre virar arquivo versionado — pendência de decisão
-  do Architect (script de reconciliação retroativa vs. só disciplinar
-  daqui para frente), não resolvida nesta entrada.
+  virar arquivo). O Architect decidiu não reconstruir retroativamente
+  esses 4 arquivos `.sql` — o banco funciona, a reconstrução histórica
+  não vale o esforço agora; as 4 migrations anteriores a 2026-08-05
+  permanecem sem arquivo correspondente, aceito como está, não pendência
+  esquecida. Regra concreta para todo commit daqui pra frente registrada
+  em `GENESIS/ENGINEER.md` ENG-036.
 
 ## P4 — Atividades de framework
 - [ ] Confirmar com GPT/LUNA o paradeiro do frontend de mapeamento de campo ("bolhas") — não encontrado em nenhum repositório auditado
@@ -203,9 +207,13 @@ Engine já mergeado em luna-core (PRs #19/#20).
   (reconstruir essa especificação não é escopo desta atualização).
 - [ ] CONV-005 — Renderizador de PDF — hoje só existem CSV/HTML/JSON/
   Markdown/PPTX/XLSX
-- [ ] CONV-006 — Decisão do Architect: a aba "Conhecimento" (treinamento
+- [x] ~~CONV-006 — Decisão do Architect: a aba "Conhecimento" (treinamento
   do Guardian/Hipocampo) permanece dentro do painel Convergia, ou migra
-  para painel próprio
+  para painel próprio~~ — decisão tomada (2026-08-05): **separa.**
+  "Conhecimento" deixa de ser aba dentro do painel Convergia e vira
+  painel próprio no Forge. Decisão registrada aqui, implementação (código
+  em `luna-frontend`) ainda não feita — vira tarefa de Builder separada,
+  não parte desta entrada.
 - [ ] CONV-007 — Gerar relatório/checklist de auditoria a partir de
   documentos enviados via Convergia. **Atualização 2026-08-04:** CONV-001
   e CONV-003 (escopo A) concluídos, CONV-002 já estava concluído desde
