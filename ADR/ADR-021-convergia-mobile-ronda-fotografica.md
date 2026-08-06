@@ -255,6 +255,18 @@ errada silenciosamente aceita.
 | 4 | Leitura de risco na imagem (Decisão 6, já incorpora Decisão 3 — gravidade nasce da mesma leitura, fundamentada em procedimento, não de um passo separado) + embedding + comparação com achados anteriores | Fase 3 + confirmar que `AnthropicHubConnector` aceita imagem + **`CONV-012` (pipeline assíncrono) — sem ele, não há como ingerir procedimento real no Hipocampo** |
 | 5 | PDF, depois exportação BI real | CONV-005 (não existe ainda) |
 
+**Nota 2026-08-05 (ver ENG-037):** a base de conhecimento de apoio à
+Fase 4 (`biblioteca_risco`/`biblioteca_atividade`/`biblioteca_protocolo`/
+`controle_risco`/`risco_relacionado`) já está populada com dado real,
+cruzado cargo↔risco↔treinamento (planilha real de 11 GHE/cargos +
+caderno de treinamento real, 22 vínculos risco↔protocolo confirmados)
+— não é mais "esperar dado real existir". O que falta da Fase 4 é só a
+leitura de imagem em si (Qwen-VL) e a persistência sensível/lógica em
+`memoria_luna` (Decisão 5). Pendência de schema duplicado
+(`biblioteca_*` vs. a estrutura paralela `risco`/`atividade`/
+`treinamento` com FK real, quase vazia) segue em aberto, para decidir
+quando esta fase virar código — ver ENG-037.
+
 Cada fase entrega valor sozinha — não é preciso esperar a Fase 6 pra Fase
 1 já resolver o problema real (parar de perder foto/observação em papel).
 
