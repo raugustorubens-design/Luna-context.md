@@ -15,6 +15,14 @@ Sequência de prioridades consolidada em 2026-07-13, agora incluindo a evoluçã
 
 ## FORGE-WORKSPACE-001 — Workspace nativo equivalente a Cursor + VS Code (pós-v0.1, sem prazo)
 
+Nota (2026-08-06, ver `GENESIS/ENGINEER.md` ENG-038): este item é a
+dependência real de destravamento do gate de alinhamento `A(t)` (Frente
+2 do Signal Engine) — `A(t)` fica pausado no gate real até
+`FORGE-WORKSPACE-001` (ou qualquer forma de tool-calling no pipeline de
+chat) existir. Quando este item virar tarefa de Builder, o gate `A(t)`
+(Fase 1, modo sombra) precisa entrar na mesma leva — ver ENG-038 para o
+detalhe completo.
+
 ## P0 — Continuidade Cognitiva Distribuída (DESCONGELADO em 2026-07-22, ver ARCH-001)
 
 Condição de descongelamento cumprida: Forge v0.1 em uso diário real,

@@ -1,4 +1,4 @@
- # ENGINEER
+# ENGINEER
 
 Owner: Claude
 
@@ -1228,3 +1228,50 @@ Status: dado real importado e cruzado no Supabase, documentação
 sincronizada (ver `ADR/ADR-021-convergia-mobile-ronda-fotografica.md`
 Fase 4/`CONV-016` e `GENESIS/ROADMAP.md`). Pendência de schema duplicado
 registrada, não resolvida.
+
+## ID: ENG-038
+Data: 2026-08-06
+Tópico: A(t) (gate de alinhamento, Frente 2) pausado no gate real — depende de FORGE-WORKSPACE-001 (ou qualquer tool-calling no chat) existir primeiro
+
+Observação: nesta sessão, a Frente 2 (`A(t) = 1 − d(H(t), X(t))`, gate de
+alinhamento do Signal Engine) avançou até um bloqueio real: `H(t)` não
+existe hoje no ponto de despacho de capability do Gateway, porque o chat
+da LUNA (`runCognitiveEngine` → `ProviderRouter`) nunca decide sozinho
+invocar uma ferramenta — devolve só texto. As 8 capabilities com
+`requiresApproval: true` são hoje sempre disparadas por clique direto de
+humano na UI do Forge, nunca pela LLM no meio de uma conversa (ver
+`luna-core` PR #33, `BUILDER.md`, achado completo). `A(t)` está
+implementado até o cálculo puro (`alignment.ts`, `luna-core` PRs #31/#32,
+mergeadas) — só o gate real (Fase 1, modo sombra, item 3 da Frente 2)
+fica pausado.
+
+Decisão do Architect: `A(t)` fica pausado, de propósito, até a LUNA
+ganhar capacidade real de decidir/agir sozinha durante uma conversa
+(function calling/tool calling no pipeline de chat) — hoje essa
+capacidade não existe. Essa lacuna está diretamente ligada a
+`FORGE-WORKSPACE-001` (`GENESIS/ROADMAP.md`, P00), pedido do Architect
+desde 2026-07-17, registrado no Roadmap só como título ("Workspace
+nativo do Forge equivalente a Cursor + VS Code, incluindo terminal,
+pós-v0.1, sem prazo"), nunca detalhado, sem decisão de quando entra na
+fila. É precisamente quando/se essa capacidade for construída
+(`FORGE-WORKSPACE-001` ou qualquer outra forma de tool-calling no chat)
+que a LUNA passaria a decidir sozinha editar/criar código — o momento
+exato em que `A(t)` deixa de ser prematuro e vira o freio de segurança
+que `context.txt` já previa.
+
+Risco: as duas pendências existirem como itens separados (uma em
+`ENGINEER.md`, outra em `ROADMAP.md`) sem referência cruzada explícita —
+dependendo de memória de conversa para lembrar que uma destrava a outra,
+o vínculo se perde entre sessões.
+
+Ação sugerida: quando `FORGE-WORKSPACE-001` (ou qualquer capacidade de
+tool-calling no pipeline de chat) virar tarefa real de Builder, `A(t)`/
+Fase 1 do gate (modo sombra, item 3 da Frente 2) precisa entrar junto,
+na mesma leva — não depois, não esquecido. O momento exato fica a
+critério do Engineer (não é decisão fixa de calendário); a dependência
+entre os dois fica registrada aqui para não depender de memória de
+conversa.
+
+Status: registrado, aguardando `FORGE-WORKSPACE-001` (ou tool-calling
+equivalente) virar tarefa de Builder — nenhuma implementação de código
+nesta entrada.
