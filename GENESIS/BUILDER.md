@@ -1774,3 +1774,68 @@ de posicionamento não foi executado.
 
 Next action: nenhuma minha até o Originador confirmar os merges e esta
 documentação diretamente no GitHub.
+
+## 2026-08-07 — `luna-guardian`: limite explícito de 20mb em `express.json()` (corrige 413 em upload de imagem real)
+
+Eu fiz (Builder, via Claude Code, sessão de chat, `luna-guardian`
+anexado): `index.js` tinha `app.use(express.json())` sem limite
+configurado — o default do Express é 100kb. Base64 já infla ~33% sobre
+o binário original, então qualquer imagem real (foto/certificado de
+tamanho comum, não só arquivo grande) passa dos 100kb com facilidade,
+sendo rejeitada com `413 Payload Too Large` antes de chegar no Guardian
+de verdade — reproduzido ao vivo (print do Rubens, "Guardian save
+failed on `convergia_visual_templates`: HTTP 413"). Causa já confirmada
+antes desta sessão (lida direto no código, não redescoberta).
+
+Correção: `app.use(express.json({ limit: "20mb" }))` — mesmo valor de
+`MAX_SYNC_FILE_SIZE_BYTES` já usado em `luna-core` (Convergia,
+roteamento de arquivo grande), mesma ordem de grandeza já adotada no
+projeto, não é número novo inventado. Mudança isolada a uma linha;
+nenhum outro arquivo tocado.
+
+Nota à parte, não relacionada ao 413: ao começar esta sessão encontrei
+uma PR minha (`luna-guardian` #4) duplicando uma correção que uma
+sessão paralela já tinha aplicado e mergeado como `luna-guardian` #3
+(alinhamento de `hipocampo-temp` ao schema real de `memoria_luna` —
+`camada`/`estado`/`resumo`/`chave`/`signals`/`score`/`criadoEm` não
+eram coluna real; tabela real só tem `id, tipo, contexto, conteudo,
+criado_em, titulo, empresa_id, embedding`, mesmo contrato de
+`luna-core/src/luna/memory-engine.ts#persistMemory`). Esse achado não
+está registrado em `GENESIS/ENGINEER.md` — a sessão paralela documentou
+só na própria PR #3, não aqui; sinalizando a lacuna, não preenchendo
+agora (fora do escopo desta entrada). Fechei a #4 como superseded, sem
+aplicar nada — só registrando aqui para não ficar uma PR fechada sem
+explicação no histórico.
+
+Verificação:
+- Reproduzido o bug primeiro: harness local (routers reais do Guardian
+  — `src/guardian/routes.js`/`hipocampo-temp/routes.js` — com um
+  storage adapter stub em memória, mesma configuração de middleware de
+  `index.js` mas sem o limite novo) recebendo uma imagem ~3.5MB em
+  base64 via `POST /guardian/save` (`convergia_visual_templates`) →
+  `413 PayloadTooLargeError`, o mesmo erro relatado.
+- Com o fix (`limit: "20mb"`), mesmo harness: imagem real de ~8MB
+  binário (~10.7MB em base64, tamanho de foto/certificado real, não um
+  pixel 1×1) em `convergia_visual_templates` → `201`; escrita de
+  memória normal (`POST /guardian/memory`, ~167 bytes) → `201`, sem
+  regressão; posição de template (`convergia_template_positions`, ~113
+  bytes) → `201`, sem regressão; payload acima do novo limite (~25MB
+  binário) → `413`, confirmando que o limite continua existindo
+  (generoso, não removido).
+- `npm test`: 31/31. `npm run test:architecture`: passou (14 arquivos).
+- CI: `luna-guardian` não tem `.github/workflows` — confirmado de novo,
+  sem workflow para acionar.
+
+O que está bloqueado: nada — correção isolada, sem dependência aberta.
+Não consegui rodar o processo real do Guardian contra o Supabase de
+produção nesta sessão (`SUPABASE_KEY` de `strong-celebration`
+redigida) — o harness usado isola exatamente o mecanismo que este PR
+muda (limite do `body-parser` do Express), com os routers reais do
+Guardian e um storage adapter stub, sem depender de rede/credencial
+externa.
+
+Test status: `luna-guardian` — `npm test` 31/31, `npm run
+test:architecture` limpo.
+
+Next action: nenhuma minha — `luna-guardian` PR #5 aberta como draft,
+aguardando revisão do Originador antes de merge.
