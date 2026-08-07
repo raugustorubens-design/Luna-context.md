@@ -43,9 +43,27 @@ persistência)
 | Grupo | Coleções reais | Propósito |
 |---|---|---|
 | Templates e posições | `convergia_visual_templates`, `convergia_template_positions` | CONV-001/002 — imagem de fundo + campo posicionado |
-| Rondas | `convergia_rondas` | Fase 1 do ADR-021 — coleta de campo |
+| Rondas | `convergia_rondas` (ver nota abaixo) | Fase 1 do ADR-021 — coleta de campo |
 | Base de conhecimento | `biblioteca_risco`, `biblioteca_atividade`, `biblioteca_protocolo`, `controle_risco`, `atividade_risco`, `risco_protocolo`, `risco_relacionado` | Planilha real de riscos + caderno de treinamento, cruzados por cargo/risco/treinamento |
 | Memória de longo prazo | `memoria_luna` | Signal Engine (ADR-019) decide consolidar ou descartar |
+
+**Nota (2026-08-07, mesmo dia deste documento, sessão posterior) —
+`convergia_rondas` não existia como tabela física quando este mapeamento
+foi registrado:** a coleção estava correta como *destino de código*
+(`RondaStore`, `src/convergia/ronda/ronda-store.ts`, já gravava nela
+desde o PR #35), mas a tabela física no Supabase nunca tinha sido
+criada — mesmo padrão de lacuna já visto com `convergia_template_positions`
+antes de CONV-002. Confirmado direto via `information_schema.tables`
+(não suposição) numa sessão de correção urgente, depois deste documento
+já estar escrito: o Wizard PWA (já em produção) teria falhado com
+400/500 na primeira ronda real enviada. Tabela criada nessa mesma
+correção (`luna-core`, `supabase/migrations/20260807_convergia_rondas.sql`,
+aplicada ao vivo e testada ponta a ponta contra produção real — ver
+`luna-core/BUILDER.md`, entrada "Fix urgente: tabela `convergia_rondas`
+nunca existia no Supabase"). Este documento não estava errado sobre o
+código; estava otimista sobre a infraestrutura por trás dele — registro
+mantido aqui para não sugerir que a tabela já existia desde o
+mapeamento original.
 
 **Achado não resolvido, registrado aqui de propósito:** existe uma
 estrutura paralela (`risco`, `atividade`, `treinamento`, sem prefixo
