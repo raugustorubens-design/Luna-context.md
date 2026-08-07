@@ -1275,3 +1275,72 @@ conversa.
 Status: registrado, aguardando `FORGE-WORKSPACE-001` (ou tool-calling
 equivalente) virar tarefa de Builder — nenhuma implementação de código
 nesta entrada.
+
+## ID: ENG-039
+Data: 2026-08-07
+Tópico: Tabela `convergia_rondas` nunca existia no Supabase — mesmo padrão de achado de `convergia_template_positions` (CONV-002, antes de 2026-08-02), agora com `POST /convergia/ronda` (PR #35) já em produção
+
+Achado, confirmado direto no banco (`information_schema.tables`, não
+suposição): a coleção genérica do Guardian ainda precisa de uma tabela
+física por nome de coleção no Supabase — regra que já causou uma lacuna
+idêntica antes com `convergia_template_positions` (CONV-002, resolvida
+em `20260802_convergia_template_positions.sql`) não foi aplicada
+quando `POST /convergia/ronda` (ADR-021 Fase 1, PR #35) foi construído.
+`convergia_rondas` nunca teve tabela física criada. Os testes do PR #35
+só cobriram Guardian simulado (`FakeGuardian`, unitário) — nunca houve
+round-trip real contra produção, por isso a lacuna não apareceu antes
+deste achado. Consequência real: o Wizard PWA da Ronda Fotográfica (já
+em produção) teria falhado com 400/500 na primeira ronda real que
+alguém tentasse enviar.
+
+**Padrão, não incidente isolado:** esta é a segunda vez que a mesma
+categoria de lacuna acontece (coleção Guardian nova, código correto,
+tabela física esquecida) — registrado aqui explicitamente para não
+tratar como acaso. Mesma causa raiz das duas vezes: nada no processo
+de construir um endpoint novo sobre uma coleção Guardian nova força a
+migration a ser criada e aplicada como parte do mesmo trabalho — fica
+dependendo de alguém lembrar, sessão a sessão. `ENG-036`/`DRIFT-001` já
+tinha fechado a metade "migration sem arquivo `.sql` correspondente"
+dessa família de risco (regra permanente desde 2026-08-05: toda
+migration precisa existir como arquivo antes de ser aplicada); esta
+entrada é a outra metade do mesmo risco — endpoint sem tabela nenhuma,
+nem aplicada nem versionada. Nenhuma regra nova criada nesta entrada;
+registrado para o Architect avaliar se vale formalizar um checklist
+("toda coleção `GuardianContract` nova precisa de migration no mesmo
+PR/sessão que o código que grava nela") — decisão dele, não tomada
+aqui.
+
+Corrigido na mesma sessão deste achado (`luna-core`, PR #37, branch
+`claude/hipocampo-memory-schema-6ygq9l`): migration nova
+(`supabase/migrations/20260807_convergia_rondas.sql`, mesmo padrão de
+`convergia_template_positions`/`convergia_visual_templates`, colunas
+extraídas linha a linha de `ronda-store.ts`), aplicada ao vivo via
+`mcp__Supabase__apply_migration` no projeto real (commitada E aplicada,
+respeitando `DRIFT-001`/`ENG-036`). `get_advisors` confirma o mesmo
+achado INFO (`rls_enabled_no_policy`) de todas as outras tabelas do
+schema `public` — nenhum risco novo introduzido. Testado ponta a ponta
+contra produção real, não só localmente — isto é exatamente o que
+faltou no PR #35 originalmente: `POST`/`GET /convergia/ronda` reais
+contra `uvicorn-main-production`, com uma ronda sintética (2 achados,
+uma foto JPEG pequena real) — `201`, payload lido de volta intacto,
+linha confirmada via SQL direto na tabela. Detalhes completos em
+`luna-core/BUILDER.md`, entrada "Fix urgente: tabela `convergia_rondas`
+nunca existia no Supabase".
+
+`GENESIS/ARQUITETURA_CONVERGIA.md` (documento que já listava
+`convergia_rondas` na tabela de Persistência, registrado horas antes
+deste achado, mesmo dia) recebeu nota explícita: a tabela não existia
+como física quando aquele mapeamento foi escrito, só como destino de
+código — corrigido nesta mesma sessão, não deixado como se tivesse
+existido desde o mapeamento original.
+
+Status: migration commitada e aplicada, verificação ponta a ponta
+concluída, PR draft aguardando revisão do Architect antes de merge
+(`luna-core` PR #37 — que também acumula, na mesma branch de sessão,
+um segundo commit não relacionado, o fix de proporção real de slide de
+template visual; revisar como dois commits separados).
+
+Next action: Architect revisa e mergeia `luna-core` PR #37; decidir
+(opcional, não bloqueante) se checklist de "migration no mesmo
+PR/sessão que a coleção Guardian nova" vira regra formal como
+`ENG-036`/`DRIFT-001`.
