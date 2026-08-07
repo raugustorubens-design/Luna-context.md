@@ -9,6 +9,7 @@ Este documento aponta onde cada tipo de informação deve viver.
 - `LUNA_CONTEXT.md` — contexto global, visão e estado atual.
 - `ECOSYSTEM_ARCHITECTURE.md` — arquitetura de alto nível do ecossistema.
 - `GENESIS/ARCHITECTURE_INVENTORY.md` — inventário canônico dos 7 repositórios (responsabilidades, dependências, conexões externas, ambientes, Railway/Vercel/Supabase), com evidência citada e status "Não confirmado" onde aplicável. Documento vivo — atualizar, não recriar.
+- `GENESIS/ARQUITETURA_CONVERGIA.md` — mapa de entrada/processamento/persistência/saída do Convergia (4 caminhos de entrada, pipeline `luna-core`, 4 grupos de coleção via Guardian, 3 destinos de saída), registrado em 2026-08-07 a partir do estado real do código. Documento vivo — atualizar, não recriar.
 - `CHANGELOG.md` — histórico de mudanças relevantes.
 
 ## Diretórios
@@ -58,5 +59,6 @@ Este documento aponta onde cada tipo de informação deve viver.
 | Léxico da Arquitetura Cognitiva — vocabulário ECP/CIL/L-Cell/etc., cruzado com ADR/código existentes, termos de reconciliação em aberto marcados | `LUNA_COGNITIVE_LEXICON.md` |
 | Convergia — Especificação Técnica Consolidada (arquitetura unindo os 3 documentos de Theory num modelo único: 6 tipos de trabalho, modelo de Sujeito de 3 chaves, NRs como banco de perguntas, formatos de saída; pronta para virar ADR) | `GENESIS/RESEARCH/convergia-spec-tecnica-consolidada.md` |
 | Tabela de Gerenciamento de Riscos da LUNA Auto-Aplicada — **domínio Hipocampo/Signal Engine, não Convergia** (Theory — primeira operacionalização real de V(s)/outcome, nomenclatura ISO/IEC 23894+42001, formalização de A(t)/A_politica(t)/Crescimento(t)) | `GENESIS/RESEARCH/luna-tabela-risco-iso-outcome.md` |
+| Arquitetura do Convergia — mapa de entrada (4 caminhos), processamento (`luna-core`), persistência (Guardian, 4 grupos de coleção) e saída (3 destinos, 1 implementado), registrado a partir do código real em 2026-08-07, inclui achado não resolvido sobre schema paralelo (`risco`/`atividade`/`treinamento`) | `GENESIS/ARQUITETURA_CONVERGIA.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).
