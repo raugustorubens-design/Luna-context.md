@@ -1,7 +1,9 @@
 # ADR-021 — Extensão: Questionário Gerado, Painel de Gestão e Pendências
 
-Status: Proposto — aguardando decisão do Architect nas três pendências (P1-P3)
-antes de qualquer instrução de Builder
+Status: Pendências P1-P3 resolvidas (2026-08-09) — escopo técnico de
+Decisão 1/2 ainda por detalhar antes de instrução de Builder; ver também
+revisão de arquitetura de achado dinâmico, que pode afetar como P2 é
+implementada
 Data: 2026-08-09
 Decisor: Architect (Rubens)
 Contexto: Engineer (Claude, chat) — consolida uma sessão longa de divagação
@@ -202,6 +204,10 @@ O sistema aponta "esta categoria exige PT" (referência/lembrete, pequeno)
 (sistema à parte, grande)? Isso muda o tamanho do trabalho em uma ordem de
 grandeza.
 
+**P1 (resolvida, 2026-08-09):** PT só sinaliza — o sistema aponta que a
+categoria exige PT, a emissão/aprovação real continua sendo do dono da
+área, fora do software.
+
 **P2 — Passivo trabalhista: qual dos três?**
 (a) Repositório de documento por pessoa/cargo (ASO, certificado de
 treinamento, com alerta de vencimento) — conecta com o que já existe.
@@ -210,11 +216,34 @@ de lei, não de pessoa) — conhecimento consultável.
 (c) Rastreamento de passivo jurídico real (processo em andamento, valor,
 prazo) — mais sensível, mais perto de sistema jurídico que de SSMA.
 
+**P2 (resolvida, 2026-08-09):** Passivo trabalhista vira uma 8ª categoria
+de risco, no mesmo mecanismo de 3 estados já usado pelas 7 atuais (não
+avaliado/identificado/inexistente) — quando identificado, descrito em
+texto livre pelo profissional de SSMA, sem categoria fixa pré-definida
+(situações "quase infinitas", nas palavras do Architect). A Luna aprende
+com as descrições ao longo do tempo (conecta com Decisão 5 do ADR-021
+original — sensível/lógica antes de virar memória), em vez de tentar
+catalogar antecipadamente.
+**Nota de reconciliação:** essa resposta assume o mecanismo de "categoria
+fixa com 3 estados" que estava em produção em 2026-08-09. Uma revisão de
+arquitetura posterior, no mesmo dia
+(`GENESIS/RESEARCH/revisao-arquitetura-achado-dinamico-flags-foto.md`),
+questiona se esse mecanismo continua existindo como "categoria fixa" ou
+vira "flag" dentro de uma lista dinâmica de achado — sem resposta ainda. A
+essência da decisão de P2 (descrição livre, aprendizado ao longo do
+tempo, sem categorização antecipada) continua válida de qualquer forma;
+só o mecanismo técnico exato pode mudar.
+
 **P3 — Sequenciamento**
 Dado tudo que já está na fila (Ctrl+V no Template Visual, cores de
 classificação, tema claro/escuro, e agora isso) — esta extensão inteira
 entra depois do que já está pronto pra colar, ou o Architect quer
 priorizar diferente?
+
+**P3 (resolvida, 2026-08-09):** ordem de prioridade após a extensão de
+edição de ronda (Fase 1/CONV-013) já entregue: 1) esta extensão
+(questionário por modelo + painel de gestão), 2) `CONV-012` (pipeline
+assíncrono), 3) validação de campo real do wizard offline.
 
 Sem resposta às pendências, não se prepara instrução de Builder para
 nenhuma parte desta extensão — só o que já estava aprovado antes desta
