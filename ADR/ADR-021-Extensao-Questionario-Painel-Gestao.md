@@ -1,0 +1,190 @@
+# ADR-021 — Extensão: Questionário Gerado, Painel de Gestão e Pendências
+
+Status: Proposto — aguardando decisão do Architect nas três pendências (P1-P3)
+antes de qualquer instrução de Builder
+Data: 2026-08-09
+Decisor: Architect (Rubens)
+Contexto: Engineer (Claude, chat) — consolida uma sessão longa de divagação
+(2026-08-07/08) sobre o ADR-021 (Convergia Mobile: Ronda Fotográfica), para
+não depender de segurar tudo de cabeça numa conversa só. Registrado como
+extensão separada, não como edição do corpo do ADR-021 original — mesma
+convenção já usada por `ADR-011-Emenda-Simbolos-M-X-A-Gamma.md` (emenda ao
+ADR-010) e `ADR-014-Emenda-1-...` (emenda ao ADR-014).
+
+## Como chegamos aqui
+
+Comparação com o Checklist Fácil (RZ2), ferramenta comercial de mercado
+usada como referência de estrutura — não como fonte de conteúdo. O
+conteúdo real (categorias, campos, questionários) vem da experiência e
+pesquisa do próprio Architect, que já elaborou muitos desses questionários
+antes, não de observar uma empresa específica. Duas coisas ficaram claras
+dessa comparação:
+
+1. O wizard de ronda (Fase 1 do ADR-021, já em produção) resolve só a
+   ponta de coleta — falta a outra metade, um painel de gestão olhando
+   todas as rondas ao longo do tempo (a referência de mercado tem
+   Dashboard, Planos de Ação, Agendamentos — nós temos só o wizard).
+2. O wizard hoje tem fluxo fixo por categoria de risco. A conversa evoluiu
+   pra: e se o questionário que guia a ronda não fosse fixo, e sim montado
+   a partir de modelo + dado real + IA?
+
+## Decisão 1 — Questionário por modelo, não fluxo fixo nem construção livre
+
+Descartamos duas ideias intermediárias antes de chegar aqui:
+- Fluxo fixo por categoria de risco (o que existe hoje) — rígido demais
+  pro que o Architect quer.
+- Construção 100% livre no chat da Luna, no Forge — esbarra num problema
+  técnico real: o chat da Luna hoje só devolve texto, não tem mecanismo de
+  "decidir sozinha o que salvar" no meio da conversa (mesmo achado que
+  pausou o `A(t)`/modo sombra mais cedo na sessão — `runCognitiveEngine`
+  não tem tool-calling; ligado a `FORGE-WORKSPACE-001`, já registrado em
+  `ENG-038`).
+
+**Decisão final:** três modelos prontos como ponto de partida, extensíveis
+(não lista fechada em código):
+
+| Modelo | Fonte de dado real |
+|---|---|
+| Riscos Críticos | `controle_risco`/`atividade_risco` — categorias que exigem PT (altura, espaço confinado, elétrico, LOTO) |
+| Procedimentos | `biblioteca_protocolo` — as ferramentas do PGR (APR, OPAI, IPS, AP, etc.) |
+| 5S | Checklist específico de organização/limpeza |
+
+A pessoa escolhe o modelo → Luna sugere a estrutura com dado real da
+categoria (usando o banco já populado hoje) → pessoa revisa e ajusta →
+**confirma antes de salvar**. IA nunca grava sozinha — mesmo princípio de
+cautela já usado em `A(t)` e na separação sensível/lógica do ADR-021
+(Decisão 5). Isso é construível agora, sem esperar tool-calling existir.
+
+**Por que "3 modelos fixos" não pode virar arquitetura fechada:** o
+Architect já elaborou, na prática profissional, bem mais de 3 tipos de
+questionário/rotina de inspeção ao longo do tempo (alerta preventivo,
+análise de risco/PT, compliance, acompanhamento de perícia, boas práticas,
+campanhas, controle de exame ocupacional, diálogo de segurança,
+housekeeping/5S, inspeção de meio ambiente, entre outros). Isso confirma,
+com experiência real, que os 3 modelos iniciais são ponto de partida, não
+teto — a base de dados (tabela, não enum) já aguenta crescer sem
+redesenho, e o catálogo de modelos deve ser editável, não fixo no código.
+
+**Estrutura de campo de referência**, no padrão de um "alerta preventivo"
+já elaborado pelo Architect — usada como referência concreta pro modelo
+"Riscos Críticos", não inventar nome de campo do zero:
+
+| Campo de referência | Equivalente no wizard hoje |
+|---|---|
+| Descrição detalhada do desvio | Descrição |
+| Tipo de desvio | Classificação (mais granular que o Positivo/Atenção/Não Conformidade atual) |
+| Ação imediata | Ação recomendada |
+| Criticidade do desvio | Gravidade |
+| **Desvio identificado foi tratado?** | **Não existe hoje** — campo de status de resolução, ciclo de vida, pertence ao painel de gestão (Decisão 2), não à captura inicial |
+| Plano de ação → Responsável pela aprovação | **Não existe hoje** — hierarquia/aprovação |
+| Plano de ação → Local/área do desvio | Departamento |
+| Plano de ação → Responsável da área | Responsável |
+
+A estrutura do wizard já bate de perto com esse padrão de referência — os
+dois campos que faltam ("tratado?", "aprovação") são exatamente os dois
+que fazem mais sentido no painel de gestão (Decisão 2) do que na captura
+em campo, porque são sobre o que acontece *depois* da ronda, não durante.
+
+## Decisão 2 — Painel de gestão (novo, sem código ainda)
+
+Inspirado na estrutura de referência de mercado (não na estética —
+identidade visual continua sendo a do Forge, paleta Midnight já definida
+anteriormente):
+
+- Dashboard com contagem agregada de status ao longo do tempo (em
+  andamento, atrasado, aguardando solução) — não só resultado de uma
+  ronda.
+- Lista filtrável (status, período, unidade) reaproveitada em telas
+  diferentes.
+- Achados viram itens rastreáveis tipo Plano de Ação (aberto → em
+  andamento → resolvido/atrasado).
+
+Ainda sem ID de roadmap formal (`CONV-0XX` a definir) nem escopo técnico
+detalhado — fica para quando as pendências abaixo fecharem.
+
+## Decisão 3 — Fase 2 (`CONV-014`, geração do relatório): templates multi-página enviados pela empresa
+
+Especificação dada pelo Architect (2026-08-09/10), registrada antes de
+qualquer código:
+
+**Estrutura mínima do template**, todas opcionais de upload (se ausente,
+cai no padrão nosso — ver abaixo):
+- Capa
+- Página de KPI/dashboard (gráficos)
+- Página de achado — **repete automaticamente uma vez por achado da
+  ronda**, não é uma página por tipo de achado. Confirmado pelo
+  Architect: as 19 páginas do protótipo original eram capa(1) +
+  dashboard(1) + achado repetido(16) + contracapa(1) — não 16 templates
+  diferentes.
+- Contracapa
+
+**Formatos de upload aceitos, com diferença real de dificuldade —
+registrado para não prometer os cinco como se fossem do mesmo tamanho:**
+
+| Formato | Caminho técnico | Dificuldade |
+|---|---|---|
+| PPT | Converter a página relevante em imagem, mesmo mecanismo do CONV-001 (imagem de fundo + campo posicionado) | Viável, reaproveita infraestrutura existente |
+| docx | Mesmo caminho — converter em imagem | Viável |
+| PDF | Mesmo caminho — já era plano cogitado antes (primeira página → imagem) | Viável |
+| XLS | Não é template visual — é o formato de exportação de dado (ver abaixo), não de layout de capa/contracapa | N/A como template |
+| Power BI | **Não é template de upload** — confirmado pelo Architect: o que importa é migrar o *dado* pra lá, não importar `.pbix` como layout. Resolvido pela exportação CSV/XLS abaixo — Power BI importa CSV/Excel nativamente, não precisamos escrever `.pbix` nunca. Deixa de ser caso difícil. |
+
+**Fallback:** se a empresa não subir template próprio, usamos o nosso
+padrão (Midnight Executive, já validado no protótipo). Mesma lógica pros
+gráficos — se não houver gráfico customizado, usamos os nossos.
+
+**Exportação de dado sempre disponível:** independente do template usado,
+o relatório vem acompanhado de uma tabela em CSV/XLS com os dados brutos
+(achados, contagem por classificação/severidade) — pra o cliente gerar o
+gráfico que quiser, na ferramenta que quiser, direto a partir do
+relatório. **Esse é também o caminho de migração pro Power BI** — CSV/
+Excel é formato de importação nativa do Power BI, não precisamos gerar
+`.pbix` nem entender o formato interno dele.
+
+**Auditoria de edição pós-geração:** toda vez que um relatório for gerado
+a partir de uma ronda que foi editada depois da geração original (ver
+Tarefa 3, `PATCH /convergia/ronda/:id`, já em execução), o documento final
+precisa mostrar uma nota visível — **canto inferior esquerdo**, tipo
+"Editado em [data]" — deixando claro que o conteúdo não é o original
+intocado. Isso é requisito da Fase 2 (o relatório gerado), não da Fase 1
+(a ronda em si, que já está em produção) — fica registrado aqui pra não se
+perder até a Fase 2 ser construída.
+
+## Pendências — respostas necessárias do Architect antes de qualquer instrução de Builder
+
+**P1 — PT: só sinalizar, ou gerenciar de verdade?**
+O sistema aponta "esta categoria exige PT" (referência/lembrete, pequeno)
+— ou o sistema emite, aprova e arquiva a Permissão de Trabalho em si
+(sistema à parte, grande)? Isso muda o tamanho do trabalho em uma ordem de
+grandeza.
+
+**P2 — Passivo trabalhista: qual dos três?**
+(a) Repositório de documento por pessoa/cargo (ASO, certificado de
+treinamento, com alerta de vencimento) — conecta com o que já existe.
+(b) Base de referência de direito trabalhista (tipo uma "biblioteca_risco"
+de lei, não de pessoa) — conhecimento consultável.
+(c) Rastreamento de passivo jurídico real (processo em andamento, valor,
+prazo) — mais sensível, mais perto de sistema jurídico que de SSMA.
+
+**P3 — Sequenciamento**
+Dado tudo que já está na fila (Ctrl+V no Template Visual, cores de
+classificação, tema claro/escuro, e agora isso) — esta extensão inteira
+entra depois do que já está pronto pra colar, ou o Architect quer
+priorizar diferente?
+
+Sem resposta às pendências, não se prepara instrução de Builder para
+nenhuma parte desta extensão — só o que já estava aprovado antes desta
+divagação continua valendo (as três instruções já prontas: Ctrl+V, cores
+de classificação, tema claro/escuro).
+
+## Consequência
+
+Se aceito, o ADR-021 ganha uma segunda metade — um painel de gestão que
+fecha o ciclo aberto pelo wizard de coleta (Fase 1) — e o questionário de
+ronda deixa de ser fluxo fixo por categoria para virar modelo extensível
+composto com dado real + IA, sempre com confirmação humana antes de
+salvar (mesma disciplina de confiança já exigida em Decisão 6 do ADR-021
+original e no Art. AAAB.9 da Constitution). Não conflita com o ADR-021
+original — estende Decisão 2 (estrutura de entrada) e a tabela de Fases,
+sem alterar nenhuma decisão já aceita. Escopo técnico e ID de roadmap
+formal (`CONV-0XX`) ficam para quando P1-P3 fecharem.
