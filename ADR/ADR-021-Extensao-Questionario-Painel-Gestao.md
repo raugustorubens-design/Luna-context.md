@@ -141,6 +141,50 @@ relatório. **Esse é também o caminho de migração pro Power BI** — CSV/
 Excel é formato de importação nativa do Power BI, não precisamos gerar
 `.pbix` nem entender o formato interno dele.
 
+**Posicionamento automático — grade fixa, não reconhecimento de layout
+(correção do Engineer, 2026-08-10):** a primeira leitura do Engineer supôs
+que "posicionamento automático" exigiria visão computacional inferindo
+onde cada campo cabe dentro do design específico de cada cliente — isso
+seria trabalho real de investigação técnica incerta. Correção do
+Architect: não é isso. É uma grade fixa, definida uma vez, aplicada a
+qualquer cliente — a identidade visual do cliente (cor, logo, fundo)
+preenche a moldura por trás; a posição dos campos em si segue a mesma
+grade sempre, sem precisar inferir nada por cliente. Isso já é o que o
+CONV-001 faz hoje (campo em posição percentual sobre uma imagem de
+fundo) — só a origem da posição muda, de "alguém arrastou" pra "grade
+padrão pré-definida pelo Engineer/Architect uma vez, aplicada sempre".
+
+**Especificação da grade (página de achado):**
+
+Paisagem:
+- 1 ou 2 fotos por página, alinhadas.
+- Legenda curta por foto — até ~20 palavras.
+- Caixa de texto maior, à esquerda das fotos — 600 a 800 palavras
+  (observação/descrição mais longa do achado).
+
+Retrato (quando o cliente preferir esta orientação em vez de paisagem —
+ordem de cima pra baixo):
+1. Identificação do local e do risco.
+2. Fotos.
+3. Janelas de texto (legenda curta + caixa de 600-800 palavras).
+
+Em ambas as orientações:
+- Identificação de risco: sugerida pela IA (Fase 4, Decisão 6), sempre
+  aprovada pelo humano antes de finalizar — mesmo princípio já usado em
+  todo o resto do ADR-021, nenhuma decisão nova aqui, só reafirmação.
+
+Rodapé fixo, não editável pelo cliente — presente em toda página do
+relatório, independente da orientação ou do template enviado pelo
+cliente:
+- Identificação "LUNA Safety Walk".
+- Número da página.
+- Quando aplicável, a nota de auditoria de edição ("Editado em [data]",
+  ver abaixo) também vive nesta área.
+
+O cliente pode customizar cor/logo/fundo do resto da página — o rodapé em
+si (conteúdo e presença) não é customizável, garante rastreabilidade
+mínima em qualquer relatório gerado pelo sistema.
+
 **Auditoria de edição pós-geração:** toda vez que um relatório for gerado
 a partir de uma ronda que foi editada depois da geração original (ver
 Tarefa 3, `PATCH /convergia/ronda/:id`, já em execução), o documento final
