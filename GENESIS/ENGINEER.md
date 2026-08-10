@@ -1344,3 +1344,73 @@ Next action: Architect revisa e mergeia `luna-core` PR #37; decidir
 (opcional, não bloqueante) se checklist de "migration no mesmo
 PR/sessão que a coleção Guardian nova" vira regra formal como
 `ENG-036`/`DRIFT-001`.
+
+## ID: ENG-040
+Data: 2026-08-10
+Tópico: push temporário em `main` pra testar contra produção, depois
+reverter — o diff de três pontos do GitHub (usado por PR) esconde tudo
+que já estava naquele commit, mostrando só os commits posteriores
+
+Achado real, não hipotético — aconteceu nesta sessão, quase causou uma
+revisão errada: o padrão já em uso pra verificar ponta a ponta contra
+produção (autorizado pelo Architect quando uma credencial só existe em
+produção, ex. `GROQ_API_KEY`) é mergear o commit de código real
+diretamente em `main`, testar contra o serviço ao vivo, confirmar que
+funciona, e reverter em `main` com `git revert` (não `reset`, pra não
+reescrever histórico compartilhado) assim que a verificação termina.
+
+O problema: reverter com `git revert` **não remove o commit do
+histórico** — ele continua existindo como ancestral de `main`, só o
+efeito líquido é desfeito por um commit de revert posterior. Quando a
+mesma branch de feature (que já tinha aquele commit) depois ganha um
+commit novo (ex. atualização de `BUILDER.md`) e um PR é aberto contra
+`main`, o `git merge-base` entre a branch e `main` passa a ser **o
+próprio commit de código** — porque ele já é ancestral comum dos dois
+lados. O diff de três pontos que o GitHub usa pra mostrar "o que este PR
+muda" (`base...head`) parte desse merge-base, então só aparecem os
+commits feitos **depois** dele na branch — no caso real desta sessão,
+só o commit de `BUILDER.md`. O PR parecia estar "sem o código", com o
+`BUILDER.md` descrevendo em detalhe real algo que, pela visão do PR, não
+existia em lugar nenhum — quando na verdade o código estava lá o tempo
+todo, commitado e testado, só invisível pro diff por causa da mecânica
+de merge-base.
+
+**Isto quase causou uma revisão de PR tratando código real, já testado
+ponta a ponta contra produção, como "faltando" — correção só aconteceu
+porque o Architect conferiu o diff real via API do GitHub antes de
+revisar, não confiou só na descrição do `BUILDER.md`.**
+
+Corrigido (mesma sessão, `luna-core` PR #40): `git reset --hard
+origin/main` na branch de feature (descarta a entrada quebrada do
+histórico local) seguido de `git cherry-pick` do commit de código
+original — cherry-pick aplica o diff como patch, não depende de
+ancestralidade, então o resultado é idêntico ao commit original
+(confirmado por `git diff` vazio entre os dois). `git push
+--force-with-lease` pra atualizar a branch remota. Depois da correção,
+`git merge-base` entre a branch e `main` volta a ser a própria ponta de
+`main` (comportamento esperado), e o diff do PR mostra os arquivos
+reais.
+
+**Risco conhecido, registrado pra sessões futuras que usem o mesmo
+padrão** (push temporário em `main` pra testar contra produção, depois
+reverter via `git revert`): se a mesma branch de feature que originou o
+commit testado continuar recebendo commits novos depois da sondagem,
+confirme o `merge-base` entre a branch e `main` antes de considerar o PR
+pronto pra revisão (`git merge-base origin/main <branch>` — se o
+resultado não for a própria ponta de `main`, o diff do PR está
+escondendo alguma coisa). Não é um bug do Git nem do GitHub — é
+consequência esperada de como `merge-base`/diff de três pontos funciona
+quando um commit "de teste" vira ancestral compartilhado; a forma mais
+simples de evitar é isolar a sondagem numa branch descartável em vez de
+mergear na branch de feature real — mas quando a sondagem precisa ser o
+próprio código da entrega (não um diagnóstico à parte), esta armadilha
+pode se repetir, e o checklist acima é a defesa.
+
+Status: corrigido e verificado (`luna-core` PR #40 tem o diff certo
+agora); registrado aqui como risco de processo, não um bug de código.
+
+Next action: nenhuma ação pendente — registro pra consulta futura. Se o
+padrão de "push temporário em `main` pra testar" continuar sendo usado
+com frequência, o Architect pode decidir se vale formalizar como regra
+permanente (ex. sempre isolar a sondagem numa branch própria, nunca
+reaproveitar a branch de feature real) — decisão dele, não tomada aqui.
