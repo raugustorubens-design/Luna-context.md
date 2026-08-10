@@ -276,17 +276,67 @@ Engine já mergeado em luna-core (PRs #19/#20).
   for implementado: cartilha de treinamento de operador de empilhadeira
   (Manserv), hoje só acessível como arquivo enviado ao Engineer, não
   ingerida no organismo. Bloqueia `CONV-016` (ADR-021 Fase 4).
-- [ ] CONV-013 — ADR-021 Fase 1: Wizard PWA de coleta de ronda
+  **Nota 2026-08-10:** investigação iniciada nesta sessão (não
+  implementação) — achado real: zero buckets de Supabase Storage
+  existem no projeto hoje. Decisão do Architect: o worker deste pipeline
+  roda como serviço separado no Railway, não dentro de `luna-core`.
+  Continua `[ ]`, sem código novo.
+- [x] ~~CONV-013 — ADR-021 Fase 1: Wizard PWA de coleta de ronda
   fotográfica (foto + campo + voz nativa + fila offline via IndexedDB
   com reenvio automático ao detectar rede — evento `online`, não
   Background Sync API), gravidade escolhida manualmente nesta fase. Não
   depende de infraestrutura nova de backend — service worker + fila
-  offline são só front (`luna-frontend`). Ver ADR-021 Decisão 1.
+  offline são só front (`luna-frontend`). Ver ADR-021 Decisão 1.~~ —
+  **concluído (2026-08-09/10), cobrindo a linha evolutiva inteira, não
+  só a versão original:** Fase 1 (`POST /convergia/ronda`, wizard PWA)
+  em produção, seguida da extensão de edição pós-envio
+  (`PATCH /convergia/ronda/:id`, `luna-core`/`luna-frontend`), também em
+  produção. **O desenho original de achado — uma entrada fixa por
+  categoria de risco — foi depois superado, no mesmo período, por uma
+  revisão de arquitetura completa** (achado vira lista dinâmica, sem
+  categoria fixa como chave) — ver `CONV-018` logo abaixo, já mergeada e
+  em produção nos dois repositórios. Este `[x]` reconhece que o wizard
+  de coleta em si está entregue; o modelo de achado que ele usa hoje é o
+  de `CONV-018`, não mais o de categoria fixa descrito no texto original
+  acima.
+- [x] ~~CONV-018 — Revisão de arquitetura de achado dinâmico (Luna-context.md,
+  `GENESIS/RESEARCH/revisao-arquitetura-achado-dinamico-flags-foto.md`)~~
+  — **concluído e em produção (2026-08-09/10), duas rodadas, mergeadas
+  em `luna-core` e `luna-frontend`:**
+  - **Rodada 1:** achado deixa de ser uma entrada fixa por categoria de
+    risco e vira lista livre, endereçada por `id` próprio (não mais
+    `categoria`); catálogo real de 8 flags individuais
+    (`convergia_ronda_flags`, tabela nova, sem agrupamento em "Riscos
+    Críticos"); sugestão gerada por consulta determinística a
+    `controle_risco` real, no nível do controle específico, não da
+    categoria de risco inteira; três formas de "+" (a partir de
+    sugestão, repetir dentro do mesmo flag, duplicar achado já
+    preenchido); foto original (não comprimida) preservada localmente
+    em IndexedDB, sem envio ao servidor nesta rodada.
+  - **Rodada 2:** leitura de risco na foto via `qwen/qwen3.6-27b`
+    (Groq) como segunda fonte de sugestão (Fase 4 do ADR-021 original,
+    integrada aqui em vez de fluxo separado — confirmado com chamada
+    real contra produção antes da implementação, não assumido); correção
+    humana sobre sugestão (de flag ou de foto) alimenta o Hipocampo
+    (`memoria_luna`, `tipo: "convergia_correcao_sugestao"`).
+  - **Não é a mesma coisa que `CONV-016`** (ver nota em `CONV-016`
+    abaixo) — cobre só a leitura de foto como sugestão pontual, não a
+    separação sensível/lógica nem a tokenização de cliente/local que
+    `CONV-016` exige.
 - [ ] CONV-014 — ADR-021 Fase 2: Geração do relatório a partir do
   coletado na Fase 1 (`CONV-013`), usando a segunda forma de entrada do
   Convergia (metadata + achados[] + encerramento, ADR-021 Decisão 2) —
   formato PPT no curto prazo, docx (`CONV-015` abaixo) como upgrade
   quando disponível. Depende de `CONV-013`.
+  **Nota 2026-08-10:** a extensão do ADR-021 (`ADR/
+  ADR-021-Extensao-Questionario-Painel-Gestao.md`, Decisão 3) redefine o
+  escopo deste item — não é mais um formato único de relatório, são
+  **dois modelos de saída coexistentes** (Detalhado, baseado em
+  relatório real de auditoria SSMA; Visual, foto-primeiro, baseado em
+  `.pptx` real de ronda 5S), mais densificação automática por IA ao
+  trocar de modelo. Quando `CONV-014` for retomado, especificar contra
+  essa versão da Decisão 3, não a especulação anterior (caixa de texto
+  única) que ela substituiu.
 - [ ] CONV-015 — Infraestrutura compartilhada: parser de PDF
   (`pdf-parse`, plano B `pdfjs-dist`) e renderer docx (lib `docx`, npm)
   — desbloqueia caso de uso ASO e o formato de saída editável
@@ -311,11 +361,35 @@ Engine já mergeado em luna-core (PRs #19/#20).
   aberto desta fase. Pendência de schema duplicado (`biblioteca_*` vs.
   a estrutura paralela `risco`/`atividade`/`treinamento`) segue em
   aberto, ver ENG-037.
+  **Nota 2026-08-10 — não marcar como concluído:** `CONV-018` (achado
+  dinâmico, Rodada 2) entregou uma fração pequena deste item — leitura
+  de risco na foto como sugestão pontual, via `qwen/qwen3.6-27b`/Groq
+  (não mais "Qwen-VL", nome real confirmado com chamada de teste contra
+  produção), e correção humana persistida em `memoria_luna`. Isso **não**
+  é a separação sensível/lógica completa nem a tokenização de
+  cliente/local que este item exige — a leitura de foto de `CONV-018`
+  vira só uma sugestão pré-preenchendo o formulário, confirmada e salva
+  pelo humano como texto claro, sem nenhuma etapa de tokenização por
+  trás. `CONV-016` continua em aberto, com as mesmas dependências de
+  antes (`CONV-014`, `CONV-012`).
 - [ ] CONV-017 — ADR-021 Fase 5: renderizador de PDF (`CONV-005`) e,
   depois, exportação BI real (hoje "BI" é só o estilo visual
   dashboard já validado — KPI cards + gráfico nativo, não exportação
   para Power BI). Fica por último de propósito — sem prazo, entra só
   quando fizer sentido de negócio.
+- [ ] Extensão do ADR-021 — questionário por modelo (3 modelos
+  extensíveis: Riscos Críticos, Procedimentos, 5S, catálogo em tabela
+  não fixo no código) + painel de gestão (dashboard, lista filtrável,
+  achados como Plano de Ação). Decisões registradas e as 3 pendências
+  originais (P1-P3) resolvidas — ver `ADR/
+  ADR-021-Extensao-Questionario-Painel-Gestao.md` — mas **sem ID de
+  roadmap formal ainda**, deliberadamente: o painel de gestão não tem
+  escopo técnico detalhado (Decisão 2 do documento é só desenho, nenhum
+  código), e o questionário por modelo se sobrepõe parcialmente com
+  `CONV-018` (achado dinâmico, já entregue) sem uma linha clara ainda
+  de onde um termina e o outro começa. Nota cruzada aqui em vez de
+  forçar um `CONV-0XX` prematuro — ID formal fica para quando o escopo
+  técnico do painel de gestão for detalhado.
 
 ## P5 — Sistema de crescimento e sustentabilidade
 - [ ] Definir Atrator AAAC — Sustentabilidade (renomeado de AAAB em 2026-07-19: AAAB já é o Atrator Cognitivo, ver ADR-009/LUNA_CONSTITUTION.md)
