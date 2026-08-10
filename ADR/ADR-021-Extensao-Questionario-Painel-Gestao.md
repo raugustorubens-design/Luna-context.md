@@ -156,36 +156,87 @@ CONV-001 faz hoje (campo em posição percentual sobre uma imagem de
 fundo) — só a origem da posição muda, de "alguém arrastou" pra "grade
 padrão pré-definida pelo Engineer/Architect uma vez, aplicada sempre".
 
-**Especificação da grade (página de achado):**
+**Correção do Engineer (2026-08-10), com base em dois arquivos reais
+fornecidos pelo Architect** — a grade original desta seção (caixa de
+texto de 600-800 palavras à esquerda) foi especulação verbal, sem
+arquivo de referência. Com os dois arquivos reais em mãos, fica claro
+que **não existe uma grade só — existem dois modelos de saída
+distintos, que devem coexistir como opções**, não um substituindo o
+outro:
 
-Paisagem:
-- 1 ou 2 fotos por página, alinhadas.
-- Legenda curta por foto — até ~20 palavras.
-- Caixa de texto maior, à esquerda das fotos — 600 a 800 palavras
-  (observação/descrição mais longa do achado).
+**Modelo "Detalhado"** (referência real: relatório "Rotina SSMA -
+Avaliação de Risco Crítico", Manserv/Checklist Fácil — nome do cliente
+e da unidade removidos do registro, mesmo cuidado de sempre) — já
+documentado como Decisão 8 do ADR-021 original: por categoria de risco,
+Severidade/Probabilidade, texto corrido de complemento/observação
+(NR citada, causa, medida imediata/longo prazo). Denso em texto,
+formato de auditoria técnica.
 
-Retrato (quando o cliente preferir esta orientação em vez de paisagem —
-ordem de cima pra baixo):
-1. Identificação do local e do risco.
-2. Fotos.
-3. Janelas de texto (legenda curta + caixa de 600-800 palavras).
+**Modelo "Visual"** (referência real: `Ronda_Diaria_5S_05-08.pptx`,
+19 slides, arquivo real de campo) — foto-primeiro, texto mínimo (uma
+linha de departamento + uma linha de descrição), estrutura confirmada:
+- Capa: título, subtítulo, data, resumo de uma linha.
+- Sumário/dashboard: 4 cartões de KPI (total/positivo/atenção/não
+  conformidade) + 2 gráficos (podem ser imagem estática, como no
+  arquivo real, ou gráfico nativo — não decidido).
+- Página de achado (**paisagem**, a orientação confirmada no arquivo
+  real): departamento (1 linha) + descrição (1 linha) + selo de
+  classificação sólido (cor exata já definida) + severidade quando Não
+  Conformidade + **1 ou 2 fotos empilhadas verticalmente** (não lado a
+  lado) ocupando quase a largura toda do slide.
+- Página de achado (**retrato**, variação para quando o cliente
+  preferir — sem arquivo real de referência ainda, mantém a decisão
+  verbal anterior do Architect, ordem de cima pra baixo): 1)
+  identificação do local e do risco, 2) fotos, 3) legenda/descrição.
+- Contracapa: encerramento + resumo final.
+- **Fotos confirmadas panorâmicas** no arquivo real (proporção ~3.8:1
+  a 4.6:1) — a foto **encolhe pra caber inteira dentro da caixa** (sem
+  cortar, sem esticar/distorcer; mesmo princípio "contain" já corrigido
+  no CONV-001) — se sobrar espaço por causa da proporção, fica em
+  branco ali, a foto nunca deforma.
 
-Em ambas as orientações:
-- Identificação de risco: sugerida pela IA (Fase 4, Decisão 6), sempre
-  aprovada pelo humano antes de finalizar — mesmo princípio já usado em
-  todo o resto do ADR-021, nenhuma decisão nova aqui, só reafirmação.
+**Decisão nova do Architect (2026-08-10):** os dois modelos (Detalhado
+e Visual) ficam disponíveis como opções no catálogo de templates da
+Fase 2 — a pessoa escolhe qual estilo de saída quer pra aquele
+relatório, nenhum substitui o outro. Isso é **modelo de relatório**
+(como o resultado final aparece), distinto de **modelo de
+questionário** (o que perguntar durante a coleta, ver documento de
+revisão de arquitetura de achado dinâmico/flags) — os dois usam a
+palavra "modelo", mas são conceitos diferentes, não confundir.
 
-Rodapé fixo, não editável pelo cliente — presente em toda página do
-relatório, independente da orientação ou do template enviado pelo
-cliente:
+**Rodapé fixo, não editável pelo cliente** — presente em toda página do
+relatório, em qualquer modelo (Detalhado ou Visual), independente da
+orientação ou do template enviado pelo cliente:
 - Identificação "LUNA Safety Walk".
 - Número da página.
 - Quando aplicável, a nota de auditoria de edição ("Editado em [data]",
-  ver abaixo) também vive nesta área.
+  ver logo abaixo) também vive nesta área.
 
 O cliente pode customizar cor/logo/fundo do resto da página — o rodapé em
 si (conteúdo e presença) não é customizável, garante rastreabilidade
 mínima em qualquer relatório gerado pelo sistema.
+
+**Densificação automática por IA ao trocar de modelo (decisão do
+Architect, 2026-08-10):** ao gerar um relatório no modelo Visual a
+partir de achados escritos no formato Detalhado (texto corrido, tipo
+"Complemento de Observação"), a descrição longa passa por resumo
+automático via IA (mesmo provedor já usado no projeto), virando a
+legenda curta que o modelo Visual exige — **sem confirmação humana a
+cada geração**, roda direto no fluxo.
+
+**Por que isso não contradiz o princípio de "IA nunca decide sozinha"
+já usado no resto do ADR-021** (`A(t)`, questionário por modelo, Fase
+4): nos outros casos, a IA decide algo que **vira dado novo, gravado
+como verdade** (um achado, uma classificação de risco). Aqui é
+diferente — o achado original, escrito pela pessoa, **nunca é alterado
+nem sobrescrito**; a densificação só afeta como o relatório *exibe*
+aquele texto no modelo Visual. O dado de origem permanece intacto e
+consultável a qualquer momento (trocar de volta pro modelo Detalhado
+mostra o texto completo, sem perda). Não é a IA decidindo o que
+aconteceu — é reformatação de exibição sobre algo já decidido e salvo
+pelo humano. Essa é a distinção que torna a automação aceitável aqui,
+mesmo mantendo confirmação humana obrigatória em todos os outros pontos
+do sistema.
 
 **Auditoria de edição pós-geração:** toda vez que um relatório for gerado
 a partir de uma ronda que foi editada depois da geração original (ver
