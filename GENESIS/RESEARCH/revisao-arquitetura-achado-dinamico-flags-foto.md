@@ -70,6 +70,19 @@ IA conversacional envolvida — é consulta determinística ao banco, não
 chat (contorna a limitação já conhecida de `runCognitiveEngine` não ter
 tool-calling, ver `ENG-038`).
 
+**Segunda fonte de sugestão, integrada aqui (decisão do Architect,
+2026-08-10): Fase 4 do ADR-021 original (leitura de risco na foto,
+Decisão 6/9) entra como fonte de sugestão, não como fluxo separado.**
+Ao tirar/anexar uma foto, a leitura de imagem (Qwen-VL via Groq, já
+especificada) analisa e propõe achado(s) pré-preenchidos — mesmo
+formato de sugestão que um flag de banco de dado gera, convergindo no
+mesmo "+" da Decisão 3. A IA nunca grava achado sozinha a partir da
+leitura da foto; sempre passa pelo "+" e confirmação humana, mesma
+disciplina já usada em toda sugestão deste sistema. Duas fontes de
+sugestão coexistindo: consulta a dado real (flags) e leitura de imagem
+(Fase 4) — o "+" e o formulário de preenchimento são os mesmos,
+independente de qual fonte originou a sugestão.
+
 ## Decisão 3 — "+" é o mecanismo único de adicionar achado
 
 Não existe formulário diferente por flag/origem. Apertar "+" numa
@@ -102,6 +115,33 @@ em achado tem uma forma leve de marcar "revisado, não se aplica",
 diferente de simplesmente nunca tocar nela (preserva o princípio já
 estabelecido: registro explícito, não silêncio). Precisa de
 confirmação antes de virar especificação final.
+
+**Correção humana sobre sugestão vira aprendizado (decisão do
+Architect, 2026-08-10):** quando a pessoa ajusta/corrige uma sugestão
+(de flag ou de leitura de imagem, Fase 4) antes de confirmar o achado,
+essa correção — a diferença entre o que a IA propôs e o que o humano
+de fato salvou — deve alimentar o Hipocampo (`memoria_luna`, via
+Signal Engine, `ADR-019`, já em produção), mesmo princípio já usado na
+resposta de P2 (Passivo Trabalhista) e na Decisão 5 do ADR-021
+original (sensível/lógica antes de virar memória), agora estendido a
+toda sugestão, não só uma categoria.
+
+**Confirmação do Architect (2026-08-10):** quando a IA tem dúvida
+(baixa confiança na leitura), o campo aparece marcado/destacado no
+mesmo formulário — sem conversa de esclarecimento em tempo real (que
+dependeria de tool-calling, ainda não existente, ver nota sobre
+`FORGE-WORKSPACE-001`/`ENG-038` acima). **O humano sempre salva a
+inferência da IA** — revisa, corrige se precisar (especialista em SSMA,
+não leigo — corrige direto, sem precisar de diálogo guiado), confirma.
+Mesmo princípio de "+"/confirmação já usado em toda sugestão deste
+sistema, sem exceção para o caso de baixa confiança.
+
+**Honestidade sobre o que falta:** o Signal Engine hoje avalia memória
+de forma geral (relevância, novidade, recorrência) — não tem o
+conceito de "correção humana sobre sugestão de IA" como tipo de sinal
+próprio. Capturar esse delta (sugerido vs. confirmado) e persistir pelo
+caminho já existente é peça nova, real, ainda que pequena — não cai de
+graça do que já está construído.
 
 ## Decisão 4 — Foto em duas resoluções (campo vs. apresentação)
 
