@@ -315,7 +315,7 @@ original — estende Decisão 2 (estrutura de entrada) e a tabela de Fases,
 sem alterar nenhuma decisão já aceita. Escopo técnico e ID de roadmap
 formal (`CONV-0XX`) ficam para quando P1-P3 fecharem.
 
-## Feedback de teste real (2026-08-10/11) — três decisões registradas
+## Feedback de teste real (2026-08-10/11) — quatro decisões registradas
 
 **Toda edição de TST vira memória — extensão real do Hipocampo, maior
 que o que `CONV-018`/Rodada 2 entregou.** Hoje `persistSuggestionCorrection`
@@ -345,7 +345,7 @@ IA (Groq, Claude, GPT, etc.) — sempre "Luna".** Confirmado, investigando
 o código em 2026-08-10, que o produto voltado a usuário final (LUNA
 Safety Walk) já respeita isso hoje (o selo de baixa confiança da Fase 4
 diz "IA não teve certeza", nunca nome de modelo/provedor). O seletor de
-modelo visível no Forge (`GPT`/`CLAUDE`/`GROQ`) é ferramenta de
+modelo visível no Forge (`"GPT"`/`"Claude"`/`"Groq"`) é ferramenta de
 desenvolvedor (Architect/Engineer escolhendo modelo pra construir o
 sistema), não produto de usuário final — não é violação deste
 princípio, é contexto diferente. Registrado como regra permanente a
