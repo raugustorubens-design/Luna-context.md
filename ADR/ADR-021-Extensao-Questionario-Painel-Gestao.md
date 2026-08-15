@@ -3,7 +3,9 @@
 Status: Pendências P1-P3 resolvidas (2026-08-09) — escopo técnico de
 Decisão 1/2 ainda por detalhar antes de instrução de Builder; ver também
 revisão de arquitetura de achado dinâmico, que pode afetar como P2 é
-implementada
+implementada. Feedback do primeiro teste real em campo (2026-08-10/11)
+registrado na última seção deste documento — dois itens sem escopo
+técnico e dois princípios permanentes.
 Data: 2026-08-09
 Decisor: Architect (Rubens)
 Contexto: Engineer (Claude, chat) — consolida uma sessão longa de divagação
@@ -312,3 +314,50 @@ original e no Art. AAAB.9 da Constitution). Não conflita com o ADR-021
 original — estende Decisão 2 (estrutura de entrada) e a tabela de Fases,
 sem alterar nenhuma decisão já aceita. Escopo técnico e ID de roadmap
 formal (`CONV-0XX`) ficam para quando P1-P3 fecharem.
+
+## Feedback de teste real (2026-08-10/11) — três decisões registradas
+
+**Toda edição de TST vira memória — extensão real do Hipocampo, maior
+que o que `CONV-018`/Rodada 2 entregou.** Hoje `persistSuggestionCorrection`
+só captura a diferença entre sugestão de IA (flag ou Fase 4) e o que o
+humano salvou — **não** captura edição que não veio de sugestão nenhuma
+(TST preenchendo do zero, sem "+" de sugestão por trás). Decisão do
+Architect: isso precisa mudar — toda edição relevante de TST deve
+alimentar o Hipocampo, não só a correção sobre sugestão. **Sem escopo
+técnico definido ainda** — precisa de investigação antes de virar
+instrução de Builder (o que conta como "edição relevante"? Todo campo
+alterado, ou só na conclusão da ronda? Mesmo `tipo` de registro em
+`memoria_luna` ou um novo?).
+
+**Contagem/frequência de padrão ao longo do tempo — na prática, isto é
+o painel de gestão (Decisão 2 da extensão do ADR-021), não uma extensão
+do Hipocampo.** "Que risco aparece mais" é consulta agregada sobre
+`convergia_rondas`/achados já existentes (`COUNT`/`GROUP BY` real), não
+precisa de IA nem de memória de longo prazo pra funcionar — é
+exatamente o "dashboard com contagem agregada de status ao longo do
+tempo" já especificado na Decisão 2, ainda sem código. Registrado aqui
+como esclarecimento: quando o painel de gestão for escopado
+tecnicamente, este pedido do Architect já está coberto por ele, não é
+peça nova a somar.
+
+**Princípio permanente: usuário final nunca vê nome de provedor de
+IA (Groq, Claude, GPT, etc.) — sempre "Luna".** Confirmado, investigando
+o código em 2026-08-10, que o produto voltado a usuário final (LUNA
+Safety Walk) já respeita isso hoje (o selo de baixa confiança da Fase 4
+diz "IA não teve certeza", nunca nome de modelo/provedor). O seletor de
+modelo visível no Forge (`GPT`/`CLAUDE`/`GROQ`) é ferramenta de
+desenvolvedor (Architect/Engineer escolhendo modelo pra construir o
+sistema), não produto de usuário final — não é violação deste
+princípio, é contexto diferente. Registrado como regra permanente a
+respeitar em qualquer superfície nova voltada a usuário final
+(Convergia, painel de gestão, relatório gerado) — nenhuma delas deve
+expor nome de provedor.
+
+**Princípio: até existir mecanismo de comparação de imagem, o relato
+escrito do TST é a fonte principal de conhecimento, não a leitura de
+imagem por IA.** A leitura de foto (Fase 4) continua sendo só sugestão,
+nunca fonte de verdade — o texto que o TST escreve (confirmado ou
+corrigido por ele) é o que prevalece. Nenhuma mudança de código
+necessária — já é assim hoje (Fase 4 nunca grava sozinha, humano sempre
+confirma) — registrado aqui como confirmação explícita do princípio,
+não como conserto.
