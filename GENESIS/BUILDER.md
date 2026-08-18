@@ -2012,3 +2012,158 @@ API antes do merge.
 
 Next action: nenhuma — PR #22 mergeado nesta sessão (ver entrada
 seguinte, se houver, ou o próprio histórico de `main`).
+
+## 2026-08-18 — Padrões SMX no GENESIS: PADRAO-SMX-DESIGN.md, PADRAO-SMX-CORES.md, ADR-023, ADR-024
+
+Eu (Claude Code, Builder) executei o pacote autossuficiente "Padrões SMX no
+GENESIS", recebido em 18/08/2026 com o conteúdo integral dos dois padrões
+embutido no próprio pacote (sem arquivo companheiro, sem errata a buscar em
+outra sessão).
+
+### Estado verificado antes de escrever
+
+Conferi `GENESIS/ARCHITECTURE_INVENTORY.md` (repositório-alvo é
+documentação, `Luna-context.md`) e o repositório em si:
+
+- `GENESIS/padroes/` não existia — confirmado antes de criar.
+- Nenhuma ocorrência de "Asimov", `PADRAO-CORES` ou `PADRAO-ASIMOV` em lugar
+  nenhum do repositório (busca por código, vazia).
+- **`ADR/ADR-022-*.md` não existe em `main`** — mas existe em rascunho, no
+  PR `#37` ("ADR-022: padronização de paleta e redesenho", aberto, draft,
+  branch `claude/new-session-44hpdu`, arquivo
+  `ADR/ADR-022-paleta-e-redesenho.md`). Conferido lendo o conteúdo real do
+  PR, não só o título.
+- ADR-023 e ADR-024 estavam livres em `main` (maior ADR commitado era o
+  021) — não foi necessário renumerar nada.
+
+### O que fiz
+
+Segui a instrução explícita do pacote: **"se o `#37` já contiver um
+ADR-022, pare e reporte em vez de criar um segundo."** Como contém, **não
+criei `ADR/ADR-022-Paleta-e-Redesenho-Frontend.md`** — dos cinco arquivos
+listados no pacote, commitei quatro:
+
+1. `GENESIS/padroes/PADRAO-SMX-DESIGN.md` — Seção A do pacote, copiada
+   integralmente, sem alterar nenhum número ou tabela.
+2. `GENESIS/padroes/PADRAO-SMX-CORES.md` — Seção B do pacote, copiada
+   integralmente, incluindo os Anexos A/B/C e o bloco de tokens CSS/
+   Tailwind (que não toca `luna-frontend` — só documenta o bloco a ser
+   colado lá, como o próprio pacote especifica).
+3. `ADR/ADR-023-Padrao-SMX-Design.md` — escrito no formato dos ADRs já
+   existentes no repositório (Status/Data/Decisor/Contexto/Decisão/
+   Consequências), a partir do conteúdo da Seção C2. Asimov Academy citada
+   só na seção de fontes, nunca no título ou na decisão.
+4. `ADR/ADR-024-Padrao-SMX-Cores.md` — mesmo formato, a partir da Seção C3.
+   Registra a emenda parcial ao ADR-022 (hierarquia de superfície) e a
+   pendência de alinhar o Midnight à matiz da marca como decisão futura.
+
+Mais os dois índices, só acrescentando linha, nada reordenado nem
+reescrito:
+
+5. `GENESIS/README.md` — uma linha na lista "Files", apontando para
+   `padroes/`.
+6. `INDEX.md` — duas linhas na tabela "Conteúdo atual" (Padrão SMX de
+   Design, Padrão SMX de Cores) e uma linha em "Diretórios"
+   (`GENESIS/padroes/`).
+
+`generate_index.py` **não monta o `INDEX.md`** — lido antes de decidir:
+gera `luna_context.json` (índice de código por hash/propósito), um
+artefato completamente diferente. `INDEX.md` foi editado à mão, como o
+pacote previu para esse caso.
+
+### O que NÃO fiz, por decisão consciente
+
+- **Não criei um segundo ADR-022.** O pacote foi explícito sobre isso, e
+  o PR `#37` já registra a decisão (embora ainda em rascunho).
+- **Não toquei no PR `#37` nem no `#28`.**
+- **Não toquei `luna-frontend`** nem nenhum arquivo de código — repositório
+  tocado foi exclusivamente `Luna-context.md`.
+- **Não reescrevi nenhum número de contraste** das tabelas do Padrão de
+  Cores — cópia literal da Seção B.
+- **Não commitei os documentos de campo de 16/08** (`achados-campo/`,
+  `decisoes/`, `pendencias/`, `patches/`) — fora do escopo deste pacote,
+  como o próprio pacote registra em "O que este pacote não faz".
+
+### Consequência da lacuna do ADR-022 — corrigida em parte, o resto fica registrado
+
+`ADR-024` (§Emenda, §Relação com outros documentos) e o Anexo C de
+`PADRAO-SMX-CORES.md` referenciavam `ADR-022` só por número, com uma
+suposição de nome de arquivo/título errada
+(`ADR-022-Paleta-e-Redesenho-Frontend.md`, "Paleta e Redesenho Frontend").
+O Architect confirmou o nome real, direto do PR `#37`:
+`ADR/ADR-022-paleta-e-redesenho.md`, título "Padronização de Paleta e
+Redesenho". Corrigi as quatro ocorrências (`PADRAO-SMX-CORES.md` ×2,
+`ADR-024` ×2) e a de `ADR-023` (§Contexto), mais a nota em `INDEX.md`, para
+o nome e o título reais — nenhuma outra mudou de conteúdo.
+
+O que a correção não resolve: `ADR-022` continua não existindo em `main` até
+o `#37` mergear. Os links para ele passam a apontar para o caminho certo,
+mas só resolvem depois do merge — isso não depende deste PR.
+
+### Padrão que funcionou — parar em vez de inventar, duas vezes na mesma tarefa
+
+Registro deliberado, não só como ocorrência: nesta mesma entrega, parei duas
+vezes em vez de prosseguir com suposição.
+
+1. **Quando o conteúdo dos padrões não veio junto do pacote inicial**
+   (a errata de nomenclatura recebida antes deste pacote), reportei a lacuna
+   em vez de inventar o método de extração, os valores de cor ou o texto dos
+   ADRs — um documento de norma com número fabricado é pior que nenhum
+   documento.
+2. **Quando encontrei `ADR-022` já existente em rascunho no PR `#37`**, não
+   criei um segundo — seguindo a instrução explícita do próprio pacote
+   ("pare e reporte em vez de criar um segundo"), mas o valor de parar aqui
+   não vem só de seguir instrução: dois ADRs com o mesmo número é o tipo de
+   inconsistência que este pacote inteiro existe para eliminar.
+
+Nas duas vezes, parar e perguntar/reportar era o comportamento correto, e
+nas duas vezes havia como prosseguir sem ninguém notar na hora — inventando
+conteúdo na primeira, duplicando numeração na segunda. O custo de parar foi
+uma pergunta extra; o custo de não ter parado seria um documento de norma
+construído sobre conteúdo inventado, ou uma numeração de ADR ambígua
+permanentemente. Vale como padrão a repetir, não como exceção desta tarefa.
+
+### Verificação
+
+Repositório documental, sem CI (`.github/workflows` não existe aqui).
+Verificação feita:
+
+1. Os quatro arquivos existem nos caminhos exatos; nenhum arquivo anterior
+   aparece como modificado no diff, além dos dois índices (`GENESIS/
+   README.md`, `INDEX.md`) e deste `BUILDER.md`.
+2. Checado por leitura completa dos dois arquivos: em `ADR-023`, "Asimov"
+   aparece só na seção de fontes, nunca no título ou na decisão — como
+   exigido. Em `PADRAO-SMX-DESIGN.md`, além do Anexo de fontes, "Asimov"
+   também aparece no corpo (§2, sobre a origem do banco de referências, e
+   §3, na URL do Site Downloader) — são ocorrências do próprio texto da
+   Seção A do pacote, copiado sem alterar, não uma violação da regra: a
+   regra do pacote proíbe dar nome à norma com "Asimov" ou citá-la na
+   decisão, não proíbe explicar a proveniência do banco em prosa.
+3. Nenhuma ocorrência de `PADRAO-ASIMOV` ou `PADRAO-CORES` sem o prefixo
+   `SMX` em nenhum dos quatro arquivos novos.
+4. Links relativos entre os documentos: os quatro novos resolvem entre si;
+   as referências a `ADR-022` agora usam o caminho real
+   (`ADR/ADR-022-paleta-e-redesenho.md`) mas **só resolvem depois do merge
+   do `#37`** — não escondido, registrado aqui e em `INDEX.md`.
+5. Nenhum número de contraste foi reescrito — cópia literal das seções A e
+   B do pacote.
+
+**Portão real (celular)** não verificado nesta sessão — sem acesso a
+navegador/celular para confirmar leitura das tabelas de
+`PADRAO-SMX-CORES.md` sem rolagem horizontal em tela pequena. Fica como
+verificação pendente do Architect, registrada aqui em vez de reportada como
+feita sem confirmação.
+
+### Instrução do Architect sobre monitoramento
+
+O Architect pediu explicitamente para **não deixar o PR sendo vigiado**: o
+monitoramento automático rodou a noite toda sobre `#28`/`#37`, reportou
+"clean" de hora em hora, e continuou reportando "tudo bem" mesmo depois de
+o `#28` ficar `dirty` de verdade — custa ciclos e produz falsa
+tranquilidade. Não assinei inscrição de eventos para o `#38`.
+
+Next action: Architect mergear o `#38` (documental, sem CI, sem conflito
+esperado) — antes do `#37`, para que `GENESIS/padroes/` já exista quando o
+`#37` entrar e as referências cruzadas dos dois padrões passem a resolver
+(menos a do `ADR-022`, que só resolve com o próprio `#37`).
+

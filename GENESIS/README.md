@@ -43,6 +43,7 @@ It is operational memory, not permanent memory.
 - ROADMAP.md
 - HISTORY.md
 - RESEARCH/ (Research Hypotheses — ver ARCH-001)
+- padroes/ (PADRAO-SMX-DESIGN.md, PADRAO-SMX-CORES.md — normas de design e cor da SMX, ver ADR-023/ADR-024)
 
 ## Current usage
 
