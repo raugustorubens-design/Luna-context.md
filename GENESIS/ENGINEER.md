@@ -659,3 +659,758 @@ viabilizar isso — é justamente o oposto: evitar depender de um mecanismo
 automático que já provou side-effects reais e documentados.
 Status: decidido — merge sempre com confirmação explícita, sem
 auto-merge. Não é mais pendência aberta.
+
+Atualização (2026-08-04, correção não silenciosa — mesmo padrão já
+usado em ENG-031): a premissa "praticamente nenhum repositório do
+ecossistema LUNA tem CI configurado hoje" estava certa para a data em
+que foi escrita, não é mais verdade agora. `luna-core` e
+`luna-frontend` ganharam `.github/workflows/ci.yml` (typecheck +
+testes + check específico de cada repo — `test:architecture` em
+`luna-core`, `test:constitution` em `luna-frontend`), com branch
+protection ativa em `main` nos dois repositórios (status check `test`
+obrigatório, PR obrigatório, branch atualizada obrigatória antes de
+merge). A decisão em si não muda: merge continua sempre com
+confirmação explícita, sem auto-merge — CI configurado não altera quem
+aperta o botão de merge, só adiciona um gate técnico obrigatório antes
+disso ser possível. Não é o mesmo mecanismo que o texto original
+descartou (auto-merge do Claude Code por CI verde); branch protection
+com status check obrigatório é pré-condição pro merge manual continuar
+seguro, não substituição dele.
+
+## ID: ENG-028
+Data: 2026-07-23
+Tópico: Capacidade de visão registrada (CONV-009) — nada implementado ainda
+
+*Nota de numeração:* pedido original desta entrada citava `ENG-033`; o
+último ID real usado em `GENESIS/*.md` é `ENG-027` — segue como
+`ENG-028`, sequência real, não a assumida.
+
+Observação: Architect precisa de interpretação de fotos para a
+auditoria real que vai conduzir, junto de `CONV-007`
+(relatório/checklist) e `CONV-008` (acompanhamento ao vivo) —
+**nenhum dos dois existe como ID rastreado em `GENESIS/ROADMAP.md` hoje**
+(só `CONV-001` a `CONV-006`, ver `GENESIS/STATUS.md` ENG-021); citados
+aqui como contexto de intenção do Architect, não como itens já
+registrados. Investigação confirmou: nenhum adaptador do luna-core
+processa imagem hoje — nem Groq, nem o AnthropicHubConnector (só texto,
+apesar da API real da Anthropic suportar imagem). Não é ligação de algo
+existente, é capacidade nova.
+
+Decisão de escopo: leitura de foto pela IA nasce `unverified`, não
+`corroborated` — a foto é evidência real, mas a interpretação da IA
+sobre ela ainda pode alucinar, mesma disciplina já aplicada a texto no
+ADR-014 Emenda 1. Só o Originador confirmando promove a leitura pra
+confiança alta.
+Status: registrado (`CONV-009`, `GENESIS/ROADMAP.md` P4), não
+especificado em detalhe, não iniciado.
+
+### Ordem de prioridade sugerida (dado o contexto da auditoria real)
+
+1. `CONV-001` a `CONV-004` (template/editor/preview/lote) — destrava um
+   eventual `CONV-007`, se e quando for registrado como ID real
+2. `CONV-007` (relatório/checklist de auditoria) — ainda não registrado
+   como ID neste roadmap, ver nota acima
+3. `CONV-009` (interpretação de fotos) — pode já ser útil mesmo antes
+   de um eventual `CONV-008` estar pronto (fotos soltas anexadas a um
+   relatório já ajudam, sem precisar do acompanhamento ao vivo completo)
+4. `CONV-008` (acompanhamento ao vivo) — ainda não registrado como ID
+   neste roadmap; o mais complexo dos quatro, precisa de especificação
+   própria de interface
+
+Nenhuma implementação nesta rodada — registro apenas. Architect decide
+quando priorizar `CONV-001`/`CONV-009` dado o prazo real da auditoria,
+e se `CONV-007`/`CONV-008` devem virar IDs rastreados formalmente.
+
+## ID: ENG-029
+Data: 2026-07-30
+Tópico: Dependência compartilhada "leitura e posicionamento de imagem em PPTX" — distinta de CONV-009
+
+Achado, antes de qualquer implementação: o pacote "Convergia — Capacidades
+de Geração e Ingestão" (Capacidade 1, mala direta/relatório agregado;
+Capacidade 2, ingestão pra memória da Luna) cita como dependência
+compartilhada das duas "leitura e posicionamento de imagem — não existe
+hoje em nenhum parser/renderer do Convergia" — confirmado por auditoria
+direta do código antes de aceitar a premissa: `pptx-parser.ts` só lia
+`<a:t>` (texto), `pptx-renderer.ts` só escreve tabela, nenhum dos dois
+tocava imagem.
+
+**Distinção que o pacote original não fazia e que precisa ficar registrada:**
+essa dependência **não é `CONV-009`**. `CONV-009` (acima, nesta mesma
+seção) é interpretação semântica de foto via LLM — o modelo olha a imagem
+e descreve o que vê (equipamento, ambiente, NC), com proveniência
+`unverified`→`corroborated`. A dependência compartilhada da Capacidade
+1/2 é mecânica: extrair posição/dimensão/bytes de uma imagem já presente
+num `.pptx` (parser) e escrever imagem posicionada num template
+renderizado (renderer) — geometria, não semântica. `CONV-009` não
+desbloqueia nenhuma das duas capacidades; são capacidades independentes
+que só coincidem em usar "imagem" como palavra.
+
+O que mudou no Canonical Model (`luna-core`, `src/convergia/contracts.ts`):
+`CanonicalRecord` ganhou um campo opcional `images?: CanonicalImage[]`
+(nome, mimeType, bytes brutos, posição em EMU — mesma unidade que o XML
+do PPTX já usa em `<a:off>`/`<a:ext>`, sem conversão pra polegada/pixel
+aqui, decisão de renderer). Aditivo: `CanonicalField.value` continua
+escalar (string/number/boolean/null), então validação/transforms/
+renderers existentes (xlsx/csv/json/html) não precisaram mudar.
+
+O que foi implementado (só a metade de leitura): `pptx-parser.ts` agora
+extrai imagens por slide — lê blocos `<p:pic>`, resolve `r:embed` via
+`ppt/slides/_rels/slideN.xml.rels`, lê os bytes reais de `ppt/media/`.
+Testado com fixture PNG real (assinatura de bytes conferida, não só
+tamanho > 0) e com EMU de posição/tamanho calculados a partir de valores
+conhecidos em polegadas.
+
+O que NÃO foi implementado, deliberadamente fora desta rodada: escrever/
+posicionar imagem em `pptx-renderer.ts` (metade de saída da mesma
+dependência — necessária pra Capacidade 1 gerar o documento final com
+foto/assinatura no lugar certo do template) e qualquer trabalho de
+Capacidade 1 (CONV-001 a CONV-004, editor de posicionamento no Forge) ou
+Capacidade 2 (fila assíncrona, quarentena no Supabase Storage, escolha de
+retenção). Isso é a peça mínima que desbloqueia as duas, não as duas
+capacidades em si.
+
+Status: parser implementado e testado (`luna-core`, PR #24, branch
+`claude/convergia-generation-ingestion-250w1z`); renderer e as duas
+capacidades completas seguem não iniciados.
+
+## ID: ENG-030
+Data: 2026-07-30
+Tópico: Metade de escrita da dependência de imagem (ENG-029) + motor de normalização/correspondência — três bloqueios reais registrados, não contornados
+
+Eu fiz (código já mergeado antes desta entrada, `luna-core` PR #25,
+commit `60aa158` em `main`): completei a metade de escrita da
+dependência compartilhada registrada em ENG-029 —
+`pptx-renderer.ts` agora posiciona qualquer `CanonicalImage` presente
+num registro, na posição EMU original convertida pra polegada, usando
+`sizing: { type: "contain" }` do `pptxgenjs` — nunca corta, sempre
+encolhe pra caber na caixa. Essa é a regra de negócio que o Architect
+definiu para campo do tipo imagem no editor de posicionamento (CONV-002)
+— apliquei na primitiva de renderização em si, não só na UI que ainda
+não existe, porque a primitiva é reutilizável por qualquer capacidade
+que precise posicionar imagem (Capacidade 1 e 2 ambas).
+
+Também implementei `src/convergia/matching/`: `identifier.ts`
+(`normalizeIdentifier` — zero-pad a 6 dígitos, sempre, sem exceção por
+quantidade de dígitos faltando, exatamente como especificado) e
+`record-file-matcher.ts` (`matchFilesToRecords`), que aplica as duas
+regras de negócio do Architect para o lote de arquivos soltos: chave
+sem arquivo correspondente → `status: "missing"`, nunca trava o resto
+do lote; chave com mais de um arquivo → `status: "ambiguous"`, nunca
+decide sozinho, exige resolução explícita do usuário. Nenhuma rota
+HTTP chama isso ainda — é utilitário de apoio, testado isoladamente
+(12 testes novos, 270/270 no total).
+
+**Três bloqueios reais, sinalizados em vez de contornados (Regra 6):**
+
+1. **CONV-001 (upload de template) não é falta de parsing.** O parser
+   já devolve texto + posição/bytes de imagem via `/convergia/parse`
+   — tecnicamente já é "leitura de template". O que falta é decisão de
+   arquitetura: um template enviado persiste em algum lugar entre a
+   inspeção (usuário vê os campos) e a geração em lote (dias depois,
+   talvez), ou o cliente reenvia os bytes do template a cada chamada
+   (stateless, mesmo padrão que o resto do Convergia já usa,
+   sem introduzir camada de persistência nova)? Não decidi sozinho —
+   é exatamente o tipo de escolha que muda o formato de storage/sessão
+   do resto da Capacidade 1.
+
+2. **CONV-002 (editor de "bolha" no Forge) é frontend, fora do
+   repositório desta sessão.** Vive em `luna-frontend`, não anexado
+   nesta sessão de trabalho (só `luna-core` e `Luna-context.md`
+   estavam no escopo). Não implementei nem posso implementar sem esse
+   repositório ser anexado explicitamente.
+
+3. **CONV-003 (preview) depende dos dois itens acima existirem** — não
+   é bloqueio próprio, é bloqueio derivado.
+
+Também não avancei a Matriz de Treinamento (formato de armazenamento
+segue "não decidido", pergunta em aberto do pacote original, não
+resolvida em nenhuma instrução recebida até agora) nem a Capacidade 2
+(fila assíncrona Supabase vs. Railway e a mudança de forma
+síncrono→streaming, ambos riscos já sinalizados em rodada anterior,
+seguem sem decisão).
+
+Test status: `luna-core` — `npm run typecheck` limpo, `npm run
+test:architecture` aprovado, `npm test` 270/270 (258 pré-existentes +
+12 novos: posicionamento de imagem no renderer, normalização de
+identificador, correspondência arquivo↔linha incluindo os casos
+`missing`/`ambiguous`/nome de arquivo sem dígito).
+
+O que está bloqueado: os três itens acima — decisão de persistência de
+template (CONV-001), anexação de `luna-frontend` a uma sessão futura
+(CONV-002), formato de storage da Matriz de Treinamento, decisão de
+infra de fila para Capacidade 2.
+
+Next action: Architect decide persistência de template (CONV-001) e
+formato da Matriz de Treinamento antes de qualquer código novo nessas
+frentes; anexar `luna-frontend` numa sessão futura para CONV-002;
+decidir fila (Supabase table vs. serviço Railway) antes de iniciar
+Capacidade 2.
+
+## ID: ENG-031
+Data: 2026-07-30
+Tópico: Correção de ENG-030 — bloqueio de persistência de template já resolvido, em paralelo, mesma branch
+
+Achado, ao sincronizar a branch local após o merge do PR #25: o commit
+mergeado (`60aa158`) tem 3 commits, não 2 — os 2 que eu escrevi nesta
+sessão (renderer + matching, ver ENG-030) mais um terceiro, de uma
+**sessão diferente do Claude Code** (`Claude-Session:
+.../session_014gEcpV5efitgXmZKXuACAx`, não a desta entrada), empurrado
+pra mesma branch antes do Rubens marcar o PR como pronto e mergear.
+Esse terceiro commit implementa `GET`/`PUT
+/convergia/templates/:id/positions` (`routes/convergia.ts`) e
+`TemplatePositionStore` (`convergia/templates/position-store.ts`) —
+exatamente o primeiro dos três bloqueios que ENG-030 (minutos antes)
+tinha registrado como "decisão de arquitetura não tomada".
+
+**Correção, não silenciosa (Princípio 8):** ENG-030 estava certo sobre
+o estado do código no momento em que foi escrito — não fabriquei o
+bloqueio, era real até aquele commit acontecer. A questão em si já
+tinha resposta conhecida no próprio repositório: o padrão de coleção
+genérica do `GuardianContract` (mesmo caminho já usado por
+`luna/memory-engine.ts`) — persistência de posição de template não
+precisava de decisão de arquitetura nova, só de aplicar um padrão já
+existente. A outra sessão aplicou; eu não tinha visto essa saída antes
+de escrever ENG-030, porque a sessão paralela ainda não tinha
+empurrado o commit quando registrei.
+
+Conferido nesta sessão, código real (não só a mensagem do commit):
+`position-store.ts` usa `HttpGuardianClient`/`GuardianContract`,
+coleção `convergia_template_positions`, validação de shape antes de
+salvar (`TemplatePositionValidationError`, capturado no error handler
+de `routes/convergia.ts`, 404 se o template não existe). `npm run
+typecheck` limpo, `npm run test:architecture` aprovado, `npm test`
+278/278 (270 anteriores + 8 novos da própria sessão paralela).
+
+**O que não verifiquei, e não devo apresentar como confirmado:** a
+mensagem do commit cita `luna-frontend` PR #9
+(`convergia-position-editor.tsx`) como o consumidor desse endpoint —
+`luna-frontend` não está no escopo desta sessão, não anexei o
+repositório, não li o PR #9 diretamente. Trato essa parte como não
+verificada, não como fato.
+
+Escopo que continua real, não resolvido por este achado: CONV-001 em
+si (upload do arquivo de template, não só a posição dos campos que já
+tem endpoint) segue sem implementação; CONV-003/CONV-004 continuam
+bloqueados por isso; Matriz de Treinamento e Capacidade 2 (fila,
+streaming) seguem exatamente como ENG-030 registrou, nenhuma novidade
+sobre eles.
+
+Status: `ROADMAP.md` corrigido nesta mesma rodada (CONV-002 backend
+marcado `[x]`, nota de correção em CONV-001, CONV-003/004 com bloqueio
+atualizado).
+
+## ID: ENG-032
+Data: 2026-07-31
+Tópico: Verificação e merge de `luna-frontend` PR #9 — fecha a ressalva "não verificado" de ENG-031
+
+Eu fiz (sessão com os três repositórios anexados —
+`luna-core`/`luna-frontend`/`Luna-context.md`, o que ENG-030/ENG-031
+não tinham): li o PR #9 (`luna-frontend`) inteiro — descrição, diff
+completo — e o código real de `lib/forge/api-client.ts` e
+`components/forge/convergia-position-editor.tsx` antes de mexer em
+qualquer coisa. Confirmei que `fetchConvergiaTemplatePositions`/
+`saveConvergiaTemplatePositions` já apontavam para o contrato exato
+que a rota nova de `luna-core` (PR #25) devolve (`{ positions: [...] }`
+em GET e PUT) — nenhuma mudança de código foi necessária no
+front-end. Rodei `npm run typecheck` (limpo), `npm run
+test:constitution` (46 arquivos, aprovado) e `npm test` (24/24) antes
+de considerar o PR pronto.
+
+Também identifiquei, comparando os dois repositórios lado a lado, que
+o editor de posicionamento não depende de CONV-001 (upload) para
+funcionar — ele opera sobre `TemplateDescriptor.variables` de
+qualquer template já registrado no catálogo (`GET
+/convergia/templates`), não sobre um arquivo enviado. Isso não muda o
+que falta (CONV-001 continua sem implementação), mas corrige uma
+suposição implícita que eu tinha antes de ler o código: CONV-002 não
+estava "bloqueado" por CONV-001 no sentido de não poder rodar sem ele
+— só a experiência completa (posicionar sobre um template visual real)
+é que depende disso.
+
+Mergeei os dois PRs em `main`, nesta ordem: `luna-core` PR #25
+primeiro (`60aa158`), `luna-frontend` PR #9 depois (`7e5c230`) — ordem
+lógica, já que o front-end depende do endpoint existir. Depois de
+confirmar os dois merges, sincronizei esta branch de documentação com
+o que uma sessão paralela já tinha empurrado direto pra `main`
+(ENG-030/ENG-031, mesmo achado de bloqueio) para não duplicar
+conteúdo — esta entrada só acrescenta o que aquela sessão não tinha
+(acesso a `luna-frontend`), não repete o que já está registrado lá.
+
+Test status: `luna-frontend` — `npm run typecheck` limpo, `npm run
+test:constitution` aprovado (46 arquivos), `npm test` 24/24. `luna-core`
+— reconferido nesta sessão também, mesmo resultado de ENG-031 (278/278,
+typecheck e `test:architecture` limpos). `npm run lint` não rodou em
+nenhum dos dois repositórios (setup interativo do ESLint, mesmo motivo
+já registrado no PR #9 original). Nenhum CI configurado em `luna-core`
+para PRs (`get_check_runs` vazio); Vercel do `luna-frontend` passou
+antes do merge.
+
+O que está bloqueado: CONV-001 (upload de template visual) segue sem
+implementação — nada nesta rodada avançou isso. Sem visibilidade sobre
+`luna-api` (fora do escopo desta sessão) para confirmar se a coleção
+`convergia_template_positions` já existe do lado do Guardian real em
+produção — a chamada via `HttpGuardianClient` está correta e testada
+com fake da interface, mas o comportamento contra o Guardian real não
+foi verificado. Teste manual no browser (arrastar/redimensionar bolha)
+não foi executado.
+
+Next action: nenhuma minha até o Originador revisar os merges e esta
+documentação. Se o Guardian real não tiver a coleção provisionada, o
+próximo passo é abrir isso em `luna-api`, fora do escopo dos três
+repositórios desta sessão.
+
+## ID: ENG-033
+Data: 2026-08-02
+Tópico: React error #418 (hidratação) — achado ao vivo no Forge, `luna-frontend`
+
+Observação: durante o teste manual de UI de CONV-002 (posicionamento
+de campos, template `documento_tabular_generico_csv`, 2026-08-02), o
+Originador abriu o DevTools do navegador em
+`https://luna-frontend-production-ffcc.up.railway.app/forge` e
+capturou o seguinte no Console (texto verbatim, não editado):
+
+```
+Unchecked runtime.lastError: The message port closed before
+a response was received.
+    forge:1
+```
+
+```
+Uncaught Error: Minified React error #418; visit
+https://react.dev/errors/418?args[]=HTML&args[]= for the
+full message or use the non-minified dev environment for full errors
+and additional helpful warnings.
+    at rD (8e74727f-4e3abe8ce9d63ec1.js:1:35060)
+    at oq (8e74727f-4e3abe8ce9d63ec1.js:1:85082)
+    at ik (8e74727f-4e3abe8ce9d63ec1.js:1:114680)
+    at 8e74727f-4e3abe8ce9d63ec1.js:1:110728
+    at iu (8e74727f-4e3abe8ce9d63ec1.js:1:110829)
+    at iX (8e74727f-4e3abe8ce9d63ec1.js:1:132932)
+    at MessagePort.w (675-a9a39ee12f945b7d.js:1:61400)
+```
+
+```
+Failed to load resource: the server responded with a status of 400 ()
+    uvicorn-main-production...(truncado na captura)/api/gateway/execute:1
+```
+
+DevTools reportava "8 Issues" no total nessa sessão de página — só os
+3 acima foram capturados na tela, os demais não estão documentados.
+
+Classificação, já feita:
+- `runtime.lastError` → artefato de extensão do Chrome, não é bug do
+  projeto, só citado para registro completo do que apareceu.
+- `/api/gateway/execute → 400` → não é achado novo, é o bug já
+  conhecido do Guardian Memory Index (`searchGuardianMemoryIndex`,
+  painel de Contexto do Forge) — não usa o mesmo caminho do `PUT` de
+  posições, que é `fetch` direto. Não misturar com CONV-002.
+- React error #418 é o único item realmente novo desta observação.
+
+Risco: desconhecido — erro de hidratação pode ser cosmético (React
+recupera sozinho) ou sintoma de um problema real de SSR/CSR mismatch
+em `luna-frontend`. Sem investigação ainda, não dá pra dizer qual.
+
+Ação sugerida: sessão futura, com `luna-frontend` anexado, para
+localizar o componente que causa o mismatch de hidratação e decidir
+severidade.
+
+Status: observado, não investigado, não corrigido.
+
+## ID: ENG-034
+Data: 2026-08-04
+Tópico: `luna-core` PR #23 mergeado — 3 bugs reais de produção corrigidos (zeragem de memória, PPTX/PPTM rejeitado na validação, planilha mesclada corrompendo dado)
+
+Observação: PR #23, aberto em 2026-07-27 e retomado/rebaseado em
+2026-08-04 (ver `luna-core` `BUILDER.md`, entradas "2026-07-27 —
+Pacote de 5 consertos do Convergia" e "2026-08-04 — Rebase do PR #23
+sobre `main`..."), mergeado em `main` (commit de merge `ee57fb6`).
+Corrige três bugs reais de produção, não hipotéticos:
+
+1. **Zeragem de memória (incidente de produção, 2026-07-26)** — 10
+   registros de memória virando 0 mantidos quando um único registro
+   não cabia no orçamento de caracteres restante do payload.
+   `shrinkMemoryToFit` (`src/luna/adapters/memory-payload.ts`) agora
+   encolhe o `conteudo` do registro que não cabe, em vez de descartar
+   o registro inteiro (e o loop, via `break` antes de qualquer `push`)
+   quando isso acontece.
+2. **PPTX/PPTM rejeitado na etapa de Validação, mesmo com parsing
+   perfeito** — `validateCanonicalDocument` rejeitava
+   `sourceFormat: "pptx"`/`"pptm"` por essas strings não estarem no
+   `z.enum` de `validation.ts` — bug de drift entre parser e
+   validador, não do parser em si.
+3. **Planilha XLSX com célula mesclada corrompendo dado
+   silenciosamente** — antes, uma planilha com células mescladas
+   virava um documento com colunas erradas ou vazias, sem nenhum
+   erro visível. `xlsx-parser.ts` agora checa
+   `worksheet.model.merges` logo após abrir a planilha e lança um
+   erro claro em vez de seguir.
+
+Testado, não só implementado — resumo (ver `luna-core` `BUILDER.md`
+para o relato sessão a sessão completo, incluindo o rebase sobre
+`main` que essa branch precisou por ter ficado parada enquanto CONV-002
+e o CI avançavam): `npm run typecheck` limpo, `npm run test:architecture`
+passou, `npm test` **286/286** (285 pass + 1 skip pré-existente,
+LibreOffice, não relacionado a este PR). Verificação com arquivo real
+— pendência da versão original do PR, fechada nesta rodada: `.pptm`
+sintético e planilha com célula mesclada sintética, gerados por
+script (não documentos reais de produção, mas exercitam os formatos
+de verdade). Contra produção (`uvicorn-main-production`), antes do
+merge: os dois bugs ainda ativos, confirmando que a correção era de
+fato necessária. Contra um `luna-core` local rodando o código já
+rebaseado: `.pptm` parseado corretamente, planilha mesclada rejeitada
+com erro claro — exatamente o comportamento que o PR promete.
+
+Achado colateral, registrado mas não corrigido (fora do escopo desta
+entrega): um `.pptm` parseado localmente reporta
+`metadata.sourceFormat: "pptx"`, não `"pptm"` — `PptxParser.parse()`
+grava esse valor de forma hardcoded, independente de qual chave do
+registry levou até ele. Consequência direta do desenho "mesmo OOXML,
+reaproveita a mesma instância" que o próprio PR já documenta, não um
+problema introduzido pelo rebase.
+
+Status: mergeado em `main`, testado (typecheck limpo,
+`test:architecture` passou, 286/286 testes, verificação com arquivo
+sintético real contra servidor local). Não verificado diretamente
+contra produção pós-deploy nesta sessão — ver `BUILDER.md` para a
+distinção exata entre o que foi confirmado contra produção (bug ainda
+ativo, antes do merge) e o que foi confirmado só localmente (a
+correção em si).
+
+## ID: ENG-035
+Data: 2026-08-05
+Tópico: ADR-021 registrado (Convergia Mobile — Ronda Fotográfica), reconciliado com `convergia-spec-tecnica-consolidada.md`, `luna-tabela-risco-iso-outcome.md` e o relatório real da Manserv
+
+Decisão: coleta de ronda fotográfica ganha superfície própria, mobile,
+fora do Forge — PWA (não app nativo), service worker + fila offline em
+IndexedDB, reenvio automático ao detectar rede. Foto nunca é obrigatória
+para avançar — cada categoria de risco tem um seletor de estado explícito
+(não avaliado / risco identificado / risco considerado e inexistente),
+crítica de usabilidade sobre a ferramenta real da Manserv, que trava o
+usuário pedindo imagem mesmo quando não há nada a fotografar. Gravidade de não
+conformidade deixa de ser um número solto: passa a usar o mesmo motor de
+Probabilidade+Gravidade=Resultado (nomenclatura ISO/IEC 42001/23894) já
+desenhado para o `outcome` (`O`) do Signal Engine (ADR-019),
+parametrizado por domínio em vez de duplicado. A leitura de foto (Decisão
+6) é diagnóstica, não descritiva — interpreta a implicação de risco da
+cena à luz do procedimento já ingerido no Hipocampo, não descreve o que
+aparece. Correção de caminho técnico relevante: CONV-009 (interpretação
+de foto) deixa de propor estender `AnthropicHubConnector` — usa **Qwen-VL
+via Groq**, provider já configurado, evitando dependência de imagem via
+Anthropic.
+
+Aprendizado de longo prazo (`memoria_luna`) nunca guarda nome de pessoa,
+em nenhuma forma; guarda departamento/local/cliente tokenizados (código
+estável, ex. `CLI-042`), com tabela de mapeamento código→nome cujo acesso
+começa restrito só ao Architect. Achado do tipo EPI/comportamental
+(envolve pessoa) segue disciplina de dado sensível mais estrita que
+achado Estrutural (sem pessoa na cena) — nunca entra com identificação de
+pessoa, mesmo tokenizado. Referência de dado real encontrada nesta
+sessão: relatório de campo real da Manserv (SSMA, NR-16, Sylvamo/Mogi
+Guaçu) — usado só como fonte de taxonomia de risco (7 categorias) e
+estilo de texto diagnóstico para a leitura de imagem; o layout visual do
+relatório final continua sendo o já validado no protótipo do ADR-020, não
+o da Manserv.
+
+Fases do ADR-021 registradas como itens próprios em `GENESIS/ROADMAP.md`
+P4 (`CONV-013` a `CONV-017`), depois de confirmar que `CONV-009` a
+`CONV-011` eram os últimos IDs realmente em uso — nenhum ID assumido sem
+checar. `CONV-012` (pipeline assíncrono de ingestão de documento grande
+no Hipocampo) registrado como item próprio também, por já ser referenciado
+como bloqueio explícito da Fase 4 (`CONV-016`) dentro do próprio ADR.
+
+Ver ADR-021 completo (`ADR/ADR-021-convergia-mobile-ronda-fotografica.md`)
+para as 9 decisões e a tabela de fases — Decisão 9 (adicionada depois
+desta entrada) consolida 3 documentos de referência trazidos pelo
+Architect num motor de conformidade PERIGO→RISCO→CONTROLE→ADERÊNCIA:
+percepção (Qwen-VL) separada de julgamento (regras determinísticas via
+`biblioteca_risco`/`controle_risco` reais), YOLO registrado como
+evolução futura, não fase atual.
+
+Status: registrado, aguardando ratificação final do Architect — nenhuma
+implementação de código nesta entrada (ver Etapa 2 do plano de ação,
+tratada em `luna-core` separadamente, PR próprio).
+
+## ID: ENG-036
+Data: 2026-08-05
+Tópico: Regra permanente — migration de schema do Supabase precisa existir como arquivo `.sql` antes de ser aplicada (fecha DRIFT-001)
+
+Observação: Rubens (Architect) decidiu, ao resolver `DRIFT-001`
+(`GENESIS/ROADMAP.md` P3, achado em 2026-08-02 — 4 migrations aplicadas
+diretamente no Supabase sem arquivo versionado correspondente:
+`enable_rls_on_exposed_tables`, `enable_pgvector_and_add_embedding_column`,
+`create_hnsw_index_memoria_luna_embedding`,
+`create_semantic_search_function`), não reconstruir esse histórico
+retroativamente — o banco funciona, a reconstrução não vale o esforço
+agora. Mesmo tipo de regra que `ENG-006` (toda etapa concluída atualiza
+`BUILDER.md`): um padrão operacional permanente, não uma decisão de uma
+tarefa específica.
+
+**Regra:** toda migration de schema do Supabase precisa existir como
+arquivo `.sql` commitado em `luna-core/supabase/migrations/` **antes**
+de ser aplicada no banco — nunca o caminho inverso (aplicar direto via
+MCP/dashboard e documentar depois). Vale a partir de 2026-08-05; as 4
+migrations anteriores a essa data permanecem sem arquivo
+correspondente, por decisão explícita do Architect — não é pendência
+esquecida, é aceito como está.
+
+Status: regra ativa.
+
+## ID: ENG-037
+Data: 2026-08-05
+Tópico: Matriz de Treinamento importada e cruzada no Supabase (fecha a pendência de formato de armazenamento aberta em ENG-030)
+
+Observação: nesta sessão, duas fontes de dado real foram importadas e
+cruzadas no Supabase (`jdbzhrtovpoaafpytgza`), fechando a pendência da
+"Matriz de Treinamento" registrada desde ENG-030 (2026-07-30, "formato
+de armazenamento segue não decidido"):
+
+1. Planilha real de gerenciamento de riscos (11 GHE/cargos reais —
+   Operador Logístico, Líder Operacional, Auxiliar Logístico, TST,
+   Artífice Civil, etc.) — 386 linhas originais, deduplicadas para 81
+   riscos únicos + 36 atividades, com controles reais (eliminação/
+   substituição, administrativo, EPI), citando NRs reais. Nomes de
+   cliente/empresa (Sylvamo, Manserv, LSI) removidos do conteúdo antes
+   de persistir — confirmado por busca de palavra inteira no banco,
+   zero ocorrências.
+2. Caderno de treinamento real (27 temas extraídos por sessão externa,
+   formato estruturado padronizado, regra "só o que está no material,
+   nunca completar com conhecimento geral") — vira 13 protocolos de
+   gestão (PGR, Inspeção de Riscos Comportamentais, IPS, AP, APR, IPR,
+   DDSMS, RSMS, TGSMS, RCI, PAE, Brigada de Incêndio, Primeiros
+   Socorros) + mais 16 riscos temáticos (NR-35, NR-33, LOTO, Produtos
+   Químicos, PCA, PERG, PPR, Riscos de Incêndio, Mapa de Riscos NR-5,
+   etc.), com referência normativa real onde o caderno citava,
+   gravidade só onde o caderno atribuía explicitamente (nunca
+   inventada).
+
+Correção de terminologia do Architect, aplicada: PDS→PGR (Plano/
+Programa de Gerenciamento de Riscos, NR-01), OPAI→Inspeção de Riscos
+Comportamentais, IPSMA (citado em `convergia-spec-tecnica-consolidada.md`,
+nunca antes registrado como linha)→Inspeção em Máquinas e Equipamentos
+(novo registro).
+
+Tabela nova: `risco_relacionado` (`risco_id`, `risco_relacionado_id`,
+`observacao`) — liga risco real da planilha ao tema equivalente do
+caderno, quando existe correspondência real (buscada por nome, não
+adivinhada). 22 vínculos confirmados. Isso é o elo que faltava:
+cargo/atividade (planilha) → risco real → risco temático (caderno) →
+protocolo/treinamento — a cadeia completa que responde "que treinamento
+este cargo precisa", rastreável no banco.
+
+Correção de precisão do Architect, aplicada: queda de mesmo nível (até
+1,2m) e queda de nível diferente (1,2m-1,99m) não são NR-35 — NR-35/
+queda de altura é só a partir de 2m. Regra final, simplificada pelo
+Architect: texto do risco contém "altura" → NR-35; "nível diferente"
+sem "altura" → outra faixa. As duas faixas abaixo de 2m (mesmo nível +
+nível diferente) compartilham treinamento próprio, distinto de NR-35:
+"Escorregões, Tropeções e Quedas" (protocolo novo). Verificado
+sistematicamente no banco (3 consultas de auditoria, todas vazias) que
+a regra está aplicada sem exceção em toda a tabela.
+
+Contagem final, confirmada no banco: `biblioteca_atividade` 56,
+`biblioteca_risco` 114, `biblioteca_protocolo` 18, `controle_risco`
+262, `atividade_risco` 358, `risco_protocolo` 10, `risco_relacionado`
+22 (tabela nova).
+
+Risco: existe uma segunda estrutura de tabelas paralela (`risco`/
+`atividade`/`treinamento`, sem prefixo `biblioteca_`) com integridade
+referencial real (FK de verdade) mas conteúdo quase vazio/com linha
+duplicada de teste — mesmo padrão do `hipocampo-temp` já registrado
+antes nesta sessão. Não decidido qual schema é o "certo" para a Fase 4
+do ADR-021 (`CONV-016`) usar.
+
+Ação sugerida: decisão de qual schema (`biblioteca_*` populado vs.
+`risco`/`atividade`/`treinamento` com FK real) é o canônico fica para
+quando a Fase 4 do ADR-021 virar tarefa de Builder — não decidir agora,
+sem código consumindo nenhum dos dois ainda.
+
+Status: dado real importado e cruzado no Supabase, documentação
+sincronizada (ver `ADR/ADR-021-convergia-mobile-ronda-fotografica.md`
+Fase 4/`CONV-016` e `GENESIS/ROADMAP.md`). Pendência de schema duplicado
+registrada, não resolvida.
+
+## ID: ENG-038
+Data: 2026-08-06
+Tópico: A(t) (gate de alinhamento, Frente 2) pausado no gate real — depende de FORGE-WORKSPACE-001 (ou qualquer tool-calling no chat) existir primeiro
+
+Observação: nesta sessão, a Frente 2 (`A(t) = 1 − d(H(t), X(t))`, gate de
+alinhamento do Signal Engine) avançou até um bloqueio real: `H(t)` não
+existe hoje no ponto de despacho de capability do Gateway, porque o chat
+da LUNA (`runCognitiveEngine` → `ProviderRouter`) nunca decide sozinho
+invocar uma ferramenta — devolve só texto. As 8 capabilities com
+`requiresApproval: true` são hoje sempre disparadas por clique direto de
+humano na UI do Forge, nunca pela LLM no meio de uma conversa (ver
+`luna-core` PR #33, `BUILDER.md`, achado completo). `A(t)` está
+implementado até o cálculo puro (`alignment.ts`, `luna-core` PRs #31/#32,
+mergeadas) — só o gate real (Fase 1, modo sombra, item 3 da Frente 2)
+fica pausado.
+
+Decisão do Architect: `A(t)` fica pausado, de propósito, até a LUNA
+ganhar capacidade real de decidir/agir sozinha durante uma conversa
+(function calling/tool calling no pipeline de chat) — hoje essa
+capacidade não existe. Essa lacuna está diretamente ligada a
+`FORGE-WORKSPACE-001` (`GENESIS/ROADMAP.md`, P00), pedido do Architect
+desde 2026-07-17, registrado no Roadmap só como título ("Workspace
+nativo do Forge equivalente a Cursor + VS Code, incluindo terminal,
+pós-v0.1, sem prazo"), nunca detalhado, sem decisão de quando entra na
+fila. É precisamente quando/se essa capacidade for construída
+(`FORGE-WORKSPACE-001` ou qualquer outra forma de tool-calling no chat)
+que a LUNA passaria a decidir sozinha editar/criar código — o momento
+exato em que `A(t)` deixa de ser prematuro e vira o freio de segurança
+que `context.txt` já previa.
+
+Risco: as duas pendências existirem como itens separados (uma em
+`ENGINEER.md`, outra em `ROADMAP.md`) sem referência cruzada explícita —
+dependendo de memória de conversa para lembrar que uma destrava a outra,
+o vínculo se perde entre sessões.
+
+Ação sugerida: quando `FORGE-WORKSPACE-001` (ou qualquer capacidade de
+tool-calling no pipeline de chat) virar tarefa real de Builder, `A(t)`/
+Fase 1 do gate (modo sombra, item 3 da Frente 2) precisa entrar junto,
+na mesma leva — não depois, não esquecido. O momento exato fica a
+critério do Engineer (não é decisão fixa de calendário); a dependência
+entre os dois fica registrada aqui para não depender de memória de
+conversa.
+
+Status: registrado, aguardando `FORGE-WORKSPACE-001` (ou tool-calling
+equivalente) virar tarefa de Builder — nenhuma implementação de código
+nesta entrada.
+
+## ID: ENG-039
+Data: 2026-08-07
+Tópico: Tabela `convergia_rondas` nunca existia no Supabase — mesmo padrão de achado de `convergia_template_positions` (CONV-002, antes de 2026-08-02), agora com `POST /convergia/ronda` (PR #35) já em produção
+
+Achado, confirmado direto no banco (`information_schema.tables`, não
+suposição): a coleção genérica do Guardian ainda precisa de uma tabela
+física por nome de coleção no Supabase — regra que já causou uma lacuna
+idêntica antes com `convergia_template_positions` (CONV-002, resolvida
+em `20260802_convergia_template_positions.sql`) não foi aplicada
+quando `POST /convergia/ronda` (ADR-021 Fase 1, PR #35) foi construído.
+`convergia_rondas` nunca teve tabela física criada. Os testes do PR #35
+só cobriram Guardian simulado (`FakeGuardian`, unitário) — nunca houve
+round-trip real contra produção, por isso a lacuna não apareceu antes
+deste achado. Consequência real: o Wizard PWA da Ronda Fotográfica (já
+em produção) teria falhado com 400/500 na primeira ronda real que
+alguém tentasse enviar.
+
+**Padrão, não incidente isolado:** esta é a segunda vez que a mesma
+categoria de lacuna acontece (coleção Guardian nova, código correto,
+tabela física esquecida) — registrado aqui explicitamente para não
+tratar como acaso. Mesma causa raiz das duas vezes: nada no processo
+de construir um endpoint novo sobre uma coleção Guardian nova força a
+migration a ser criada e aplicada como parte do mesmo trabalho — fica
+dependendo de alguém lembrar, sessão a sessão. `ENG-036`/`DRIFT-001` já
+tinha fechado a metade "migration sem arquivo `.sql` correspondente"
+dessa família de risco (regra permanente desde 2026-08-05: toda
+migration precisa existir como arquivo antes de ser aplicada); esta
+entrada é a outra metade do mesmo risco — endpoint sem tabela nenhuma,
+nem aplicada nem versionada. Nenhuma regra nova criada nesta entrada;
+registrado para o Architect avaliar se vale formalizar um checklist
+("toda coleção `GuardianContract` nova precisa de migration no mesmo
+PR/sessão que o código que grava nela") — decisão dele, não tomada
+aqui.
+
+Corrigido na mesma sessão deste achado (`luna-core`, PR #37, branch
+`claude/hipocampo-memory-schema-6ygq9l`): migration nova
+(`supabase/migrations/20260807_convergia_rondas.sql`, mesmo padrão de
+`convergia_template_positions`/`convergia_visual_templates`, colunas
+extraídas linha a linha de `ronda-store.ts`), aplicada ao vivo via
+`mcp__Supabase__apply_migration` no projeto real (commitada E aplicada,
+respeitando `DRIFT-001`/`ENG-036`). `get_advisors` confirma o mesmo
+achado INFO (`rls_enabled_no_policy`) de todas as outras tabelas do
+schema `public` — nenhum risco novo introduzido. Testado ponta a ponta
+contra produção real, não só localmente — isto é exatamente o que
+faltou no PR #35 originalmente: `POST`/`GET /convergia/ronda` reais
+contra `uvicorn-main-production`, com uma ronda sintética (2 achados,
+uma foto JPEG pequena real) — `201`, payload lido de volta intacto,
+linha confirmada via SQL direto na tabela. Detalhes completos em
+`luna-core/BUILDER.md`, entrada "Fix urgente: tabela `convergia_rondas`
+nunca existia no Supabase".
+
+`GENESIS/ARQUITETURA_CONVERGIA.md` (documento que já listava
+`convergia_rondas` na tabela de Persistência, registrado horas antes
+deste achado, mesmo dia) recebeu nota explícita: a tabela não existia
+como física quando aquele mapeamento foi escrito, só como destino de
+código — corrigido nesta mesma sessão, não deixado como se tivesse
+existido desde o mapeamento original.
+
+Status: migration commitada e aplicada, verificação ponta a ponta
+concluída, PR draft aguardando revisão do Architect antes de merge
+(`luna-core` PR #37 — que também acumula, na mesma branch de sessão,
+um segundo commit não relacionado, o fix de proporção real de slide de
+template visual; revisar como dois commits separados).
+
+Next action: Architect revisa e mergeia `luna-core` PR #37; decidir
+(opcional, não bloqueante) se checklist de "migration no mesmo
+PR/sessão que a coleção Guardian nova" vira regra formal como
+`ENG-036`/`DRIFT-001`.
+
+## ID: ENG-040
+Data: 2026-08-10
+Tópico: push temporário em `main` pra testar contra produção, depois
+reverter — o diff de três pontos do GitHub (usado por PR) esconde tudo
+que já estava naquele commit, mostrando só os commits posteriores
+
+Achado real, não hipotético — aconteceu nesta sessão, quase causou uma
+revisão errada: o padrão já em uso pra verificar ponta a ponta contra
+produção (autorizado pelo Architect quando uma credencial só existe em
+produção, ex. `GROQ_API_KEY`) é mergear o commit de código real
+diretamente em `main`, testar contra o serviço ao vivo, confirmar que
+funciona, e reverter em `main` com `git revert` (não `reset`, pra não
+reescrever histórico compartilhado) assim que a verificação termina.
+
+O problema: reverter com `git revert` **não remove o commit do
+histórico** — ele continua existindo como ancestral de `main`, só o
+efeito líquido é desfeito por um commit de revert posterior. Quando a
+mesma branch de feature (que já tinha aquele commit) depois ganha um
+commit novo (ex. atualização de `BUILDER.md`) e um PR é aberto contra
+`main`, o `git merge-base` entre a branch e `main` passa a ser **o
+próprio commit de código** — porque ele já é ancestral comum dos dois
+lados. O diff de três pontos que o GitHub usa pra mostrar "o que este PR
+muda" (`base...head`) parte desse merge-base, então só aparecem os
+commits feitos **depois** dele na branch — no caso real desta sessão,
+só o commit de `BUILDER.md`. O PR parecia estar "sem o código", com o
+`BUILDER.md` descrevendo em detalhe real algo que, pela visão do PR, não
+existia em lugar nenhum — quando na verdade o código estava lá o tempo
+todo, commitado e testado, só invisível pro diff por causa da mecânica
+de merge-base.
+
+**Isto quase causou uma revisão de PR tratando código real, já testado
+ponta a ponta contra produção, como "faltando" — correção só aconteceu
+porque o Architect conferiu o diff real via API do GitHub antes de
+revisar, não confiou só na descrição do `BUILDER.md`.**
+
+Corrigido (mesma sessão, `luna-core` PR #40): `git reset --hard
+origin/main` na branch de feature (descarta a entrada quebrada do
+histórico local) seguido de `git cherry-pick` do commit de código
+original — cherry-pick aplica o diff como patch, não depende de
+ancestralidade, então o resultado é idêntico ao commit original
+(confirmado por `git diff` vazio entre os dois). `git push
+--force-with-lease` pra atualizar a branch remota. Depois da correção,
+`git merge-base` entre a branch e `main` volta a ser a própria ponta de
+`main` (comportamento esperado), e o diff do PR mostra os arquivos
+reais.
+
+**Risco conhecido, registrado pra sessões futuras que usem o mesmo
+padrão** (push temporário em `main` pra testar contra produção, depois
+reverter via `git revert`): se a mesma branch de feature que originou o
+commit testado continuar recebendo commits novos depois da sondagem,
+confirme o `merge-base` entre a branch e `main` antes de considerar o PR
+pronto pra revisão (`git merge-base origin/main <branch>` — se o
+resultado não for a própria ponta de `main`, o diff do PR está
+escondendo alguma coisa). Não é um bug do Git nem do GitHub — é
+consequência esperada de como `merge-base`/diff de três pontos funciona
+quando um commit "de teste" vira ancestral compartilhado; a forma mais
+simples de evitar é isolar a sondagem numa branch descartável em vez de
+mergear na branch de feature real — mas quando a sondagem precisa ser o
+próprio código da entrega (não um diagnóstico à parte), esta armadilha
+pode se repetir, e o checklist acima é a defesa.
+
+Status: corrigido e verificado (`luna-core` PR #40 tem o diff certo
+agora); registrado aqui como risco de processo, não um bug de código.
+
+Next action: nenhuma ação pendente — registro pra consulta futura. Se o
+padrão de "push temporário em `main` pra testar" continuar sendo usado
+com frequência, o Architect pode decidir se vale formalizar como regra
+permanente (ex. sempre isolar a sondagem numa branch própria, nunca
+reaproveitar a branch de feature real) — decisão dele, não tomada aqui.

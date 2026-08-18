@@ -1338,3 +1338,504 @@ Next action: nenhuma minha além de persistir. A ordem de prioridade
 sugerida pelo próprio registro (ENG-027 primeiro — já decidido e em
 uso — depois ENG-022) fica registrada em `GENESIS/STATUS.md` para a
 próxima sessão consultar antes de abrir frente nova.
+
+## 2026-07-23 — Registro de Research Hypothesis: Treinamento Adaptativo com Captura de Conhecimento Tácito
+
+Eu fiz (Builder, via Claude Code, sessão de chat): persisti o pacote
+recebido do Engineer — que relatou não commitar diretamente, papel
+exclusivo do Builder — criando
+`GENESIS/RESEARCH/luna-treinamento-adaptativo.md` (mesmo padrão de
+`meta-cognitive-memory.md`: Status → seções → "Por que está aberto").
+Registra um método de treinamento adaptativo com captura de conhecimento
+tácito conduzido pelo Originador com ChatGPT (fora da arquitetura LUNA),
+com resultado de campo real (aprovação em prova teórica e prática) —
+Research Hypothesis com evidência, não ideia especulativa. `INDEX.md`
+ganhou a linha correspondente.
+
+**Gap sinalizado, não corrigido silenciosamente:** o pedido descrevia
+"mesma convenção usada para os outros arquivos de RESEARCH/" em
+`INDEX.md` — conferido: `INDEX.md` não tinha, antes desta entrada,
+nenhuma linha individual para arquivos de `GENESIS/RESEARCH/`
+(`meta-cognitive-memory.md` e `cursor-vs-antigravity-forge-sintese.md`
+não estão indexados lá; só `GENESIS/README.md` §Files menciona o
+diretório genericamente, e `GENESIS/STATUS.md` referencia
+`cursor-vs-antigravity-forge-sintese.md` como pendência, não como
+índice). Esta é a primeira linha de `RESEARCH/` em `INDEX.md` — não
+retroagi para adicionar as outras duas, fora do escopo deste pacote.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Os dois pontos em aberto
+(o que a IA faz enquanto uma resposta do aluno aguarda validação; o que
+acontece se o aluno não atingir 80% na revisão) permanecem
+explicitamente não respondidos no documento — aguardam esclarecimento do
+Originador antes deste material poder avançar de Research Hypothesis
+para Theory.
+
+## 2026-07-23 — Atualização: pontos pedagógicos do Treinamento Adaptativo resolvidos
+
+Eu fiz (Builder, via Claude Code, sessão de chat): atualizei
+`GENESIS/RESEARCH/luna-treinamento-adaptativo.md` com o esclarecimento
+do Originador para os dois pontos que a entrada anterior deste mesmo
+arquivo (mais acima) deixou explicitamente em aberto. Mudanças:
+
+- Status promovido de "Research Hypothesis" para "Research Hypothesis
+  pronta para promoção a Theory".
+- Passo 5 do método ganhou os sub-passos 5.1 (reforço socrático por
+  tópico, durante a explicação inicial) e 5.2 (reforço por reformulação
+  de linguagem na revisão final, para distinguir erro de conteúdo de
+  erro de compreensão da pergunta).
+- Seção "Por que está aberto" virou "Pontos que estavam em aberto —
+  resolvidos": resposta do aluno em validação fica em espera explícita,
+  nunca propaga como fato antes de confirmada (mesmo comportamento
+  `unverified` do ADR-014 Emenda 1); reforço pós-revisão é reensino +
+  reformulação da pergunta, não mastery learning indefinido nem só
+  relatório passivo.
+- Novo ponto em aberto, não fabricado: limite de rodadas de reforço
+  antes de escalar ao Originador presencialmente — não mencionado pelo
+  método original, registrado como não bloqueante para a promoção a
+  Theory (pode ser resolvido na própria Theory).
+- `INDEX.md` atualizado para refletir o novo status.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Promoção formal a Theory
+(e eventual ADR) fica para quando o Architect decidir avançar — este
+commit só aplica o esclarecimento recebido, não abre a Theory nem o ADR
+por conta própria.
+
+## 2026-07-23 — Registro de Theory: Relatório Fotográfico de Auditoria via Convergia
+
+Eu fiz (Builder, via Claude Code, sessão de chat): criei
+`GENESIS/RESEARCH/luna-relatorio-fotografico-auditoria-convergia.md`,
+mesmo diretório e padrão estrutural de `luna-treinamento-adaptativo.md`
+(nenhuma pasta `THEORY/` dedicada existe neste repositório — o pipeline
+Hypothesis→Research→Theory→ADR fica todo em `GENESIS/RESEARCH/` até
+virar ADR de fato, ver `GENESIS/RESEARCH/README.md`). Documenta uma
+especificação completa (Theory, não Hypothesis — sem execução de campo
+ainda, diferente do documento irmão) que une cinco itens já registrados
+isoladamente no Roadmap (`CONV-001`, `CONV-003`, `CONV-005`, `CONV-007`,
+`CONV-009`) num único fluxo de produto: relatório fotográfico de
+auditoria com leitura de NC por IA, edição humana obrigatória, e
+renderização no template visual do cliente. `INDEX.md` ganhou a linha
+correspondente.
+
+Achado de dependência registrado no próprio documento: `CONV-009` e
+`CONV-007` já citavam depender de `CONV-001`-`CONV-004` em abstrato — a
+Theory mostra o motivo concreto (o fluxo fotográfico não fecha sem
+template/render funcionando).
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Três pontos seguem
+explicitamente em aberto no documento (formato de armazenamento de
+foto, se a edição humana retorna como correção ao Hipocampo/Guardian,
+tratamento de proveniência de NC inserida manualmente) — nenhum
+inventado. O próprio documento marca a promoção a ADR como condicionada
+a decisões de caminho técnico (modelo de visão, motor de PDF) ainda não
+tomadas — não é ação minha, é o gate que a Theory já declara.
+
+## 2026-07-23 — Registro de Theory: Editor de Layout do Convergia (Carteirinha/Certificado em Lote)
+
+Eu fiz (Builder, via Claude Code, sessão de chat): criei
+`GENESIS/RESEARCH/luna-editor-layout-carteirinha-certificado.md`, mesmo
+diretório/padrão dos dois documentos irmãos já registrados
+(`luna-treinamento-adaptativo.md`,
+`luna-relatorio-fotografico-auditoria-convergia.md`). Especifica em
+detalhe o que `CONV-002` só registrava de forma vaga no Roadmap: os 4
+tipos de campo do editor (texto, imagem, imagem com fundo transparente,
+flag/checkbox), a distinção carteirinha (1 face) vs. certificado (2
+faces, com Conteúdo Programático editável no verso — achado real de
+auditoria: mais conteúdo do que a norma exige já reprovou um cliente),
+as 3 chaves da entidade Funcionário (RE/Nome/Função Atual) compartilhada
+com os dois documentos irmãos, e duas decisões do Architect sobre dado
+sensível: (1) o Convergia processa sem armazenar o arquivo de dados do
+funcionário — só o layout é persistido, não o dado; (2) documentos
+gerados só ficam disponíveis para download no momento do processamento,
+sem cópia de segurança do lado da LUNA, com aviso obrigatório no início
+e no fim do fluxo — e nota explícita de que essa decisão é de estágio
+atual, não permanente. Também registra telemetria de serviço (KPIs
+operacionais do Convergia, não dado do cliente) como a primeira
+instância concreta de dois itens até então abstratos no Roadmap P5.
+`INDEX.md` ganhou a linha correspondente.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Quatro pontos seguem
+explicitamente em aberto no documento (remoção de fundo da assinatura,
+schema formal da entidade Funcionário, mecanismo/janela de tempo do
+download temporário, formato de persistência do modelo salvo) — nenhum
+inventado. Promoção a ADR segue condicionada, pelo próprio documento, a
+decisões de caminho técnico (motor de PDF, abordagem de transparência da
+assinatura) ainda não tomadas.
+
+## 2026-07-24 — LUNA_COGNITIVE_LEXICON.md + correção de repositório-alvo
+
+Eu fiz (Builder, via Claude Code): criei `LUNA_COGNITIVE_LEXICON.md` na
+raiz deste repositório, conteúdo exatamente como formulado pelo Architect
+(via GPT) — vocabulário ECP, CIL, Attention Layer, Episodic Memory,
+Consolidation Layer, Reflection Layer, Self-Model, Memory Normalization
+Layer, L-Cell, Memória Associativa, Salience + Reinforcement, Continuidade
+Cognitiva, Economia Cognitiva, Memória Distribuída — cada termo cruzado
+com sua contrapartida real em ADR/código quando conhecida, sem decidir
+nenhuma reconciliação de nome. Adicionei a entrada correspondente em
+`INDEX.md` § "Documentos principais" e na tabela "Conteúdo atual".
+
+Corrigi também a entrada obsoleta de Convergia em `GENESIS/ARCHITECTS.md`
+("Novo item — Convergia: decisão de migração pendente"): ainda descrevia a
+migração para `luna-convergia` como pendente, mas ADR-012 (Aceito,
+2026-07-19) já decidiu e aplicou o porte para `luna-core`, e o repositório
+`luna-convergia` foi removido. Adicionei nota de atualização no topo da
+seção, preservando o texto original abaixo como registro histórico — não
+apaguei a decisão original (Princípio 8 da Constituição).
+
+Nota de processo — autocorreção de repositório: a primeira tentativa desta
+mesma tarefa foi commitada por engano no monorepo `luna`
+(`raugustorubens-design/luna`, PR #26, `GENESIS/LEXICO_ARQUITETURA_COGNITIVA.md`),
+não no repositório-alvo correto `raugustorubens-design/Luna-context.md`
+que a instrução original especificava explicitamente. Mesmo padrão de erro
+já registrado neste arquivo para `GENESIS/PLANO_MESTRE.md` numa sessão
+anterior. Aplicado aqui, no repositório certo, com o nome de arquivo e
+localização corretos (raiz, não `GENESIS/`); a PR #26 em `luna` não deve
+ser mergeada — fica aberta e sinalizada como erro de repositório, não
+fechada por esta sessão sem confirmação do Originador.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação GENESIS/léxico.
+
+Next action: nenhuma minha além de persistir. Reconciliação de nomes
+(CIL ↔ `indice-cognitivo.ts`/`context-hub.ts`; Self-Model ↔ Identity
+Layer) segue em aberto, registrada no próprio léxico como decisão futura
+do Architect.
+
+## 2026-07-24 — Convergia consolidado + tabela de risco ISO/outcome + substituição de nomes de cliente
+
+Eu fiz (Builder, via Claude Code, sessão de chat), as 5 ações do pacote,
+num único commit — confirmei antes de começar que este repositório
+(`raugustorubens-design/Luna-context.md`) é o alvo correto, exatamente
+como a instrução pedia (não `raugustorubens-design/luna`, o mesmo erro
+já registrado neste arquivo para `GENESIS/PLANO_MESTRE.md` e para o
+Léxico Cognitivo em sessões anteriores):
+
+1. Criei `GENESIS/RESEARCH/convergia-spec-tecnica-consolidada.md` — conteúdo
+   exatamente como entregue no pacote, sem edição.
+2. Criei `GENESIS/RESEARCH/luna-tabela-risco-iso-outcome.md` — conteúdo
+   exatamente como entregue, sem edição.
+3. Substituí "Sylvamo"/"Manserv" por "SMX eXperience teCnollogy" nos 3
+   arquivos indicados (`luna-treinamento-adaptativo.md`,
+   `luna-relatorio-fotografico-auditoria-convergia.md`,
+   `luna-editor-layout-carteirinha-certificado.md`) — 4 ocorrências ao
+   todo (2 no arquivo do editor de layout, que exigiram 2 edições
+   separadas por causa de quebra de linha diferente em cada uma).
+   Rodei `grep -rni "sylvamo|manserv"` em todo o repositório antes e
+   depois: nada mais existia fora desses 3 arquivos (`ARCHITECTURE_INVENTORY.md`,
+   `ARCHITECTS.md`, `ROADMAP.md` e `LUNA_COGNITIVE_LEXICON.md`, citados
+   explicitamente na instrução, conferidos e limpos), e a busca final
+   confirma zero ocorrências no repositório inteiro.
+4. Adicionei as 2 entradas novas em `INDEX.md` § "Conteúdo atual".
+5. Esta entrada — autoatestação única cobrindo as 5 ações no mesmo commit,
+   como pedido.
+
+**Achado não pedido, sinalizado e corrigido, não ignorado:** o texto
+recebido para a Especificação Técnica Consolidada do Convergia cita
+"ADR-019" para a limitação de busca léxica do Signal Engine — conferi
+contra o `ADR-019-Signal-Engine-Decision-Engine-Fechamento.md` real
+(mergeado nesta mesma sessão de trabalho, antes deste pacote) e a
+citação está correta (Signal Engine usa Jaccard, sem embedding), então
+não precisou de correção — registrando que conferi, não que assumi.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação/pesquisa.
+
+Next action: nenhuma minha além de persistir. Ambos os documentos estão
+marcados como prontos para virar ADR/decisão formal — depende de revisão
+do Architect, não deste commit.
+
+## 2026-07-24 — Correção de empacotamento: separar domínio Hipocampo/Signal Engine do Convergia
+
+Eu fiz (Builder, via Claude Code, sessão de chat): o pacote anterior
+(commit anterior, mesma sessão) empacotou dois documentos de domínios de
+arquitetura diferentes — `convergia-spec-tecnica-consolidada.md`
+(Convergia, órgão de processamento de documento) e
+`luna-tabela-risco-iso-outcome.md` (Hipocampo/Signal Engine,
+formalização de `outcome`/`V(s)`/ADR-019) — no mesmo commit, sugerindo
+associação de domínio que não existe só por terem sido registrados no
+mesmo dia. Instrução revisada pediu a separação.
+
+**O que fiz, sem reescrever histórico:** não desfiz nem recriei o commit
+anterior (já pushado para `main`; reescrever/forçar histórico público
+sem necessidade real é evitado por princípio, e o objetivo de fundo —
+impedir que uma sessão futura presuma associação de domínio errada — se
+resolve pelo conteúdo, não pela forma do commit). Em vez disso:
+adicionei ao topo de `luna-tabela-risco-iso-outcome.md` o parágrafo
+"Domínio: Hipocampo / Signal Engine — não Convergia" (texto exato
+entregue no pacote revisado); atualizei a linha correspondente em
+`INDEX.md` para carregar a mesma marcação de domínio; este commit em si
+é distinto do commit anterior, cobrindo só esta correção — não misturo
+de novo os dois documentos.
+
+Confirmei antes de aplicar: a única menção a "convergia" já existente no
+corpo da tabela de risco (linha do incidente "PR errada em `luna` em vez
+de `Luna-context.md`", que cita `luna-convergia` como exemplo de
+alucinação por conteúdo desatualizado) é factualmente correta e não é
+confusão de escopo — não precisou de nenhuma edição além do cabeçalho
+novo.
+
+Test status: nenhuma mudança de código — pacote inteiramente de
+documentação.
+
+Next action: nenhuma minha. Daqui em diante, qualquer novo documento
+sobre `outcome`/Signal Engine/Hipocampo deve continuar em commit
+separado de qualquer documento sobre Convergia, mesmo na mesma sessão —
+prática agora registrada, não só intenção verbal.
+
+## 2026-07-30 — CONV-010: leitura de imagem em PPTX (metade de leitura da dependência compartilhada)
+
+Eu fiz (Builder, via Claude Code, sessão de chat): antes de qualquer
+código, auditei o estado real do pacote "Convergia — Capacidades de
+Geração e Ingestão" contra `BUILDER.md` (este arquivo, lido inteiro) e
+contra `luna-core` — confirmei que a branch de trabalho estava idêntica
+a `main` (zero commit próprio) e que nenhum dos 7 itens mecânicos de um
+pacote anterior (memória fracionada, alias `.pptm`, validação
+pptx/pptm, numeração hierárquica em `extractProcedures`, células
+mescladas em `xlsx-parser.ts`) tinha sido aplicado — código conferido
+arquivo por arquivo, não assumido pela documentação. Também conferi
+que "CONV-009" (interpretação semântica de foto via LLM,
+`GENESIS/ENGINEER.md`) não é a mesma dependência que "leitura e
+posicionamento de imagem em PPTX" citada como bloqueio compartilhado
+das duas capacidades novas — são coisas diferentes, achado registrado
+em ENG-029 antes de escrever qualquer linha de parser.
+
+Implementei, em `luna-core` (branch
+`claude/convergia-generation-ingestion-250w1z`, PR #24, draft): (1)
+`CanonicalRecord.images?: CanonicalImage[]` novo em
+`src/convergia/contracts.ts` (nome, mimeType, bytes, posição em EMU) —
+aditivo, `CanonicalField.value` continua escalar, nenhum consumidor
+existente (validação/transforms/renderers xlsx/csv/json/html)
+precisou mudar; (2) `pptx-parser.ts` extrai imagens por slide, lendo
+`<p:pic>` e resolvendo `r:embed` via `ppt/slides/_rels/slideN.xml.rels`
+até o arquivo real em `ppt/media/`; (3) 2 testes novos em
+`pptx-parser.test.ts` — um com fixture PNG real (confere assinatura de
+bytes, não só tamanho), outro confirmando que slides sem imagem
+continuam com `images` `undefined`.
+
+Escopo que fiz questão de não ultrapassar (Regra 6, Builder persiste,
+não especifica): não toquei em `pptx-renderer.ts` (metade de escrita
+da mesma dependência — falta pra Capacidade 1 gerar documento final
+com foto/assinatura posicionada), nem em CONV-001 a CONV-004 (editor
+de posicionamento no Forge, ainda não localizado em nenhum
+repositório, ver P4 linha 79), nem em nada da Capacidade 2 (fila
+assíncrona, quarentena Supabase Storage, escolha de retenção por
+upload) — nenhum desses tinha ratificação de Architect para
+implementação nesta rodada, só a peça mínima de leitura de imagem,
+que desbloqueia as duas capacidades sem decidir nenhuma delas.
+
+Ordem seguida: código primeiro (commit `040d35c` em `luna-core`,
+testado e pushado), documentação por último (esta entrada + ENG-029 +
+`GENESIS/ROADMAP.md`, commitados só agora, depois do código já
+existir) — regra explícita desta rodada, pra não repetir o padrão de
+"Luna lembrando de algo que nunca foi implementado".
+
+Test status: `luna-core` — `npm install` (dependências não estavam
+instaladas nesta sessão), `npm run typecheck` limpo, `npm run
+test:architecture` aprovado, `npm test` 258/258 (256 pré-existentes +
+2 novos).
+
+O que está bloqueado: nada quanto ao que foi implementado. PR #24
+aberto como draft, aguardando revisão/merge.
+
+Next action: Architect decidir prioridade entre (a) `pptx-renderer.ts`
+— metade de escrita da mesma dependência, ou (b) seguir com
+CONV-001/002/003/004 usando só a leitura por enquanto (editor de
+posicionamento pode consumir `images` sem renderer ainda pronto, para
+preview). Localizar ou confirmar definitivamente a ausência do
+frontend de "bolhas" citado em P4 (linha 79) antes de decidir se
+CONV-002 é implementação nova ou recuperação de algo existente.
+
+## 2026-07-30 — CONV-010 (metade de escrita) + CONV-011: normalização e motor de correspondência
+
+Eu fiz (Builder, via Claude Code, sessão de chat): código primeiro,
+commitado e mergeado antes desta entrada — `luna-core` PR #25, commit
+`60aa158` em `main`. Duas peças: (1) `pptx-renderer.ts` posiciona
+`CanonicalImage` na saída (EMU→polegada, `sizing: contain` — nunca
+corta, sempre encolhe, regra do Architect aplicada na primitiva de
+render); (2) `src/convergia/matching/` novo —
+`normalizeIdentifier` (zero-pad a 6 dígitos, sempre) e
+`matchFilesToRecords` (chave sem arquivo → `"missing"`, nunca trava o
+lote; chave com mais de um arquivo → `"ambiguous"`, nunca decide
+sozinho). Detalhe técnico completo em ENG-030
+(`GENESIS/ENGINEER.md`), incluindo os 3 bloqueios reais que impedem
+seguir para CONV-001/002/003 nesta sessão — não repito aqui, ver a
+entrada de Engineer.
+
+Ordem seguida: os dois PRs (#24 leitura, #25 escrita+matching) foram
+mergeados antes de eu tocar em `ROADMAP.md`/`ENGINEER.md`/este
+arquivo — nenhuma entrada de documentação entrou no repositório antes
+do código correspondente já estar em `main`, disciplina explícita
+desta rodada.
+
+Test status: `luna-core` — `npm run typecheck` limpo, `npm run
+test:architecture` aprovado, `npm test` 270/270 (258 + 12 novos desta
+rodada).
+
+O que está bloqueado: CONV-001 (persistência de template — decisão de
+arquitetura não tomada), CONV-002 (frontend em `luna-frontend`, fora
+do escopo desta sessão), CONV-003 (dependente dos dois acima), Matriz
+de Treinamento (formato de armazenamento segue sem decisão), Capacidade
+2 (fila assíncrona e mudança síncrono→streaming, riscos já sinalizados
+em rodada anterior, sem decisão nova).
+
+Next action: Architect decide persistência de template e formato da
+Matriz de Treinamento; anexar `luna-frontend` numa sessão futura antes
+de CONV-002; decidir infra de fila antes de Capacidade 2. Nenhum
+desses eu decido sozinho — Regra 6.
+
+## 2026-07-30 — Correção: bloqueio de CONV-001 (persistência de template) já resolvido em commit paralelo do mesmo PR
+
+Eu fiz (Builder, via Claude Code, sessão de chat): ao sincronizar a
+branch local depois do merge do PR #25, encontrei um terceiro commit
+que não era meu — outra sessão do Claude Code (`Claude-Session`
+diferente da minha, ver ENG-031) empurrou pra mesma branch, antes do
+merge, `GET`/`PUT /convergia/templates/:id/positions` +
+`TemplatePositionStore`, resolvendo exatamente o bloqueio de
+persistência de template que eu tinha acabado de registrar como "não
+decidido" em ENG-030/BUILDER.md, minutos antes.
+
+Não deixei a entrada anterior errada no ar: registrei a correção em
+ENG-031 (`GENESIS/ENGINEER.md`) e atualizei `GENESIS/ROADMAP.md`
+(CONV-002 backend marcado `[x]`, nota de correção em CONV-001,
+CONV-003/004 com a lista de bloqueio atualizada — só CONV-001 em si,
+upload do arquivo de template, continua faltando). Conferi o código
+real antes de aceitar a mensagem do commit paralelo: `npm run
+typecheck` limpo, `npm run test:architecture` aprovado, `npm test`
+278/278. Não confirmei a parte de `luna-frontend` (PR #9, citado na
+mensagem do commit) — fora do escopo desta sessão, registrado
+explicitamente como não verificado, não como fato.
+
+Test status: `luna-core`, `main` atual (`60aa158`) — 278/278,
+typecheck limpo, architecture-check aprovado.
+
+O que está bloqueado: CONV-001 em si (upload de arquivo de template)
+segue sem implementação; CONV-003/CONV-004 continuam bloqueados por
+isso; Matriz de Treinamento (formato de storage) e Capacidade 2 (fila,
+streaming) sem mudança — exatamente como ENG-030/BUILDER já tinham
+registrado, este pacote não avançou essas frentes.
+
+Next action: nenhuma implementação nova nesta rodada — próxima sessão
+de código pode seguir para CONV-001 (upload real do arquivo de
+template) já sabendo que a persistência de posição está resolvida.
+
+## 2026-07-31 — Verificação e merge de `luna-frontend` PR #9; merge de `luna-core` PR #25; reconciliação com sessão paralela (ENG-032)
+
+Eu fiz (Builder, via Claude Code, sessão de chat, com os três
+repositórios anexados — `luna-core`, `luna-frontend`,
+`Luna-context.md`): mergeei `luna-core` PR #25 em `main`
+(squash, commit `60aa158`) e, na sequência, `luna-frontend` PR #9
+(squash, commit `7e5c230`) — ordem lógica, o front-end depende do
+endpoint existir. Antes do merge do PR #9, li o diff completo e
+conferi que `lib/forge/api-client.ts` já apontava pro contrato exato
+da rota nova (`{ positions: [...] }`), então nenhuma mudança de código
+foi necessária ali — só atualizei a descrição do PR removendo a
+linguagem de bloqueio, já resolvida.
+
+Ao preparar a documentação, encontrei que uma sessão paralela já tinha
+empurrado direto pra `main` (commits `79dfc55`/`c33c7e3`, antes do meu
+push) o mesmo achado de correção que eu ia registrar — ENG-030/ENG-031
+em `GENESIS/ENGINEER.md`, mais atualização de `ROADMAP.md`. Descartei
+minha primeira versão da documentação (que reescrevia tudo do zero,
+sem saber da sessão paralela) e reconciliei em vez de duplicar:
+`git reset --hard origin/main` pra pegar o estado real, depois só
+acrescentei o que aquela sessão não tinha — confirmação de
+`luna-frontend` PR #9 (fora do escopo dela) — como ENG-032, mais nota
+complementar em `ROADMAP.md` (CONV-002 agora concluído dos dois lados,
+não só o backend) e em `STATUS.md` (ENG-021).
+
+Ordem seguida: os dois merges de código primeiro (PR #25, depois PR
+#9), documentação por último — e, dentro da documentação, reconciliação
+com o que já estava em `main` antes de escrever qualquer coisa nova,
+para não contradizer nem duplicar uma sessão paralela que chegou
+primeiro.
+
+Test status: `luna-frontend` — `npm run typecheck` limpo, `npm run
+test:constitution` aprovado (46 arquivos), `npm test` 24/24. `luna-core`
+reconferido no mesmo estado de `main` pós-merge — 278/278, typecheck e
+`test:architecture` limpos (mesmo resultado já registrado em ENG-031).
+
+O que está bloqueado, sinalizado e não forçado: CONV-001 (upload de
+template visual) segue sem implementação. Sem visibilidade sobre
+`luna-api` (fora do escopo dos três repositórios desta sessão) para
+confirmar se a coleção `convergia_template_positions` já existe do
+lado do Guardian real em produção. Teste manual no browser do editor
+de posicionamento não foi executado.
+
+Next action: nenhuma minha até o Originador confirmar os merges e esta
+documentação diretamente no GitHub.
+
+## 2026-08-07 — `luna-guardian`: limite explícito de 20mb em `express.json()` (corrige 413 em upload de imagem real)
+
+Eu fiz (Builder, via Claude Code, sessão de chat, `luna-guardian`
+anexado): `index.js` tinha `app.use(express.json())` sem limite
+configurado — o default do Express é 100kb. Base64 já infla ~33% sobre
+o binário original, então qualquer imagem real (foto/certificado de
+tamanho comum, não só arquivo grande) passa dos 100kb com facilidade,
+sendo rejeitada com `413 Payload Too Large` antes de chegar no Guardian
+de verdade — reproduzido ao vivo (print do Rubens, "Guardian save
+failed on `convergia_visual_templates`: HTTP 413"). Causa já confirmada
+antes desta sessão (lida direto no código, não redescoberta).
+
+Correção: `app.use(express.json({ limit: "20mb" }))` — mesmo valor de
+`MAX_SYNC_FILE_SIZE_BYTES` já usado em `luna-core` (Convergia,
+roteamento de arquivo grande), mesma ordem de grandeza já adotada no
+projeto, não é número novo inventado. Mudança isolada a uma linha;
+nenhum outro arquivo tocado.
+
+Nota à parte, não relacionada ao 413: ao começar esta sessão encontrei
+uma PR minha (`luna-guardian` #4) duplicando uma correção que uma
+sessão paralela já tinha aplicado e mergeado como `luna-guardian` #3
+(alinhamento de `hipocampo-temp` ao schema real de `memoria_luna` —
+`camada`/`estado`/`resumo`/`chave`/`signals`/`score`/`criadoEm` não
+eram coluna real; tabela real só tem `id, tipo, contexto, conteudo,
+criado_em, titulo, empresa_id, embedding`, mesmo contrato de
+`luna-core/src/luna/memory-engine.ts#persistMemory`). Esse achado não
+está registrado em `GENESIS/ENGINEER.md` — a sessão paralela documentou
+só na própria PR #3, não aqui; sinalizando a lacuna, não preenchendo
+agora (fora do escopo desta entrada). Fechei a #4 como superseded, sem
+aplicar nada — só registrando aqui para não ficar uma PR fechada sem
+explicação no histórico.
+
+Verificação:
+- Reproduzido o bug primeiro: harness local (routers reais do Guardian
+  — `src/guardian/routes.js`/`hipocampo-temp/routes.js` — com um
+  storage adapter stub em memória, mesma configuração de middleware de
+  `index.js` mas sem o limite novo) recebendo uma imagem ~3.5MB em
+  base64 via `POST /guardian/save` (`convergia_visual_templates`) →
+  `413 PayloadTooLargeError`, o mesmo erro relatado.
+- Com o fix (`limit: "20mb"`), mesmo harness: imagem real de ~8MB
+  binário (~10.7MB em base64, tamanho de foto/certificado real, não um
+  pixel 1×1) em `convergia_visual_templates` → `201`; escrita de
+  memória normal (`POST /guardian/memory`, ~167 bytes) → `201`, sem
+  regressão; posição de template (`convergia_template_positions`, ~113
+  bytes) → `201`, sem regressão; payload acima do novo limite (~25MB
+  binário) → `413`, confirmando que o limite continua existindo
+  (generoso, não removido).
+- `npm test`: 31/31. `npm run test:architecture`: passou (14 arquivos).
+- CI: `luna-guardian` não tem `.github/workflows` — confirmado de novo,
+  sem workflow para acionar.
+
+O que está bloqueado: nada — correção isolada, sem dependência aberta.
+Não consegui rodar o processo real do Guardian contra o Supabase de
+produção nesta sessão (`SUPABASE_KEY` de `strong-celebration`
+redigida) — o harness usado isola exatamente o mecanismo que este PR
+muda (limite do `body-parser` do Express), com os routers reais do
+Guardian e um storage adapter stub, sem depender de rede/credencial
+externa.
+
+Test status: `luna-guardian` — `npm test` 31/31, `npm run
+test:architecture` limpo.
+
+Next action: nenhuma minha — `luna-guardian` PR #5 aberta como draft,
+aguardando revisão do Originador antes de merge.

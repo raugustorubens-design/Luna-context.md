@@ -5,9 +5,11 @@ Este documento aponta onde cada tipo de informação deve viver.
 ## Documentos principais
 
 - `LUNA_CONSTITUTION.md` — regras permanentes do organismo.
+- `LUNA_COGNITIVE_LEXICON.md` — vocabulário da arquitetura cognitiva (ECP, CIL, L-Cell, etc.), cruzado com o que já existe em ADR/código.
 - `LUNA_CONTEXT.md` — contexto global, visão e estado atual.
 - `ECOSYSTEM_ARCHITECTURE.md` — arquitetura de alto nível do ecossistema.
 - `GENESIS/ARCHITECTURE_INVENTORY.md` — inventário canônico dos 7 repositórios (responsabilidades, dependências, conexões externas, ambientes, Railway/Vercel/Supabase), com evidência citada e status "Não confirmado" onde aplicável. Documento vivo — atualizar, não recriar.
+- `GENESIS/ARQUITETURA_CONVERGIA.md` — mapa de entrada/processamento/persistência/saída do Convergia (4 caminhos de entrada, pipeline `luna-core`, 4 grupos de coleção via Guardian, 3 destinos de saída), registrado em 2026-08-07 a partir do estado real do código. Documento vivo — atualizar, não recriar.
 - `CHANGELOG.md` — histórico de mudanças relevantes.
 
 ## Diretórios
@@ -46,7 +48,19 @@ Este documento aponta onde cada tipo de informação deve viver.
 | ADR-014 Arquitetura Imunológica de Segurança Cognitiva (Aceito, ancorado em Art. AAAB.9) | `ADR/ADR-014-Arquitetura-Imunologica-Seguranca-Cognitiva.md` |
 | ADR-015 Gestão de Segredos — nome no código, valor nunca no GitHub (Proposto) | `ADR/ADR-015-Gestao-de-Segredos-Env-Vars.md` |
 | ADR-016 Sistema Sensorial, Fluxo A — navegador controlado pelo servidor, painel lateral no Forge, gate de aprovação (Aceito) | `ADR/ADR-016-Sistema-Sensorial-Fluxo-A.md` |
+| ADR-017 Emenda ao Atrator AAAA — Verdade, Respeito à Decisão e Proibição de Engenharia Social (AAAA.1-5) (**Proposto — aguardando ratificação do Architect**) | `ADR/ADR-017-Emenda-Atrator-AAAA-Verdade-Respeito-Engenharia-Social.md` |
+| ADR-018 Autoaperfeiçoamento via Ensino Ativo — índice de confiabilidade, AAAB como corroboração computável, `architect_teaching`, loop socrático via `trace` (**Proposto — aguardando ratificação do Architect**) | `ADR/ADR-018-Autoaperfeicoamento-Ensino-Ativo.md` |
+| ADR-019 Fechamento Trilhas 1/2 (Memória e Decision Engine) — Memory Signals, Signal Engine, Consolidation Engine v1, Decision Engine v1 escopado (**Proposto** — documenta código já mergeado em `luna-core` PR #19) | `ADR/ADR-019-Signal-Engine-Decision-Engine-Fechamento.md` |
 | Inferências registradas (auditoria de código, maturidade real de órgãos) | `INFERENCIAS.md` |
-| Lista mestra de pendências (ENG-021 a ENG-027 e itens não numerados, entre sessões) | `GENESIS/STATUS.md` |
+| Lista mestra de pendências (ENG-021 a ENG-028 e itens não numerados, entre sessões) | `GENESIS/STATUS.md` |
+| Treinamento Adaptativo com Captura de Conhecimento Tácito (Research Hypothesis pronta para promoção a Theory, resultado de campo real fora da arquitetura LUNA) | `GENESIS/RESEARCH/luna-treinamento-adaptativo.md` |
+| Relatório Fotográfico de Auditoria via Convergia (Theory — especificação completa, sem execução de campo; une CONV-001/003/005/007/009 num único fluxo) | `GENESIS/RESEARCH/luna-relatorio-fotografico-auditoria-convergia.md` |
+| Editor de Layout do Convergia — Carteirinha/Certificado em Lote (Theory — especificação completa de CONV-002, 4 tipos de campo, faces por template, decisão de processar-sem-armazenar dado sensível) | `GENESIS/RESEARCH/luna-editor-layout-carteirinha-certificado.md` |
+| Léxico da Arquitetura Cognitiva — vocabulário ECP/CIL/L-Cell/etc., cruzado com ADR/código existentes, termos de reconciliação em aberto marcados | `LUNA_COGNITIVE_LEXICON.md` |
+| Convergia — Especificação Técnica Consolidada (arquitetura unindo os 3 documentos de Theory num modelo único: 6 tipos de trabalho, modelo de Sujeito de 3 chaves, NRs como banco de perguntas, formatos de saída; pronta para virar ADR) | `GENESIS/RESEARCH/convergia-spec-tecnica-consolidada.md` |
+| Tabela de Gerenciamento de Riscos da LUNA Auto-Aplicada — **domínio Hipocampo/Signal Engine, não Convergia** (Theory — primeira operacionalização real de V(s)/outcome, nomenclatura ISO/IEC 23894+42001, formalização de A(t)/A_politica(t)/Crescimento(t)) | `GENESIS/RESEARCH/luna-tabela-risco-iso-outcome.md` |
+| Arquitetura do Convergia — mapa de entrada (4 caminhos), processamento (`luna-core`), persistência (Guardian, 4 grupos de coleção) e saída (3 destinos, 1 implementado), registrado a partir do código real em 2026-08-07, inclui achado não resolvido sobre schema paralelo (`risco`/`atividade`/`treinamento`) | `GENESIS/ARQUITETURA_CONVERGIA.md` |
+| ADR-021 Extensão — Questionário por modelo (3 modelos extensíveis: Riscos Críticos, Procedimentos, 5S), painel de gestão (novo, sem código ainda), templates multi-página enviados pela empresa para a Fase 2 (`CONV-014`) (**Pendências P1-P3 resolvidas — escopo técnico de Decisão 1/2 ainda por detalhar antes de instrução de Builder**); inclui o feedback do primeiro teste real em campo (2026-08-10/11): toda edição de TST vira memória (**sem escopo técnico ainda**), contagem de padrão já coberta pelo painel de gestão, e dois princípios permanentes (usuário final nunca vê nome de provedor de IA; relato escrito do TST é a fonte principal, não a leitura de imagem) | `ADR/ADR-021-Extensao-Questionario-Painel-Gestao.md` |
+| Revisão de Arquitetura — Wizard de Ronda: Achado Dinâmico, Flags de Sugestão, Foto em Duas Resoluções (Research — **3 pendências reais em aberto** (catálogo de flags, mecanismo de "não se aplica", armazenamento de foto original); **muda arquitetura já implementada e em produção hoje** nos módulos de ronda de `luna-core`/`luna-frontend`, não é feature nova sobre base vazia) | `GENESIS/RESEARCH/revisao-arquitetura-achado-dinamico-flags-foto.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).

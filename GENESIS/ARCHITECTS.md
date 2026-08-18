@@ -32,6 +32,15 @@ Use this file for architectural decisions, hypotheses, atrators, and open design
 - Keep the Genesis workspace synchronized with permanent knowledge only after validation.
 
 ## Novo item — Convergia: decisão de migração pendente
+
+**Atualização (2026-07-24):** o porte descrito abaixo já ocorreu — ver
+ADR-012 (Aceito, 2026-07-19). Convergia completo (`src/convergia/*`:
+parsers, renderers, templates, validação, transformação, catálogo,
+knowledge gate, training) foi portado para `luna-core`, não para
+`luna-convergia`; o repositório `luna-convergia` foi removido. Texto
+original preservado abaixo como registro histórico da decisão pendente
+antes do porte.
+
 - Real implementação do Convergia (pipeline, parsers, renderers, catálogo de
   13 documentos, Guardian-passthrough correto) está no monorepo luna, não no
   repo-interface luna-convergia
