@@ -2012,3 +2012,121 @@ API antes do merge.
 
 Next action: nenhuma — PR #22 mergeado nesta sessão (ver entrada
 seguinte, se houver, ou o próprio histórico de `main`).
+
+## 2026-08-18 — Padrões SMX no GENESIS: PADRAO-SMX-DESIGN.md, PADRAO-SMX-CORES.md, ADR-023, ADR-024
+
+Eu (Claude Code, Builder) executei o pacote autossuficiente "Padrões SMX no
+GENESIS", recebido em 18/08/2026 com o conteúdo integral dos dois padrões
+embutido no próprio pacote (sem arquivo companheiro, sem errata a buscar em
+outra sessão).
+
+### Estado verificado antes de escrever
+
+Conferi `GENESIS/ARCHITECTURE_INVENTORY.md` (repositório-alvo é
+documentação, `Luna-context.md`) e o repositório em si:
+
+- `GENESIS/padroes/` não existia — confirmado antes de criar.
+- Nenhuma ocorrência de "Asimov", `PADRAO-CORES` ou `PADRAO-ASIMOV` em lugar
+  nenhum do repositório (busca por código, vazia).
+- **`ADR/ADR-022-*.md` não existe em `main`** — mas existe em rascunho, no
+  PR `#37` ("ADR-022: padronização de paleta e redesenho", aberto, draft,
+  branch `claude/new-session-44hpdu`, arquivo
+  `ADR/ADR-022-paleta-e-redesenho.md`). Conferido lendo o conteúdo real do
+  PR, não só o título.
+- ADR-023 e ADR-024 estavam livres em `main` (maior ADR commitado era o
+  021) — não foi necessário renumerar nada.
+
+### O que fiz
+
+Segui a instrução explícita do pacote: **"se o `#37` já contiver um
+ADR-022, pare e reporte em vez de criar um segundo."** Como contém, **não
+criei `ADR/ADR-022-Paleta-e-Redesenho-Frontend.md`** — dos cinco arquivos
+listados no pacote, commitei quatro:
+
+1. `GENESIS/padroes/PADRAO-SMX-DESIGN.md` — Seção A do pacote, copiada
+   integralmente, sem alterar nenhum número ou tabela.
+2. `GENESIS/padroes/PADRAO-SMX-CORES.md` — Seção B do pacote, copiada
+   integralmente, incluindo os Anexos A/B/C e o bloco de tokens CSS/
+   Tailwind (que não toca `luna-frontend` — só documenta o bloco a ser
+   colado lá, como o próprio pacote especifica).
+3. `ADR/ADR-023-Padrao-SMX-Design.md` — escrito no formato dos ADRs já
+   existentes no repositório (Status/Data/Decisor/Contexto/Decisão/
+   Consequências), a partir do conteúdo da Seção C2. Asimov Academy citada
+   só na seção de fontes, nunca no título ou na decisão.
+4. `ADR/ADR-024-Padrao-SMX-Cores.md` — mesmo formato, a partir da Seção C3.
+   Registra a emenda parcial ao ADR-022 (hierarquia de superfície) e a
+   pendência de alinhar o Midnight à matiz da marca como decisão futura.
+
+Mais os dois índices, só acrescentando linha, nada reordenado nem
+reescrito:
+
+5. `GENESIS/README.md` — uma linha na lista "Files", apontando para
+   `padroes/`.
+6. `INDEX.md` — duas linhas na tabela "Conteúdo atual" (Padrão SMX de
+   Design, Padrão SMX de Cores) e uma linha em "Diretórios"
+   (`GENESIS/padroes/`).
+
+`generate_index.py` **não monta o `INDEX.md`** — lido antes de decidir:
+gera `luna_context.json` (índice de código por hash/propósito), um
+artefato completamente diferente. `INDEX.md` foi editado à mão, como o
+pacote previu para esse caso.
+
+### O que NÃO fiz, por decisão consciente
+
+- **Não criei um segundo ADR-022.** O pacote foi explícito sobre isso, e
+  o PR `#37` já registra a decisão (embora ainda em rascunho).
+- **Não toquei no PR `#37` nem no `#28`.**
+- **Não toquei `luna-frontend`** nem nenhum arquivo de código — repositório
+  tocado foi exclusivamente `Luna-context.md`.
+- **Não reescrevi nenhum número de contraste** das tabelas do Padrão de
+  Cores — cópia literal da Seção B.
+- **Não commitei os documentos de campo de 16/08** (`achados-campo/`,
+  `decisoes/`, `pendencias/`, `patches/`) — fora do escopo deste pacote,
+  como o próprio pacote registra em "O que este pacote não faz".
+
+### Consequência da lacuna do ADR-022 — registrada, não resolvida aqui
+
+`ADR-024` (§Emenda) e o Anexo C de `PADRAO-SMX-CORES.md` referenciam
+`ADR-022` por número. Como esse ADR só existe em rascunho no PR `#37` (com
+nome de arquivo diferente do que o pacote original previa —
+`ADR-022-paleta-e-redesenho.md`, não `ADR-022-Paleta-e-Redesenho-
+Frontend.md`), essas referências apontam para uma decisão ainda não
+mergeada em `main`. Deixei uma nota explícita em `INDEX.md` registrando
+isso. Quando o `#37` mergear, checar se o nome de arquivo bate com as
+referências cruzadas — se não bater, é ajuste de link, não de conteúdo.
+
+### Verificação
+
+Repositório documental, sem CI (`.github/workflows` não existe aqui).
+Verificação feita:
+
+1. Os quatro arquivos existem nos caminhos exatos; nenhum arquivo anterior
+   aparece como modificado no diff, além dos dois índices (`GENESIS/
+   README.md`, `INDEX.md`) e deste `BUILDER.md`.
+2. Checado por leitura completa dos dois arquivos: em `ADR-023`, "Asimov"
+   aparece só na seção de fontes, nunca no título ou na decisão — como
+   exigido. Em `PADRAO-SMX-DESIGN.md`, além do Anexo de fontes, "Asimov"
+   também aparece no corpo (§2, sobre a origem do banco de referências, e
+   §3, na URL do Site Downloader) — são ocorrências do próprio texto da
+   Seção A do pacote, copiado sem alterar, não uma violação da regra: a
+   regra do pacote proíbe dar nome à norma com "Asimov" ou citá-la na
+   decisão, não proíbe explicar a proveniência do banco em prosa.
+3. Nenhuma ocorrência de `PADRAO-ASIMOV` ou `PADRAO-CORES` sem o prefixo
+   `SMX` em nenhum dos quatro arquivos novos.
+4. Links relativos entre os documentos: os quatro novos resolvem entre si;
+   as referências a `ADR-022` **não resolvem em `main` hoje** — dependem do
+   merge do `#37` (ver acima, registrado, não escondido).
+5. Nenhum número de contraste foi reescrito — cópia literal das seções A e
+   B do pacote.
+
+**Portão real (celular)** não verificado nesta sessão — sem acesso a
+navegador/celular para confirmar leitura das tabelas de
+`PADRAO-SMX-CORES.md` sem rolagem horizontal em tela pequena. Fica como
+verificação pendente do Architect, registrada aqui em vez de reportada como
+feita sem confirmação.
+
+Next action: Architect decidir sobre o PR `#37` (mergear ou não); uma vez
+mergeado, confirmar que o nome de arquivo de `ADR-022` bate com as
+referências cruzadas de `ADR-024`/`PADRAO-SMX-CORES.md` e ajustar se
+necessário.
+

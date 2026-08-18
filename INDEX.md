@@ -17,6 +17,7 @@ Este documento aponta onde cada tipo de informação deve viver.
 - `ADR/` — decisões arquiteturais.
 - `ORGANS/` — definição dos órgãos e suas responsabilidades.
 - `CHECKPOINTS/` — marcos de evolução do organismo.
+- `GENESIS/padroes/` — normas de design e cor da SMX (`PADRAO-SMX-DESIGN.md`, `PADRAO-SMX-CORES.md`).
 
 ## Regra de uso
 
@@ -62,5 +63,9 @@ Este documento aponta onde cada tipo de informação deve viver.
 | Arquitetura do Convergia — mapa de entrada (4 caminhos), processamento (`luna-core`), persistência (Guardian, 4 grupos de coleção) e saída (3 destinos, 1 implementado), registrado a partir do código real em 2026-08-07, inclui achado não resolvido sobre schema paralelo (`risco`/`atividade`/`treinamento`) | `GENESIS/ARQUITETURA_CONVERGIA.md` |
 | ADR-021 Extensão — Questionário por modelo (3 modelos extensíveis: Riscos Críticos, Procedimentos, 5S), painel de gestão (novo, sem código ainda), templates multi-página enviados pela empresa para a Fase 2 (`CONV-014`) (**Pendências P1-P3 resolvidas — escopo técnico de Decisão 1/2 ainda por detalhar antes de instrução de Builder**); inclui o feedback do primeiro teste real em campo (2026-08-10/11): toda edição de TST vira memória (**sem escopo técnico ainda**), contagem de padrão já coberta pelo painel de gestão, e dois princípios permanentes (usuário final nunca vê nome de provedor de IA; relato escrito do TST é a fonte principal, não a leitura de imagem) | `ADR/ADR-021-Extensao-Questionario-Painel-Gestao.md` |
 | Revisão de Arquitetura — Wizard de Ronda: Achado Dinâmico, Flags de Sugestão, Foto em Duas Resoluções (Research — **3 pendências reais em aberto** (catálogo de flags, mecanismo de "não se aplica", armazenamento de foto original); **muda arquitetura já implementada e em produção hoje** nos módulos de ronda de `luna-core`/`luna-frontend`, não é feature nova sobre base vazia) | `GENESIS/RESEARCH/revisao-arquitetura-achado-dinamico-flags-foto.md` |
+| Padrão SMX de Design — método de extração/criação de sistema de design (banco de referências, dois modos, estrutura de `design-system.html`), norma para toda superfície visual de todo projeto SMX (Aceito) | `GENESIS/padroes/PADRAO-SMX-DESIGN.md` (adotado por `ADR/ADR-023-Padrao-SMX-Design.md`) |
+| Padrão SMX de Cores — valores extraídos por medição da logo SMX e de três imagens de referência (quatro faixas, portão de matiz, orçamento de luz), norma para toda superfície visual de todo projeto SMX (Aceito, emenda parcial de ADR-022) | `GENESIS/padroes/PADRAO-SMX-CORES.md` (adotado por `ADR/ADR-024-Padrao-SMX-Cores.md`) |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).
+
+**Nota (2026-08-18):** `ADR-022` (Paleta e Redesenho Frontend) ainda não existe em `main` — está em rascunho, aberto, no PR `#37` (`ADR/ADR-022-paleta-e-redesenho.md`, branch `claude/new-session-44hpdu`). Este índice não lista uma entrada própria para ele até o PR mergear; as referências cruzadas de `ADR-023`/`ADR-024`/`PADRAO-SMX-CORES.md` a `ADR-022` ficam apontando para essa decisão em rascunho até lá.
