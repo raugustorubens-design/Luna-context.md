@@ -10,7 +10,8 @@ Contexto: Engineer — a partir do padrão descrito em
 
 Interfaces vinham sendo desenhadas sem referência extraída, e o resultado
 divergia entre superfícies. O caso concreto que expôs o problema, em 17/08:
-o trabalho de redesenho do produto (ver ADR-022) propôs Archivo em largura
+o trabalho de redesenho do produto (ver ADR-022,
+`ADR/ADR-022-paleta-e-redesenho.md`) propôs Archivo em largura
 expandida, peso 800, sem consultar o banco de referências já capturado —
 nenhuma das 26 referências do banco usa display acima de peso 600, e todas
 usam entreletra apertada. Era invenção, não extração. Corrigida no mesmo dia

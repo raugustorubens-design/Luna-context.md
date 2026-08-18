@@ -52,9 +52,9 @@ validadas em campo, e são a única exceção permanente ao portão de matiz.
 
 ## Emenda
 
-Esta decisão emenda a hierarquia de superfície do ADR-022: a página parte de
-`#000206`, não de Midnight, para as superfícies novas cobertas por este
-padrão.
+Esta decisão emenda a hierarquia de superfície do ADR-022
+(`ADR/ADR-022-paleta-e-redesenho.md`): a página parte de `#000206`, não de
+Midnight, para as superfícies novas cobertas por este padrão.
 
 ## Em aberto
 
@@ -78,6 +78,6 @@ nunca como efeito colateral de outra tarefa.
   de tokens (Anexo B).
 - `ADR-023` — Padrão SMX de Design, companheiro: este decide **com que
   cor**, aquele decide **como se desenha**.
-- `ADR-022` — Paleta e Redesenho Frontend, emendado por esta decisão na
-  hierarquia de superfície.
+- `ADR-022` — `ADR/ADR-022-paleta-e-redesenho.md` (Padronização de Paleta e
+  Redesenho), emendado por esta decisão na hierarquia de superfície.
 - `ADR-021` — Safety Walk, fonte das três cores de classificação.

@@ -2084,16 +2084,44 @@ pacote previu para esse caso.
   `decisoes/`, `pendencias/`, `patches/`) — fora do escopo deste pacote,
   como o próprio pacote registra em "O que este pacote não faz".
 
-### Consequência da lacuna do ADR-022 — registrada, não resolvida aqui
+### Consequência da lacuna do ADR-022 — corrigida em parte, o resto fica registrado
 
-`ADR-024` (§Emenda) e o Anexo C de `PADRAO-SMX-CORES.md` referenciam
-`ADR-022` por número. Como esse ADR só existe em rascunho no PR `#37` (com
-nome de arquivo diferente do que o pacote original previa —
-`ADR-022-paleta-e-redesenho.md`, não `ADR-022-Paleta-e-Redesenho-
-Frontend.md`), essas referências apontam para uma decisão ainda não
-mergeada em `main`. Deixei uma nota explícita em `INDEX.md` registrando
-isso. Quando o `#37` mergear, checar se o nome de arquivo bate com as
-referências cruzadas — se não bater, é ajuste de link, não de conteúdo.
+`ADR-024` (§Emenda, §Relação com outros documentos) e o Anexo C de
+`PADRAO-SMX-CORES.md` referenciavam `ADR-022` só por número, com uma
+suposição de nome de arquivo/título errada
+(`ADR-022-Paleta-e-Redesenho-Frontend.md`, "Paleta e Redesenho Frontend").
+O Architect confirmou o nome real, direto do PR `#37`:
+`ADR/ADR-022-paleta-e-redesenho.md`, título "Padronização de Paleta e
+Redesenho". Corrigi as quatro ocorrências (`PADRAO-SMX-CORES.md` ×2,
+`ADR-024` ×2) e a de `ADR-023` (§Contexto), mais a nota em `INDEX.md`, para
+o nome e o título reais — nenhuma outra mudou de conteúdo.
+
+O que a correção não resolve: `ADR-022` continua não existindo em `main` até
+o `#37` mergear. Os links para ele passam a apontar para o caminho certo,
+mas só resolvem depois do merge — isso não depende deste PR.
+
+### Padrão que funcionou — parar em vez de inventar, duas vezes na mesma tarefa
+
+Registro deliberado, não só como ocorrência: nesta mesma entrega, parei duas
+vezes em vez de prosseguir com suposição.
+
+1. **Quando o conteúdo dos padrões não veio junto do pacote inicial**
+   (a errata de nomenclatura recebida antes deste pacote), reportei a lacuna
+   em vez de inventar o método de extração, os valores de cor ou o texto dos
+   ADRs — um documento de norma com número fabricado é pior que nenhum
+   documento.
+2. **Quando encontrei `ADR-022` já existente em rascunho no PR `#37`**, não
+   criei um segundo — seguindo a instrução explícita do próprio pacote
+   ("pare e reporte em vez de criar um segundo"), mas o valor de parar aqui
+   não vem só de seguir instrução: dois ADRs com o mesmo número é o tipo de
+   inconsistência que este pacote inteiro existe para eliminar.
+
+Nas duas vezes, parar e perguntar/reportar era o comportamento correto, e
+nas duas vezes havia como prosseguir sem ninguém notar na hora — inventando
+conteúdo na primeira, duplicando numeração na segunda. O custo de parar foi
+uma pergunta extra; o custo de não ter parado seria um documento de norma
+construído sobre conteúdo inventado, ou uma numeração de ADR ambígua
+permanentemente. Vale como padrão a repetir, não como exceção desta tarefa.
 
 ### Verificação
 
@@ -2114,8 +2142,9 @@ Verificação feita:
 3. Nenhuma ocorrência de `PADRAO-ASIMOV` ou `PADRAO-CORES` sem o prefixo
    `SMX` em nenhum dos quatro arquivos novos.
 4. Links relativos entre os documentos: os quatro novos resolvem entre si;
-   as referências a `ADR-022` **não resolvem em `main` hoje** — dependem do
-   merge do `#37` (ver acima, registrado, não escondido).
+   as referências a `ADR-022` agora usam o caminho real
+   (`ADR/ADR-022-paleta-e-redesenho.md`) mas **só resolvem depois do merge
+   do `#37`** — não escondido, registrado aqui e em `INDEX.md`.
 5. Nenhum número de contraste foi reescrito — cópia literal das seções A e
    B do pacote.
 
@@ -2125,8 +2154,16 @@ navegador/celular para confirmar leitura das tabelas de
 verificação pendente do Architect, registrada aqui em vez de reportada como
 feita sem confirmação.
 
-Next action: Architect decidir sobre o PR `#37` (mergear ou não); uma vez
-mergeado, confirmar que o nome de arquivo de `ADR-022` bate com as
-referências cruzadas de `ADR-024`/`PADRAO-SMX-CORES.md` e ajustar se
-necessário.
+### Instrução do Architect sobre monitoramento
+
+O Architect pediu explicitamente para **não deixar o PR sendo vigiado**: o
+monitoramento automático rodou a noite toda sobre `#28`/`#37`, reportou
+"clean" de hora em hora, e continuou reportando "tudo bem" mesmo depois de
+o `#28` ficar `dirty` de verdade — custa ciclos e produz falsa
+tranquilidade. Não assinei inscrição de eventos para o `#38`.
+
+Next action: Architect mergear o `#38` (documental, sem CI, sem conflito
+esperado) — antes do `#37`, para que `GENESIS/padroes/` já exista quando o
+`#37` entrar e as referências cruzadas dos dois padrões passem a resolver
+(menos a do `ADR-022`, que só resolve com o próprio `#37`).
 

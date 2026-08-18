@@ -5,7 +5,7 @@
 **Autoridade:** norma para toda superfície visual de todo projeto da SMX eXperience teCnollogy
 **Companheiro:** `PADRAO-SMX-DESIGN.md` — aquele governa **como** se desenha; este, **com que cor**
 **Adotado por:** ADR-024
-**Emenda parcial de:** ADR-022 (hierarquia de superfície)
+**Emenda parcial de:** ADR-022 (`ADR/ADR-022-paleta-e-redesenho.md`, hierarquia de superfície)
 
 ---
 
@@ -367,7 +367,7 @@ igualdade entre celular, papel e tela.
 
 | Documento | Relação |
 |---|---|
-| `ADR-022` | Este padrão emenda a hierarquia de superfície dele: a página parte de `#000206`, não de Midnight |
+| `ADR-022` — `ADR/ADR-022-paleta-e-redesenho.md` | Este padrão emenda a hierarquia de superfície dele: a página parte de `#000206`, não de Midnight |
 | `ADR-023` · Padrão SMX de Design | Governa **como** se desenha; este governa **com que cor** |
 | `ADR-021` | Safety Walk — fonte das três cores de classificação |
 | `finding-card.tsx` | Onde a medição de 2,16:1 do branco sobre âmbar está registrada |
