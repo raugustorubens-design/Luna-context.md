@@ -1414,3 +1414,96 @@ padrão de "push temporário em `main` pra testar" continuar sendo usado
 com frequência, o Architect pode decidir se vale formalizar como regra
 permanente (ex. sempre isolar a sondagem numa branch própria, nunca
 reaproveitar a branch de feature real) — decisão dele, não tomada aqui.
+
+## ID: ENG-041
+Data: 2026-07-31
+Tópico: Bug de validação PPTX corrigido + `.ppt` via LibreOffice + roteamento >20MB (primeira peça real da Capacidade 2) — e LibreOffice não converte de verdade neste ambiente de sessão
+
+*Nota de numeração:* o PR original desta entrada (`Luna-context.md` #22,
+aberto 2026-07-31) citava `ENG-033` — era o próximo ID livre naquela
+data. O PR ficou 18 dias sem mergear, e `ENG-033` já foi ocupado por
+outra entrada real nesse meio tempo (2026-08-02, achado do React error
+#418 em `luna-frontend`, ver acima) — mesmo padrão de `ENG-028`: segue
+como `ENG-041`, sequência real no momento do merge (2026-08-18), não a
+assumida quando o PR foi aberto. Nenhum conteúdo técnico desta entrada
+foi alterado por isso, só o número.
+
+Eu fiz (`luna-core` PR #26, mergeado, commit `54a1bcf`): três peças
+pedidas explicitamente pelo Originador, cada uma com commit próprio.
+
+**1. Bug de produção real**, reproduzido em 2026-07-30: um upload de
+PPTX real foi parseado corretamente por `pptx-parser.ts` (61 registros)
+e ainda assim rejeitado — `validateCanonicalDocument`
+(`validation.ts`) tinha um enum de `sourceFormat` desatualizado
+(`xlsx`/`csv`/`json` só, sem `"pptx"`). Corrigido, `"pptm"` incluído
+também (nenhum parser produz esse valor ainda — só evita rejeitar
+quando um existir). Teste de regressão adicionado.
+
+**2. `.ppt` (binário OLE2 legado, pré-2007) via conversão, não parser
+novo**: `PptParser` (`src/convergia/parsers/ppt-parser.ts`) chama
+`soffice --headless --convert-to pptx` (`ppt-converter.ts`) e entrega
+o resultado ao `PptxParser` já existente e testado — zero lógica de
+extração duplicada. `"ppt"` adicionado a `ConvergiaInputFormat`,
+`SUPPORTED_INPUT_FORMATS` e ao enum de `validation.ts`.
+
+**Achado que contradiz o que constava no pedido original** ("testado e
+confirmado nesta sessão... round-trip real via LibreOffice headless,
+texto sobrevivendo intacto"): nesta sessão, `soffice` está instalado
+(`--version` funciona), mas **toda chamada `--convert-to` falha** —
+"Error: source file could not be loaded", exit code 0 (não gera
+exceção no processo), nenhum arquivo de saída — reproduzido até com um
+`.txt` trivial convertido pra `.pdf`, então não é específico de PPTX
+nem do código deste parser. Tentativas de diagnóstico: matar processos
+`soffice` órfãos, limpar perfil (`~/.config/libreoffice`), perfil
+`UserInstallation` novo, `strace` (sem lib faltando, sem crash, sem
+mensagem de erro do kernel) — sem causa raiz identificada; parece
+restrição do sandbox deste container, não bug do código. Não
+persegui além disso (fora do escopo desta tarefa, retorno decrescente).
+
+Tratamento honesto disso no código: o teste de round-trip
+(`ppt-parser.test.ts`) faz uma sondagem funcional real (converte um
+arquivo de prova) antes de decidir rodar — se a conversão não
+funcionar de verdade, o teste se auto-pula com o motivo exato, em vez
+de assumir que "binário no PATH" significa "funciona". Ele passou
+pulado nesta sessão (284/285 rodando, 1 pulado, não é falha).
+
+**Pendência de infraestrutura, fora do escopo de código**: mesmo
+quando a conversão funcionar em algum ambiente, o container de deploy
+do `luna-core` no Railway hoje provavelmente só tem Node.js — precisa
+do LibreOffice instalado via mudança de Dockerfile/build, decisão e
+ação do Rubens, não presumida como já disponível em produção.
+
+**3. Roteamento automático síncrono/assíncrono por tamanho —
+Capacidade 2, primeira peça real de código**: decisão do Architect
+(recebida via Originador) — arquivo ≤ 20MB
+(`MAX_SYNC_FILE_SIZE_BYTES`, `async-routing.ts`) segue no fluxo
+síncrono, sem mudança; arquivo maior recebe `202` com a mensagem exata
+especificada ("Arquivo grande, processando em segundo plano —
+avisamos quando terminar"), sem perguntar ao usuário. Aplicado em
+`POST /convergia/parse` e `/transform`.
+
+**Escopo que eu deliberadamente não ultrapassei**: quarentena, fila e
+worker assíncronos não existem neste repositório e não inventei uma
+versão simplificada deles — a resposta `202` já avisa, no campo
+`warning`, que o arquivo não foi persistido nem será processado até
+essa peça existir. Isso é routing puro, não a Capacidade 2 completa.
+
+Test status: `npm run typecheck` limpo, `npm run test:architecture`
+aprovado, `npm test` 285 total — 284 passando (7 novos: 1 regressão de
+validação, 2 do `.ppt`/conversor — 1 rodando de fato, 1 pulado, 4 de
+roteamento por tamanho), 1 pulado com motivo explícito (ver achado
+acima).
+
+O que está bloqueado, sinalizado, não forçado: `.ppt` em produção
+depende do Rubens instalar LibreOffice no container do Railway
+(pendência de infraestrutura, não deste código). A Capacidade 2 real
+(quarentena/fila/worker) segue não especificada em detalhe nem
+implementada — o roteamento é só o primeiro passo. Não confirmei se a
+conversão LibreOffice funciona em algum ambiente real (só reproduzi a
+falha nesta sessão) — quem for validar em produção deve testar de
+novo lá, não assumir que funciona só porque o binário está instalado.
+
+Next action: Rubens decide/executa a instalação do LibreOffice no
+Railway antes de `.ppt` funcionar de fato em produção. Especificação
+da Capacidade 2 completa (quarentena/fila/worker) segue como próximo
+passo de arquitetura, não deste pacote.

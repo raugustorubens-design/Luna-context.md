@@ -1775,6 +1775,80 @@ de posicionamento não foi executado.
 Next action: nenhuma minha até o Originador confirmar os merges e esta
 documentação diretamente no GitHub.
 
+## 2026-07-31 — Bug de validação pptx/pptm + suporte a `.ppt` + roteamento >20MB (Capacidade 2, primeira peça)
+
+Eu fiz (Builder, via Claude Code, sessão de chat, `luna-core` PR #26,
+3 commits separados, mergeado — commit `54a1bcf`): três peças pedidas
+explicitamente pelo Originador, nesta ordem.
+
+**Commit 1 — bug de produção**: `src/convergia/validation.ts` tinha o
+enum de `sourceFormat` desatualizado (`xlsx`/`csv`/`json`, sem
+`"pptx"`) — reproduzido em produção em 2026-07-30, um upload PPTX real
+parseado corretamente (61 registros) foi rejeitado só por isso.
+Corrigi, adicionei `"pptm"` também (nenhum parser produz esse valor
+ainda, só evita rejeitar quando um existir). Teste de regressão em
+`validation.test.ts`.
+
+**Commit 2 — `.ppt` via conversão**: `PptParser`
+(`src/convergia/parsers/ppt-parser.ts`) chama `soffice --headless
+--convert-to pptx` (`ppt-converter.ts`) e entrega o resultado ao
+`PptxParser` já existente — sem duplicar extração. `"ppt"` adicionado
+a `ConvergiaInputFormat`, `SUPPORTED_INPUT_FORMATS` e ao enum de
+`validation.ts`.
+
+Achado que preciso registrar com honestidade, porque contradiz o que
+constava no pedido ("testado e confirmado nesta sessão... round-trip
+real, texto sobrevivendo intacto"): **não consegui reproduzir isso
+nesta sessão**. `soffice` está instalado aqui e `--version` funciona,
+mas toda chamada `--convert-to` falha silenciosamente ("Error: source
+file could not be loaded", exit code 0, nenhum arquivo gerado) —
+reproduzi isso até convertendo um `.txt` trivial pra `.pdf`, então não
+é peculiaridade do PPTX nem bug deste código. Tentei matar processos
+`soffice` travados, limpar perfil, `strace` (sem causa óbvia) — sem
+sucesso, parece limitação do sandbox deste container, não persegui
+além disso (retorno decrescente, fora do escopo real da tarefa). Não
+escondi isso: o teste de round-trip faz uma sondagem funcional real
+antes de decidir rodar, e se pula sozinho com o motivo exato quando a
+conversão não funciona de verdade, em vez de fingir que passou.
+
+**Pendência de infraestrutura, sinalizada, não presumida como
+resolvida**: mesmo com o código correto, `.ppt` só funciona em
+produção depois que o Rubens instalar o LibreOffice no container de
+deploy do Railway (`luna-core`) — mudança de Dockerfile/build, fora do
+código deste repositório. Não declaro isso como "concluído" — só o
+código de conversão está pronto e testado onde dá pra testar; a peça
+de infraestrutura que o torna real em produção continua pendente.
+
+**Commit 3 — roteamento >20MB**: decisão do Architect, recebida via
+Originador — arquivo ≤ `MAX_SYNC_FILE_SIZE_BYTES` (20MB,
+`src/convergia/async-routing.ts`) segue síncrono, sem mudança; arquivo
+maior recebe `202` com a mensagem exata pedida ("Arquivo grande,
+processando em segundo plano — avisamos quando terminar"), sem
+perguntar ao usuário. Aplicado em `POST /convergia/parse` e
+`/transform`. Só o roteamento — quarentena/fila/worker não existem
+neste repositório e não inventei versão simplificada deles; a resposta
+`202` já avisa isso explicitamente no campo `warning`.
+
+Ordem seguida: os três commits (validação, `.ppt`, roteamento) antes
+de qualquer documentação — código primeiro, como sempre. PR aberto
+como draft, Originador confirmou, mergeado só depois disso.
+
+Test status: `npm run typecheck` limpo, `npm run test:architecture`
+aprovado, `npm test` 285 total — 284 passando, 1 pulado com motivo
+explícito (o round-trip do `.ppt`, ver achado acima).
+
+O que está bloqueado, sinalizado, não forçado: `.ppt` em produção
+depende de ação de infraestrutura do Rubens (instalar LibreOffice no
+Railway) — não presumida disponível. Capacidade 2 completa
+(quarentena/fila/worker) segue não especificada em detalhe nem
+implementada — o roteamento desta rodada é só o primeiro passo, não a
+capacidade inteira.
+
+Next action: Rubens decide/executa a instalação do LibreOffice no
+Railway antes de `.ppt` funcionar de fato em produção. Especificação
+da Capacidade 2 completa fica para quando esse trabalho de arquitetura
+for aberto — não implementada por conta própria nesta rodada.
+
 ## 2026-08-07 — `luna-guardian`: limite explícito de 20mb em `express.json()` (corrige 413 em upload de imagem real)
 
 Eu fiz (Builder, via Claude Code, sessão de chat, `luna-guardian`
@@ -1839,3 +1913,102 @@ test:architecture` limpo.
 
 Next action: nenhuma minha — `luna-guardian` PR #5 aberta como draft,
 aguardando revisão do Originador antes de merge.
+
+---
+
+## 2026-08-18 — Resolução de conflito e merge do PR #22 (18 dias parado): bug de validação pptx/`.ppt`/roteamento >20MB
+
+### Contexto
+
+`Luna-context.md` PR #22 (`claude/convergia-pptm-ppt-async-routing-docs`)
+foi aberto em 2026-07-31 e ficou 18 dias sem mergear, acumulando conflito
+em quatro arquivos — `GENESIS/BUILDER.md`, `GENESIS/ENGINEER.md`,
+`GENESIS/ROADMAP.md`, `GENESIS/STATUS.md` — todos registros
+cronológicos que receberam entradas novas nesse meio tempo. Instrução
+explícita do Originador: resolver pelo Builder (não pelo editor web do
+GitHub), com o conteúdo do #22 entrando na posição cronológica de
+31/07, nada removido/reescrito/reordenado do que já estava em `main`,
+e parar/reportar em vez de decidir sozinho se algum item tivesse sido
+alterado dos dois lados de forma incompatível.
+
+### O que fiz
+
+1. **Rebase real** (`git rebase origin/main` sobre a branch do PR, não
+   merge) para obter os conflitos de verdade do Git, não só ler diffs
+   manualmente — cada arquivo lido por inteiro antes de decidir onde o
+   bloco do #22 entra.
+2. **`GENESIS/ROADMAP.md`**: o #22 não tocou a frase de fechamento do
+   item CONV-011 (idêntica à base) — só inseriu dois itens novos logo
+   depois dela. `main`, independentemente, tinha corrigido essa mesma
+   frase depois (`**Correção 2026-08-04**`, removendo uma afirmação que
+   ficou desatualizada). Não é edição incompatível do mesmo conteúdo —
+   é a correção da `main` mais uma inserção pura do #22 no mesmo ponto.
+   Resolvido mantendo a correção da `main` intacta e inserindo os dois
+   itens novos do #22 logo depois dela, antes de CONV-003/CONV-004
+   (datados de 08/04, portanto depois de 31/07 — ordem cronológica
+   preservada).
+3. **`GENESIS/BUILDER.md`**: inserção pura — `main` tinha uma entrada de
+   08/07 no mesmo ponto de inserção do #22. Resolvido colocando a
+   entrada de 31/07 do #22 antes da de 08/07 da `main`.
+4. **`GENESIS/ENGINEER.md` — colisão de ID real, não uma edição
+   incompatível de conteúdo**: o #22 e uma entrada já mergeada em `main`
+   (2026-08-02, achado do React error #418 em `luna-frontend`)
+   reivindicavam o mesmo `## ID: ENG-033` — o #22 citava o próximo ID
+   livre em 31/07, que deixou de ser o próximo ID livre depois de 18
+   dias parado. **Não é o caso 3 da instrução** (mesmo item, duas
+   versões de conteúdo divergentes, decisão do Architect) — são dois
+   tópicos totalmente não relacionados (bug de PPTX × erro de
+   hidratação React) disputando só o número. Encontrei precedente real
+   já registrado no próprio arquivo (`ENG-028`, nota de numeração:
+   "pedido original... citava ENG-033; o último ID real... segue como
+   ENG-028") — mesmo padrão aplicado aqui: a entrada de `main`
+   (ENG-033, já mergeada, imutável) ficou intacta; a entrada nova do
+   #22 virou **ENG-041** (próximo ID real livre, depois de ENG-040), com
+   nota de numeração explícita no próprio texto, sem alterar nenhum
+   conteúdo técnico da entrada original. Citações em `GENESIS/STATUS.md`
+   ("ver ENG-033", "ENG-029 a ENG-033") corrigidas para "ver ENG-041",
+   "ENG-029 a ENG-032 e ENG-041" — a numeração real, não a assumida.
+5. **`GENESIS/STATUS.md`**: mesma situação do ROADMAP.md — a célula da
+   tabela ENG-021 é um parágrafo que cresce por `**Atualização
+   YYYY-MM-DD**` acumulada; a frase de 31/07 do #22 nunca foi tocada
+   pela `main`, que só continuou a partir dela em 08/04. Inserido o
+   trecho do #22 (com a citação de `ENG-041` corrigida) entre a base de
+   31/07 e a atualização de 08/04 da `main` — ordem cronológica
+   preservada, nada reescrito.
+6. Confirmei ausência de duplicação (`grep -c` em cada trecho inserido,
+   exatamente 1 ocorrência cada) e ausência de qualquer marcador de
+   conflito residual (`<<<<<<<`/`=======`/`>>>>>>>`) antes de continuar
+   o rebase.
+7. `git push --force-with-lease` na branch do PR (não em `main`) —
+   necessário depois de um rebase real, não uma sobrescrita de
+   histórico compartilhado.
+
+### O que NÃO fiz, por decisão consciente
+
+- **Não decidi sozinho sobre conteúdo divergente.** O único caso que
+  poderia ter sido isso (item 4 acima) não é: são tópicos diferentes
+  disputando um número, não a mesma afirmação técnica contada de dois
+  jeitos — resolvido com o mesmo padrão já em uso no repositório
+  (`ENG-028`), não uma decisão nova minha sobre o que é verdade.
+- **Não toquei em `#37` nem em `#28`** (dependem de teste em produção
+  do Originador).
+- **Não fiz force-push em `main`** — só na branch do próprio PR, antes
+  do merge.
+
+### Verificação
+
+Este repositório é documental — sem `package.json`, sem suíte de
+testes, sem CI (`.github/workflows` não existe aqui, confirmado por
+listagem). A verificação possível e feita foi de conteúdo: releitura
+completa dos quatro arquivos resolvidos, checagem de unicidade de cada
+trecho inserido (nenhuma duplicação), confirmação de que nenhum
+`<<<<<<<`/`=======`/`>>>>>>>` sobrou, e `git diff origin/main --stat`
+confirmando que a mudança é apenas inserção (nenhuma linha de `main`
+removida, exceto a única célula de tabela de `STATUS.md` que
+necessariamente conta como "modificada" ao crescer o parágrafo — o
+conteúdo anterior dessa célula continua presente, só com texto novo
+acrescentado). `mergeable_state` do PR confirmado `"clean"` via GitHub
+API antes do merge.
+
+Next action: nenhuma — PR #22 mergeado nesta sessão (ver entrada
+seguinte, se houver, ou o próprio histórico de `main`).
