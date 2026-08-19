@@ -106,3 +106,5 @@ Não são trabalho do Builder — são decisão ou commit documental.
 | Faixas de prazo do Sense | tempo de ação de cada tipo de pendência |
 | `.ppt` em produção | instalar LibreOffice no contêiner do Railway |
 | `luna-core#48` | ranking de busca semântica dilui por texto de embedding — ver nota acima |
+| IA dentro do Forge (`2026-08-19-nota-ia-no-forge.md`) | quem é o usuário do Forge — só você, ou produto com mais de um usuário? Muda o passo 4 (contrato de plugin) inteiro |
+| Terminal como cockpit (`2026-08-19-nota-terminal-cockpit.md`) | serviço separado no Railway para o terminal, ou mesmo contêiner do `luna-frontend`? Única decisão que trava o desenho — recomendação registrada é serviço separado |
