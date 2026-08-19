@@ -1,5 +1,10 @@
 # GENESIS/pacotes/ — fila de pacotes para o Builder
 
+**Processo vigente:** `COMO-FUNCIONA.md` (o que ler no início da sessão) e `FILA.md` (o
+estado atual da fila, atualizado a cada item concluído). A fila de 19/08 abaixo é
+histórico — todos os itens A/B/C e o item 1 do `PLANO_o-resto.md` já estão em
+`FILA.md` → Concluído. `PENDENTE.md` registra o que só o Arquiteto pode verificar.
+
 Pacotes de instrução do Engenheiro/Arquiteto para o Builder, commitados aqui em vez de
 anexados por chat. Motivo (registrado em `GENESIS/BUILDER.md`, entrada de 19/08/2026):
 cinco vezes um pacote chegou errado, repetido ou desatualizado — não por descuido, mas
