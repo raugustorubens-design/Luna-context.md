@@ -2167,3 +2167,119 @@ esperado) — antes do `#37`, para que `GENESIS/padroes/` já exista quando o
 `#37` entrar e as referências cruzadas dos dois padrões passem a resolver
 (menos a do `ADR-022`, que só resolve com o próprio `#37`).
 
+**Atualização 19/08:** ambos os PRs mergeados (`#37` primeiro, depois `#38`
+— confirmado por `git log` de `main`: `ADR-022`, `ADR-023` e `ADR-024`
+todos presentes). As referências cruzadas entre os quatro documentos
+resolvem em `main` hoje.
+
+## 2026-08-19 — Fila de pacotes em GENESIS/pacotes/, docs de campo de 16/08, ADR-025, ADR-026, RESEARCH de canais
+
+Eu (Claude Code, Builder) recebi um lote grande — quatro categorias de
+trabalho, entregue por anexo de chat: a fila de pacotes ainda não
+executados (`luna-frontend`/`luna-core`), os oito documentos de campo de
+16/08 que nunca chegaram ao repositório, `ADR-025`/`ADR-026` (propostos) e
+uma pesquisa sobre canais de notificação. Escopo deste commit: só
+`Luna-context.md`, documental, nada de código tocado.
+
+### Por que este foi o primeiro passo, e não um pacote de código
+
+O `0_LEIA-PRIMEIRO.md` do próprio lote recomendava isto explicitamente:
+commitar a fila em `GENESIS/pacotes/` primeiro, porque "cinco vezes um
+pacote chegou errado, repetido ou desatualizado — não por descuido, mas
+porque a ponte era você copiando arquivo". Perguntei ao Architect por onde
+começar; a resposta confirmou esta opção. Nenhum pacote de código (A/B/C)
+foi executado nesta entrada — só arquivado, para dispatch de uma linha nas
+próximas sessões.
+
+### Estado verificado antes de escrever
+
+- `main` tinha acabado de receber `#37` e `#38` (ver entrada anterior) —
+  `ADR-022`/`023`/`024` e `GENESIS/padroes/` já existiam.
+- `ADR-025` e `ADR-026` estavam livres (maior ADR commitado era o 024;
+  `ADR-021` tem dois arquivos, já registrado como padrão aceito neste
+  repositório desde antes).
+- `GENESIS/pacotes/`, `GENESIS/achados-campo/`, `GENESIS/decisoes/`,
+  `GENESIS/pendencias/` e `GENESIS/patches/` não existiam — confirmado
+  antes de criar.
+- Conferi que o arquivo `GENESIS_patches_20260816safetywalkfixes.patch`
+  recebido é uma nota de substituição ("SUBSTITUÍDO — não use este
+  caminho"), não um patch de verdade — o conteúdo real está nos dois
+  outros arquivos de patch (`luna-core`, `luna-frontend`). Copiei os três,
+  incluindo a nota, como registro histórico da divisão.
+
+### O que commitei
+
+**`GENESIS/pacotes/`** (novo diretório), com `README.md` explicando a
+convenção de fila e quatro pacotes: `2026-08-19-plano-o-resto.md` (o plano
+com os itens 1/3/4 escritos por dentro — vetores faltantes, gerador de
+relatório da ronda, Constituição no prompt, todos `luna-core`), e os três
+pacotes de Engenheiro para `luna-frontend`: `2026-08-19-tirar-o-roxo.md`
+(A), `2026-08-19-gate-com-link-ao-campo.md` (B),
+`2026-08-19-safety-walk-cores.md` (C). Copiados sem alterar o texto.
+
+**`ADR/ADR-025-Leitura-Acumulativa-de-Foto.md`** e
+**`ADR/ADR-026-LUNA-Sense.md`** — ambos `Status: Proposto`, como recebidos.
+Não ratifiquei nada, não é minha função; só registrei a proposta.
+
+**`GENESIS/RESEARCH/canais-e-idade-da-fonte.md`** — pesquisa, não decisão,
+por isso `RESEARCH/` e não `ADR/`, seguindo a instrução do próprio lote.
+
+**Os oito documentos de campo de 16/08**, nos quatro diretórios novos,
+renomeados só para tirar o prefixo `GENESIS_` e a categoria (o caminho já
+diz), preservando a data no nome e sem tocar em uma linha de conteúdo:
+
+- `GENESIS/achados-campo/2026-08-16-safety-walk-viewport-celular.md`
+- `GENESIS/achados-campo/2026-08-16-recuperacao-ronda-presa.md`
+- `GENESIS/achados-campo/2026-08-16-fila-visivel-e-editavel.md`
+- `GENESIS/decisoes/2026-08-16-armazenamento-e-upload-incremental.md`
+- `GENESIS/pendencias/2026-08-16-o-que-falta.md`
+- `GENESIS/patches/2026-08-16-luna-core.patch`
+- `GENESIS/patches/2026-08-16-luna-frontend.patch`
+- `GENESIS/patches/2026-08-16-safety-walk-fixes.patch` (a nota de
+  substituição, preservada — não é o patch em si, é o registro de que ele
+  foi dividido em dois)
+
+Os dois arquivos `.patch` foram copiados byte a byte do que recebi
+(`diff` contra o original confirmou identidade) — nenhuma tentativa de
+"consertar" ou reformatar um patch é aceitável, ele precisa aplicar
+exatamente como foi gerado.
+
+**Índices** (`GENESIS/README.md`, `INDEX.md`): só acréscimo — cinco linhas
+novas na lista "Files"/"Diretórios", seis linhas novas na tabela "Conteúdo
+atual" do `INDEX.md` (ADR-022 propriamente indexado agora que existe em
+`main`, ADR-025, ADR-026, e o RESEARCH de canais). Aproveitei para
+atualizar a nota sobre `ADR-022` no `INDEX.md`, que estava desatualizada
+(dizia "ainda não existe em main" — já existe, desde o merge do `#37`).
+
+### O que NÃO fiz, por decisão consciente
+
+- **Não executei nenhum pacote de código.** A, B e C ficam arquivados em
+  `GENESIS/pacotes/` para execução em sessões futuras, uma de cada vez,
+  como os próprios pacotes exigem ("pare depois de cada um").
+- **Não reescrevi conteúdo de nenhum documento histórico** — nem os oito
+  de campo, nem os quatro pacotes A/B/C/PLANO. Isso inclui referências
+  internas desatualizadas: os pacotes citam `PADRAO-CORES.md` e
+  `GENESIS_2026-08-17_commit-padrao-cores.md` pelos nomes antigos
+  (pré-renomeação SMX). Registrei a divergência no `README.md` de
+  `pacotes/` em vez de corrigir o texto original.
+- **Não ratifiquei ADR-025 nem ADR-026.** Ambos ficam `Proposto`.
+- **Não toquei `luna-frontend` nem `luna-core`.**
+
+### Verificação
+
+Repositório documental, sem CI.
+
+1. Os 16 arquivos novos existem nos caminhos exatos; nenhum arquivo
+   existente aparece modificado além de `GENESIS/README.md`, `INDEX.md` e
+   este `BUILDER.md`.
+2. Os dois `.patch` reais batem byte a byte com o recebido (`diff`,
+   confirmado antes do commit).
+3. `ADR-025`/`ADR-026` numerados sem colidir com nada existente.
+4. Nenhuma linha de conteúdo dos documentos históricos (campo, pacotes)
+   foi alterada — só nome de arquivo/caminho, conforme instruído.
+
+Next action: nenhuma minha além de persistir. Quando alguém for executar o
+Pacote A (`GENESIS/pacotes/2026-08-19-tirar-o-roxo.md`), a ordem correta é
+`Execute GENESIS/pacotes/2026-08-19-tirar-o-roxo.md` — sem reanexar
+arquivo.
+

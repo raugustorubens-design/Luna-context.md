@@ -18,6 +18,11 @@ Este documento aponta onde cada tipo de informação deve viver.
 - `ORGANS/` — definição dos órgãos e suas responsabilidades.
 - `CHECKPOINTS/` — marcos de evolução do organismo.
 - `GENESIS/padroes/` — normas de design e cor da SMX (`PADRAO-SMX-DESIGN.md`, `PADRAO-SMX-CORES.md`).
+- `GENESIS/pacotes/` — fila de pacotes de instrução para o Builder, commitados em vez de anexados por chat (ver `GENESIS/pacotes/README.md`).
+- `GENESIS/achados-campo/` — defeitos descobertos em campo, com a medição que levou ao diagnóstico. Registro histórico — não reescrever para "atualizar".
+- `GENESIS/decisoes/` — decisões operacionais tomadas em campo ou fora do ciclo formal de ADR, com a motivação registrada.
+- `GENESIS/pendencias/` — o que ficou pendente ao fim de uma sessão/etapa, para a próxima retomar sem perder contexto.
+- `GENESIS/patches/` — diffs aplicados, preservados como histórico de como uma correção de campo foi implementada.
 
 ## Regra de uso
 
@@ -65,7 +70,9 @@ Este documento aponta onde cada tipo de informação deve viver.
 | Revisão de Arquitetura — Wizard de Ronda: Achado Dinâmico, Flags de Sugestão, Foto em Duas Resoluções (Research — **3 pendências reais em aberto** (catálogo de flags, mecanismo de "não se aplica", armazenamento de foto original); **muda arquitetura já implementada e em produção hoje** nos módulos de ronda de `luna-core`/`luna-frontend`, não é feature nova sobre base vazia) | `GENESIS/RESEARCH/revisao-arquitetura-achado-dinamico-flags-foto.md` |
 | Padrão SMX de Design — método de extração/criação de sistema de design (banco de referências, dois modos, estrutura de `design-system.html`), norma para toda superfície visual de todo projeto SMX (Aceito) | `GENESIS/padroes/PADRAO-SMX-DESIGN.md` (adotado por `ADR/ADR-023-Padrao-SMX-Design.md`) |
 | Padrão SMX de Cores — valores extraídos por medição da logo SMX e de três imagens de referência (quatro faixas, portão de matiz, orçamento de luz), norma para toda superfície visual de todo projeto SMX (Aceito, emenda parcial de ADR-022) | `GENESIS/padroes/PADRAO-SMX-CORES.md` (adotado por `ADR/ADR-024-Padrao-SMX-Cores.md`) |
+| ADR-022 Padronização de Paleta e Redesenho (registro retroativo — Aceito, mergeado em 18/08 via PR `#37`) — paleta do Safety Walk promovida a paleta do produto; `/v2` e `/forge?layout=v2` ao lado das superfícies atuais; hierarquia de superfície emendada pelo ADR-024 | `ADR/ADR-022-paleta-e-redesenho.md` |
+| ADR-025 (proposta) Leitura de foto acumulativa, com pergunta ao técnico — contexto por achado acumulado no cliente sem reenviar imagem já lida, pergunta opcional (nunca bloqueia) da LUNA ao técnico, par pergunta-resposta como dado de aprendizado (**Proposto — aguardando ratificação do Arquiteto**; emenda ADR-021 Decisões 6 e 9) | `ADR/ADR-025-Leitura-Acumulativa-de-Foto.md` |
+| ADR-026 (proposta) LUNA Sense — órgão de observabilidade dentro do `Luna-reporter`: contrato de sinal único, núcleo determinístico com IA só na borda, observa mudança (não estado), propõe mas nunca grava direto, canal por urgência (painel/e-mail/WhatsApp conforme faixa de prazo, ratificada em 19/08); escopo inicial de um sinal só (prazo normativo vencendo) (**Proposto — aguardando ratificação do Arquiteto**) | `ADR/ADR-026-LUNA-Sense.md` |
+| Canais e a idade da fonte — os três canais do LUNA Sense (e-mail formaliza, WhatsApp agiliza, painel divulga), por que idade absoluta de fonte é sinal fraco (só 3 casos legítimos: prazo normativo, idade relativa entre docs acoplados, divergência contra observação), e as faixas de prazo por tempo-de-ação (ratificado em 19/08) | `GENESIS/RESEARCH/canais-e-idade-da-fonte.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).
-
-**Nota (2026-08-18):** `ADR-022` (Padronização de Paleta e Redesenho) ainda não existe em `main` — está em rascunho, aberto, no PR `#37` (`ADR/ADR-022-paleta-e-redesenho.md`, branch `claude/new-session-44hpdu`). Este índice não lista uma entrada própria para ele até o PR mergear; as referências cruzadas de `ADR-023`/`ADR-024`/`PADRAO-SMX-CORES.md` a `ADR-022` ficam apontando para essa decisão em rascunho até lá.
