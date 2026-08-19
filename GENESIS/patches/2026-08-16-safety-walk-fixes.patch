@@ -1,0 +1,10 @@
+SUBSTITUÍDO — não use este caminho.
+
+O trabalho de 16/08/2026 passou a ser dois patches, um por repositório, porque a Camada 2 (upload de foto por unidade) toca os dois:
+
+- `GENESIS/patches/2026-08-16-luna-core.patch` — 1 commit. **Publicar primeiro.**
+- `GENESIS/patches/2026-08-16-luna-frontend.patch` — 5 commits.
+
+O frontend cai sozinho no comportamento antigo se a rota nova do core ainda não existir, então a ordem não quebra nada — só define a partir de quando a foto começa a subir durante a ronda.
+
+Contexto e decisões: `GENESIS/achados-campo/2026-08-16-*` e `GENESIS/decisoes/2026-08-16-armazenamento-e-upload-incremental.md`.

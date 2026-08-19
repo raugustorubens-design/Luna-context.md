@@ -1,0 +1,657 @@
+From dba2279e30eb92a2a6c4effd0cca00c88e0e2ea5 Mon Sep 17 00:00:00 2001
+From: Rubens Ramos Rodrigues Jr <raugustorubens@gmail.com>
+Date: Sun, 16 Aug 2026 16:34:50 +0000
+Subject: [PATCH] feat(ronda): upload de foto por unidade, com a original indo
+ pro servidor
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Camada 2 do ADR-021, decidida em campo em 16/08/2026: a foto sobe sozinha,
+no momento em que é tirada, e o relatório passa a carregar só o id dela.
+
+Três medições motivaram, todas do mesmo dia:
+
+1. Espaço no aparelho. A original de uma foto de 12MP ocupa ~9,3 MB em
+   base64 contra 0,13 MB da versão comprimida que o relatório usa. Guardar
+   as duas até o fim da ronda enchia o armazenamento do navegador — é a
+   explicação mais provável para o Chrome descartar a aba no meio da coleta,
+   que foi o sintoma relatado em campo.
+2. Teto de payload. `POST /convergia/ronda` aceita 25 MB e uma única
+   original come um terço disso. Pelo relatório a original nunca coube — e
+   pendurá-la no payload seria pior que não ter: o schema Zod não é
+   `.strict()`, então um campo desconhecido é descartado em silêncio e o
+   cliente reportaria sucesso com a original jamais tendo existido aqui.
+3. Risco concentrado. Envio único no fim põe a ronda inteira em risco a cada
+   falha; foto que já subiu está a salvo mesmo se o aparelho morrer depois.
+
+`POST /convergia/ronda/foto` — multipart, não JSON com base64: base64 infla
+33% no fio, e é exatamente esse custo que inviabiliza a original. `campo` (a
+comprimida, que o relatório exibe) é obrigatória; `original` é opcional de
+propósito, porque em rede ruim subir só a versão de campo não faz o
+documento final perder nada. Teto próprio de 30 MB por arquivo, separado do
+teto do relatório — misturar os dois limites foi o que produziu o 413 de
+15/08 em produção — e o estouro devolve 413 em JSON, não o HTML cru do
+multer, porque quem lê esse erro é a fila de fotos do wizard em campo.
+
+`GET /convergia/ronda/foto/:id` serve os bytes, com `?versao=original` para
+a resolução cheia. Pedir a original numa foto que subiu só com a versão de
+campo devolve 404 em vez de cair silenciosamente para 1280px: quem pede
+original quer original.
+
+`RondaFinding.fotoIds?: string[]` no contrato e na validação, convivendo com
+`fotos?` em vez de substituí-la. Ronda preenchida sem rede continua chegando
+com os bytes embutidos, e uma com rede intermitente pode legitimamente ter
+as duas coisas.
+
+A foto sobe **antes** de a ronda existir aqui, então a rota deliberadamente
+não valida vínculo com ronda nem com achado — `achadoId` é rastreabilidade.
+Foto que sobe e nunca é referenciada é lixo esperado deste desenho; a
+política de expiração fica anotada como decisão do Architect, não
+implementada.
+
+Persistência pelo mesmo padrão de `visual-template-store.ts`: coleção
+genérica do `GuardianContract`, base64 dentro do registro, nenhuma tabela
+nova. base64 só na persistência — no fio é binário.
+
+13 testes novos (393 no total), typecheck e architecture-check ok.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_017NbQ9WQsAwP5FDgH9yEnw9
+---
+ .../ronda/__tests__/foto-store.test.ts        |  96 +++++++++++
+ src/convergia/ronda/contracts.ts              |  10 ++
+ src/convergia/ronda/foto-store.ts             | 150 ++++++++++++++++++
+ src/convergia/ronda/validation.ts             |   6 +
+ .../__tests__/ronda-foto-upload.test.ts       | 143 +++++++++++++++++
+ src/routes/convergia.ts                       | 102 ++++++++++++
+ 6 files changed, 507 insertions(+)
+ create mode 100644 src/convergia/ronda/__tests__/foto-store.test.ts
+ create mode 100644 src/convergia/ronda/foto-store.ts
+ create mode 100644 src/routes/__tests__/ronda-foto-upload.test.ts
+
+diff --git a/src/convergia/ronda/__tests__/foto-store.test.ts b/src/convergia/ronda/__tests__/foto-store.test.ts
+new file mode 100644
+index 0000000..dffc431
+--- /dev/null
++++ b/src/convergia/ronda/__tests__/foto-store.test.ts
+@@ -0,0 +1,96 @@
++/**
++ * Camada 2 do ADR-021 — armazenamento da foto que sobe sozinha durante a
++ * ronda. Guardian falso, como em `flag-store.test.ts`: o que se verifica
++ * aqui é o comportamento do store, não a persistência real.
++ */
++import assert from "node:assert/strict";
++import test from "node:test";
++import type { GuardianContract, StorageRecord } from "../../../luna/guardian-contract";
++import { RondaFotoStore, RondaFotoValidationError, RONDA_FOTO_ID_PREFIX } from "../foto-store";
++
++class FakeGuardian implements GuardianContract {
++  readonly rows: StorageRecord[] = [];
++
++  async save(input: { collection: string; data: Record<string, unknown> }): Promise<StorageRecord | null> {
++    const row = { id: this.rows.length + 1, ...input.data } as StorageRecord;
++    this.rows.push(row);
++    return row;
++  }
++  async update(): Promise<StorageRecord | null> {
++    throw new Error("not used by RondaFotoStore");
++  }
++  async delete(): Promise<boolean> {
++    throw new Error("not used by RondaFotoStore");
++  }
++  async get(): Promise<StorageRecord | null> {
++    throw new Error("not used by RondaFotoStore");
++  }
++  async search(input: { collection: string; filter?: Record<string, unknown> }): Promise<StorageRecord[]> {
++    if (input.collection !== "convergia_ronda_fotos") return [];
++    if (!input.filter) return this.rows;
++    return this.rows.filter((row) => (row as Record<string, unknown>).foto_id === input.filter?.foto_id);
++  }
++}
++
++const campo = () => ({ buffer: Buffer.from([0xff, 0xd8, 0xff, 0x01, 0x02]), mimeType: "image/jpeg" });
++const original = () => ({ buffer: Buffer.alloc(64, 9), mimeType: "image/jpeg" });
++
++test("create devolve um id prefixado e guarda o tamanho real, sem o inchaço do base64", async () => {
++  const guardian = new FakeGuardian();
++  const foto = await new RondaFotoStore(guardian).create(campo(), original(), "achado-1");
++
++  assert.ok(foto.fotoId.startsWith(RONDA_FOTO_ID_PREFIX));
++  assert.equal(foto.temOriginal, true);
++  // `sizeBytes` é o binário, não a string base64 — é o número que serve pra
++  // raciocinar sobre espaço e banda de verdade.
++  assert.equal(foto.sizeBytes, 5);
++  assert.equal(foto.originalSizeBytes, 64);
++  assert.equal((guardian.rows[0] as Record<string, unknown>).achado_id, "achado-1");
++});
++
++test("os bytes voltam idênticos ao que subiu, nas duas versões", async () => {
++  const guardian = new FakeGuardian();
++  const store = new RondaFotoStore(guardian);
++  const foto = await store.create(campo(), original());
++
++  const daCampo = await store.getVersion(foto.fotoId, "campo");
++  const daOriginal = await store.getVersion(foto.fotoId, "original");
++  assert.deepEqual(daCampo?.data, campo().buffer);
++  assert.deepEqual(daOriginal?.data, original().buffer);
++  assert.equal(daCampo?.mimeType, "image/jpeg");
++});
++
++/**
++ * A original é opcional (rede ruim: sobe só a versão de campo). Pedir a
++ * original nesse caso devolve `undefined` em vez de cair para a comprimida —
++ * quem pede original quer resolução cheia, e receber 1280px sem aviso seria
++ * pior do que receber um 404 explícito.
++ */
++test("sem original, pedir a original devolve undefined em vez de cair para a comprimida", async () => {
++  const store = new RondaFotoStore(new FakeGuardian());
++  const foto = await store.create(campo());
++
++  assert.equal(foto.temOriginal, false);
++  assert.equal(foto.originalSizeBytes, undefined);
++  assert.ok(await store.getVersion(foto.fotoId, "campo"));
++  assert.equal(await store.getVersion(foto.fotoId, "original"), undefined);
++});
++
++test("foto inexistente devolve undefined nas duas versões", async () => {
++  const store = new RondaFotoStore(new FakeGuardian());
++  assert.equal(await store.getVersion("rfoto_nao_existe", "campo"), undefined);
++  assert.equal(await store.getVersion("rfoto_nao_existe", "original"), undefined);
++});
++
++test("recusa mime type não suportado, na versão de campo e na original", async () => {
++  const store = new RondaFotoStore(new FakeGuardian());
++  await assert.rejects(() => store.create({ buffer: Buffer.alloc(4), mimeType: "application/pdf" }), RondaFotoValidationError);
++  await assert.rejects(() => store.create(campo(), { buffer: Buffer.alloc(4), mimeType: "image/gif" }), RondaFotoValidationError);
++});
++
++test("cada upload gera um id próprio — dois cliques na mesma foto não colidem", async () => {
++  const store = new RondaFotoStore(new FakeGuardian());
++  const a = await store.create(campo());
++  const b = await store.create(campo());
++  assert.notEqual(a.fotoId, b.fotoId);
++});
+diff --git a/src/convergia/ronda/contracts.ts b/src/convergia/ronda/contracts.ts
+index 1835753..8b6e7f6 100644
+--- a/src/convergia/ronda/contracts.ts
++++ b/src/convergia/ronda/contracts.ts
+@@ -78,7 +78,17 @@ export interface RondaFinding {
+   estado: RiskState;
+   /** Presentes só quando `estado === "identificado"` — ver validação em `ronda-validation.ts`. */
+   departamento?: string;
++  /**
++   * Fotos embutidas no relatório, em base64. Caminho de contingência desde a
++   * Camada 2 (16/08/2026): o cliente sobe cada foto por
++   * `POST /convergia/ronda/foto` assim que ela é tirada e manda só o id em
++   * `fotoIds`. `fotos` continua existindo para a ronda preenchida sem rede,
++   * em que não houve como subir nada antes de concluir — nesse caso o
++   * relatório carrega os bytes, como sempre carregou.
++   */
+   fotos?: RondaPhoto[];
++  /** Fotos já armazenadas no servidor (`RONDA_FOTO_ID_PREFIX`), referenciadas por id. Caminho normal quando há rede durante a ronda: mantém o payload do relatório em texto puro e tira as fotos do aparelho no momento em que são tiradas. */
++  fotoIds?: string[];
+   classificacao?: FindingClassification;
+   gravidade?: FindingSeverity;
+   descricao?: string;
+diff --git a/src/convergia/ronda/foto-store.ts b/src/convergia/ronda/foto-store.ts
+new file mode 100644
+index 0000000..bf1742a
+--- /dev/null
++++ b/src/convergia/ronda/foto-store.ts
+@@ -0,0 +1,150 @@
++// Camada 2 do ADR-021 (decisão de campo, 16/08/2026): a foto de um achado
++// sobe sozinha, no momento em que é tirada, em vez de viajar embutida no
++// relatório no fim da ronda.
++//
++// O que forçou a mudança, medido em campo:
++//
++//  - Espaço no aparelho. A original de uma foto de 12MP ocupa ~9,3 MB em
++//    base64 contra 0,13 MB da versão comprimida que o relatório usa. Guardar
++//    as duas até o fim da ronda enchia o armazenamento do navegador e é a
++//    explicação mais provável para o Chrome descartar a aba no meio da
++//    coleta.
++//  - Teto de payload. `POST /convergia/ronda` aceita 25 MB
++//    (`RONDA_JSON_BODY_LIMIT`) — uma única original em base64 come um terço
++//    disso, e três ou quatro travariam a ronda inteira. Pelo relatório a
++//    original simplesmente não cabe.
++//  - Risco concentrado. Um envio único no fim significa que qualquer falha
++//    põe a ronda inteira em risco; foto que já subiu está a salvo mesmo se o
++//    aparelho morrer em seguida.
++//
++// Multipart, não JSON/base64: base64 infla 33% no fio, que é exatamente o
++// custo que torna a original inviável. `POST /convergia/ronda/foto` recebe
++// binário; base64 fica só na persistência, mesmo padrão de
++// `visual-template-store.ts` (coleção genérica do `GuardianContract`,
++// nenhuma tabela nova, nenhum mecanismo de storage novo).
++import { randomUUID } from "node:crypto";
++import type { GuardianContract } from "../../luna/guardian-contract";
++import { HttpGuardianClient } from "../../luna/adapters/guardian-http-adapter";
++
++const COLLECTION = "convergia_ronda_fotos";
++const ORIGIN = "convergia-ronda-foto-routes";
++
++/** Prefixo do id de foto — deixa `fotoIds[]` legível em log e distinguível de id de achado ou de ronda a olho nu. */
++export const RONDA_FOTO_ID_PREFIX = "rfoto_";
++
++export const SUPPORTED_RONDA_FOTO_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
++
++/**
++ * Teto por arquivo no upload de foto. Dimensionado para a original crua de
++ * um celular atual (12–50MP, 3–12 MB de JPEG) com folga, e deliberadamente
++ * separado do teto do relatório: são requisições de natureza diferente e
++ * misturar os dois limites foi o que produziu o 413 de 15/08 em produção.
++ */
++export const RONDA_FOTO_MAX_BYTES = 30 * 1024 * 1024;
++
++/** Qual versão da foto está sendo pedida. "campo" é a comprimida (1280px/JPEG q0.7) que o relatório usa; "original" é o arquivo como saiu da câmera. */
++export type RondaFotoVersao = "campo" | "original";
++
++interface RondaFotoRow {
++  id?: string | number;
++  foto_id: string;
++  /** Achado a que a foto pertence, quando o cliente informa. Opcional de propósito: a foto sobe *antes* de a ronda existir no servidor, então este campo é rastreabilidade, não chave estrangeira. */
++  achado_id?: string;
++  campo_mime_type: string;
++  /** Base64 sem prefixo `data:`, mesmo padrão de `convergia_visual_templates.image_data_base64`. */
++  campo_data_base64: string;
++  campo_size_bytes: number;
++  original_mime_type?: string;
++  original_data_base64?: string;
++  original_size_bytes?: number;
++  created_at: string;
++}
++
++export interface RondaFotoSummary {
++  fotoId: string;
++  mimeType: string;
++  sizeBytes: number;
++  /** A original é opcional: sem rede boa, o cliente pode subir só a versão de campo e o relatório não perde nada. */
++  temOriginal: boolean;
++  originalSizeBytes?: number;
++  createdAt: string;
++}
++
++export class RondaFotoValidationError extends Error {
++  constructor(message: string) {
++    super(message);
++    this.name = "RondaFotoValidationError";
++  }
++}
++
++export class RondaFotoStore {
++  constructor(private readonly guardian: GuardianContract = new HttpGuardianClient()) {}
++
++  async create(
++    campo: { buffer: Buffer; mimeType: string },
++    original?: { buffer: Buffer; mimeType: string },
++    achadoId?: string,
++  ): Promise<RondaFotoSummary> {
++    if (!SUPPORTED_RONDA_FOTO_MIME_TYPES.has(campo.mimeType)) {
++      throw new RondaFotoValidationError(`Tipo de imagem "${campo.mimeType}" não suportado. Use JPEG, PNG ou WebP.`);
++    }
++    if (original && !SUPPORTED_RONDA_FOTO_MIME_TYPES.has(original.mimeType)) {
++      throw new RondaFotoValidationError(`Tipo de imagem "${original.mimeType}" não suportado na foto original. Use JPEG, PNG ou WebP.`);
++    }
++
++    const fotoId = `${RONDA_FOTO_ID_PREFIX}${randomUUID()}`;
++    const createdAt = new Date().toISOString();
++
++    await this.guardian.save(
++      {
++        collection: COLLECTION,
++        data: {
++          foto_id: fotoId,
++          ...(achadoId ? { achado_id: achadoId } : {}),
++          campo_mime_type: campo.mimeType,
++          campo_data_base64: campo.buffer.toString("base64"),
++          campo_size_bytes: campo.buffer.byteLength,
++          ...(original
++            ? {
++                original_mime_type: original.mimeType,
++                original_data_base64: original.buffer.toString("base64"),
++                original_size_bytes: original.buffer.byteLength,
++              }
++            : {}),
++          created_at: createdAt,
++        },
++      },
++      ORIGIN,
++    );
++
++    return {
++      fotoId,
++      mimeType: campo.mimeType,
++      sizeBytes: campo.buffer.byteLength,
++      temOriginal: Boolean(original),
++      originalSizeBytes: original?.buffer.byteLength,
++      createdAt,
++    };
++  }
++
++  private async findRow(fotoId: string): Promise<RondaFotoRow | undefined> {
++    const rows = (await this.guardian.search({ collection: COLLECTION, filter: { foto_id: fotoId }, limit: 1 }, ORIGIN)) as unknown as RondaFotoRow[];
++    return rows[0];
++  }
++
++  /**
++   * Bytes de uma versão da foto. Pedir `original` numa foto que subiu só com
++   * a versão de campo devolve `undefined` em vez de cair para a comprimida:
++   * quem pede a original quer resolução cheia, e receber silenciosamente
++   * 1280px no lugar seria pior do que receber um 404 explícito.
++   */
++  async getVersion(fotoId: string, versao: RondaFotoVersao): Promise<{ data: Buffer; mimeType: string } | undefined> {
++    const row = await this.findRow(fotoId);
++    if (!row) return undefined;
++    if (versao === "original") {
++      if (!row.original_data_base64 || !row.original_mime_type) return undefined;
++      return { data: Buffer.from(row.original_data_base64, "base64"), mimeType: row.original_mime_type };
++    }
++    return { data: Buffer.from(row.campo_data_base64, "base64"), mimeType: row.campo_mime_type };
++  }
++}
+diff --git a/src/convergia/ronda/validation.ts b/src/convergia/ronda/validation.ts
+index 57ecfa8..a62e71d 100644
+--- a/src/convergia/ronda/validation.ts
++++ b/src/convergia/ronda/validation.ts
+@@ -21,6 +21,12 @@ const findingSchema = z.object({
+   estado: z.enum(RISK_STATES),
+   departamento: z.string().min(1).optional(),
+   fotos: z.array(photoSchema).optional(),
++  // Camada 2 (16/08/2026): id de foto já enviada por
++  // `POST /convergia/ronda/foto`. Convive com `fotos` em vez de substituí-la
++  // — uma ronda preenchida sem rede continua chegando com os bytes embutidos,
++  // e uma ronda com rede intermitente pode legitimamente ter as duas coisas,
++  // parte já no servidor e parte ainda embutida.
++  fotoIds: z.array(z.string().min(1, "id de foto vazio")).optional(),
+   classificacao: z.enum(FINDING_CLASSIFICATIONS).optional(),
+   gravidade: z.enum(FINDING_SEVERITIES).optional(),
+   descricao: z.string().min(1).optional(),
+diff --git a/src/routes/__tests__/ronda-foto-upload.test.ts b/src/routes/__tests__/ronda-foto-upload.test.ts
+new file mode 100644
+index 0000000..a8de7a5
+--- /dev/null
++++ b/src/routes/__tests__/ronda-foto-upload.test.ts
+@@ -0,0 +1,143 @@
++/**
++ * Camada 2 do ADR-021 (decisão de campo, 16/08/2026): a foto sobe sozinha,
++ * em multipart, no momento em que é tirada.
++ *
++ * Estes testes rodam contra o `app` inteiro, e não contra o router isolado,
++ * pelo mesmo motivo de `ronda-body-limit.test.ts`: o que está em jogo é a
++ * convivência da rota nova com os middlewares globais. Em particular, o
++ * `rondaJsonParser` de 25mb é montado em `app.ts` no prefixo
++ * `/api/convergia/ronda` — se ele tentasse ler um corpo multipart, a rota de
++ * upload morreria antes de existir, e o sintoma seria idêntico ao 413 de
++ * produção de 15/08.
++ *
++ * Sem `GUARDIAN_BASE_URL` no ambiente de teste, a persistência falha depois
++ * da rota (e vira 400, pelo tratador genérico). Por isso aqui só se afirma o
++ * que é afirmável sem Guardian — que a requisição atravessou parser e
++ * roteamento. O comportamento de negócio (base64 ida e volta, original
++ * opcional, 404 por versão ausente) é coberto em `foto-store.test.ts`, que
++ * injeta um Guardian falso.
++ */
++import assert from "node:assert/strict";
++import test from "node:test";
++import type { Server } from "node:http";
++import app from "../../app";
++import { RONDA_FOTO_MAX_BYTES, SUPPORTED_RONDA_FOTO_MIME_TYPES } from "../../convergia/ronda/foto-store";
++import { validateRondaSubmission } from "../../convergia/ronda/validation";
++
++async function withServer<T>(run: (baseUrl: string) => Promise<T>): Promise<T> {
++  const server: Server = await new Promise((resolve) => {
++    const s = app.listen(0, "127.0.0.1", () => resolve(s));
++  });
++  try {
++    const { port } = server.address() as { port: number };
++    return await run(`http://127.0.0.1:${port}`);
++  } finally {
++    await new Promise((resolve) => server.close(resolve));
++  }
++}
++
++function jpegOfKB(kb: number): Blob {
++  return new Blob([Buffer.alloc(Math.round(kb * 1024), 7)], { type: "image/jpeg" });
++}
++
++function postFoto(baseUrl: string, form: FormData) {
++  return fetch(`${baseUrl}/api/convergia/ronda/foto`, { method: "POST", body: form });
++}
++
++async function errorOf(response: Response): Promise<string> {
++  const body = (await response.json()) as { error?: string };
++  return String(body.error ?? "");
++}
++
++/**
++ * O ponto central: um corpo multipart de 6 MB chega inteiro na rota — é
++ * exatamente o tamanho de original que não cabe no payload de 25mb do
++ * relatório e que motivou esta rota existir.
++ */
++test("POST /api/convergia/ronda/foto aceita multipart com campo e original de 6 MB", async () => {
++  await withServer(async (baseUrl) => {
++    const form = new FormData();
++    form.set("campo", jpegOfKB(200), "campo.jpg");
++    form.set("original", jpegOfKB(6 * 1024), "original.jpg");
++    form.set("achadoId", "achado-1");
++
++    const response = await postFoto(baseUrl, form);
++    assert.notEqual(response.status, 413, "original de 6 MB não pode ser rejeitada por limite de corpo");
++    assert.notEqual(response.status, 404, "a rota de upload de foto precisa existir");
++    // Sem Guardian o erro é de persistência, não de requisição malformada.
++    assert.doesNotMatch(await errorOf(response), /obrigatória/i, "o multipart precisa ter sido lido — `campo` chegou");
++  });
++});
++
++test("POST /api/convergia/ronda/foto recusa upload sem a versão de campo", async () => {
++  await withServer(async (baseUrl) => {
++    const form = new FormData();
++    form.set("original", jpegOfKB(100), "original.jpg");
++    const response = await postFoto(baseUrl, form);
++    assert.equal(response.status, 400);
++    assert.match(await errorOf(response), /obrigatória/i);
++  });
++});
++
++/** A original é opcional de propósito: em rede ruim o cliente sobe só a versão de campo, e o relatório não perde nada. */
++test("POST /api/convergia/ronda/foto aceita só a versão de campo", async () => {
++  await withServer(async (baseUrl) => {
++    const form = new FormData();
++    form.set("campo", jpegOfKB(200), "campo.jpg");
++    const response = await postFoto(baseUrl, form);
++    assert.notEqual(response.status, 413);
++    assert.doesNotMatch(await errorOf(response), /obrigatória/i);
++  });
++});
++
++/** 413 em JSON, não o 413 em HTML do multer — quem lê é a fila de fotos do wizard, que só mostra `{ error }` ao TST em campo. */
++test("foto acima do teto por arquivo devolve 413 em JSON", async () => {
++  await withServer(async (baseUrl) => {
++    const form = new FormData();
++    form.set("campo", jpegOfKB(200), "campo.jpg");
++    form.set("original", jpegOfKB(RONDA_FOTO_MAX_BYTES / 1024 + 1024), "gigante.jpg");
++    const response = await postFoto(baseUrl, form);
++    assert.equal(response.status, 413);
++    assert.match(response.headers.get("content-type") ?? "", /application\/json/);
++    assert.match(await errorOf(response), /limite/i);
++  });
++});
++
++test("mime types aceitos cobrem o que a câmera e o `compressPhoto` do wizard produzem", () => {
++  for (const mime of ["image/jpeg", "image/png", "image/webp"]) {
++    assert.ok(SUPPORTED_RONDA_FOTO_MIME_TYPES.has(mime), `${mime} deveria ser aceito`);
++  }
++});
++
++/**
++ * `fotoIds` convive com `fotos` em vez de substituí-la — uma ronda
++ * preenchida sem rede continua chegando com os bytes embutidos, e uma com
++ * rede intermitente pode legitimamente ter as duas coisas.
++ */
++test("validação aceita achado com fotoIds, com fotos, e com os dois", () => {
++  const base = {
++    metadata: { titulo: "t", data: "2026-08-16", local: "l", responsavel: "r", turno: "manha" },
++    encerramento: { incluirGraficoResumo: false },
++  };
++  const achado = { id: "a1", estado: "identificado", departamento: "d", classificacao: "positivo", gravidade: "baixa", descricao: "d" };
++  const foto = { dataBase64: Buffer.alloc(16, 3).toString("base64"), mimeType: "image/jpeg" };
++
++  for (const [nome, extra] of [
++    ["só fotoIds", { fotoIds: ["rfoto_1", "rfoto_2"] }],
++    ["só fotos", { fotos: [foto] }],
++    ["os dois", { fotoIds: ["rfoto_1"], fotos: [foto] }],
++    ["nenhum", {}],
++  ] as const) {
++    const result = validateRondaSubmission({ ...base, achados: [{ ...achado, ...extra }] });
++    assert.equal(result.valid, true, `"${nome}" deveria ser válido`);
++  }
++});
++
++test("validação recusa fotoId vazio", () => {
++  const result = validateRondaSubmission({
++    metadata: { titulo: "t", data: "2026-08-16", local: "l", responsavel: "r", turno: "manha" },
++    achados: [{ id: "a1", estado: "identificado", departamento: "d", classificacao: "positivo", gravidade: "baixa", descricao: "d", fotoIds: [""] }],
++    encerramento: { incluirGraficoResumo: false },
++  });
++  assert.equal(result.valid, false);
++});
+diff --git a/src/routes/convergia.ts b/src/routes/convergia.ts
+index 599feb3..b47dfa8 100644
+--- a/src/routes/convergia.ts
++++ b/src/routes/convergia.ts
+@@ -10,6 +10,12 @@ import { TemplatePositionStore, TemplatePositionValidationError } from "../conve
+ import { VisualTemplateStore, VisualTemplateValidationError } from "../convergia/templates/visual-template-store";
+ import { RondaStore } from "../convergia/ronda/ronda-store";
+ import { RondaFlagStore } from "../convergia/ronda/flag-store";
++import {
++  RondaFotoStore,
++  RondaFotoValidationError,
++  RONDA_FOTO_MAX_BYTES,
++  type RondaFotoVersao,
++} from "../convergia/ronda/foto-store";
+ import { RondaValidationError } from "../convergia/ronda/errors";
+ import { validateRondaSubmission, validateRondaPatch } from "../convergia/ronda/validation";
+ import { describePhotoForSuggestion } from "../convergia/ronda/vision-suggestion";
+@@ -23,8 +29,16 @@ const positionStore = new TemplatePositionStore();
+ const visualTemplateStore = new VisualTemplateStore();
+ const rondaStore = new RondaStore();
+ const rondaFlagStore = new RondaFlagStore();
++const rondaFotoStore = new RondaFotoStore();
+ 
+ const upload = multer({ storage: multer.memoryStorage() });
++/**
++ * Upload de foto de ronda (Camada 2). Instância própria, com teto por
++ * arquivo — o `upload` genérico acima não tem limite nenhum, e uma rota que
++ * aceita a original crua da câmera não pode ficar sem teto. O limite vive em
++ * `foto-store.ts`, junto da razão de ser dele.
++ */
++const rondaFotoUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: RONDA_FOTO_MAX_BYTES } });
+ const SUPPORTED_VISUAL_TEMPLATE_MIME_TYPES = new Set(["image/png", "image/jpeg"]);
+ 
+ /**
+@@ -290,6 +304,78 @@ router.post("/convergia/ronda", rondaJsonParser, async (req, res, next): Promise
+   }
+ });
+ 
++/**
++ * Camada 2 do ADR-021 (decisão de campo, 16/08/2026) — uma foto sobe sozinha,
++ * no momento em que é tirada, e o relatório passa a carregar só o id dela.
++ *
++ * `campo` (a versão comprimida, 1280px/JPEG q0.7) é obrigatória: é ela que o
++ * relatório usa. `original` é opcional de propósito — em rede ruim o cliente
++ * pode subir só a versão de campo, e o relatório não perde nada. Multipart, e
++ * não JSON com base64, porque base64 infla 33% no fio: é justamente esse custo
++ * que impedia a original de caber no payload de 25 MB do relatório.
++ *
++ * A foto sobe **antes** de a ronda existir aqui, então esta rota
++ * deliberadamente não valida vínculo com ronda nem com achado. `achadoId`, se
++ * vier, é rastreabilidade. Foto que sobe e nunca é referenciada por um
++ * relatório é lixo esperado deste desenho — a política de expiração para elas
++ * é decisão do Architect, anotada e ainda não implementada.
++ */
++router.post(
++  "/convergia/ronda/foto",
++  rondaFotoUpload.fields([
++    { name: "campo", maxCount: 1 },
++    { name: "original", maxCount: 1 },
++  ]),
++  async (req, res, next): Promise<void> => {
++    try {
++      const files = req.files as Record<string, Express.Multer.File[]> | undefined;
++      const campo = files?.campo?.[0];
++      const original = files?.original?.[0];
++
++      if (!campo) {
++        res.status(400).json({ error: "A versão de campo da foto é obrigatória, no campo `campo`." });
++        return;
++      }
++
++      const achadoId = typeof req.body?.achadoId === "string" && req.body.achadoId.trim() !== "" ? req.body.achadoId.trim() : undefined;
++      const foto = await rondaFotoStore.create(
++        { buffer: campo.buffer, mimeType: campo.mimetype },
++        original ? { buffer: original.buffer, mimeType: original.mimetype } : undefined,
++        achadoId,
++      );
++      res.status(201).json({ fotoId: foto.fotoId, foto });
++    } catch (error) {
++      next(error);
++    }
++  },
++);
++
++/**
++ * Bytes de uma foto de ronda. `?versao=original` devolve o arquivo como saiu
++ * da câmera; o default é a versão de campo, que é a que o relatório exibe.
++ *
++ * 404 (e não fallback silencioso para a comprimida) quando a original foi
++ * pedida e não existe: quem pede original quer resolução cheia, e receber
++ * 1280px sem aviso seria pior do que receber um erro claro.
++ */
++router.get("/convergia/ronda/foto/:id", async (req, res, next): Promise<void> => {
++  try {
++    const versao: RondaFotoVersao = req.query.versao === "original" ? "original" : "campo";
++    const image = await rondaFotoStore.getVersion(req.params.id, versao);
++    if (!image) {
++      res.status(404).json({ error: `Foto "${req.params.id}" não encontrada${versao === "original" ? " nesta versão (original não enviada)." : "."}` });
++      return;
++    }
++    res.setHeader("Content-Type", image.mimeType);
++    // Imutável: o id é gerado por upload e o conteúdo nunca muda, então o
++    // aparelho em campo não precisa rebaixar a mesma foto duas vezes.
++    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
++    res.send(image.data);
++  } catch (error) {
++    next(error);
++  }
++});
++
+ router.get("/convergia/ronda", async (req, res, next): Promise<void> => {
+   try {
+     const limit = req.query.limit ? Number(req.query.limit) : undefined;
+@@ -460,6 +546,22 @@ router.use((error: unknown, _req: Request, res: Response, _next: NextFunction) =
+     return;
+   }
+ 
++  if (error instanceof RondaFotoValidationError) {
++    res.status(422).json({ error: error.message });
++    return;
++  }
++
++  // Foto acima do teto por arquivo. 413 explícito em JSON, e não o 413 em
++  // HTML que o multer produziria: quem lê este erro é a fila de fotos do
++  // wizard, em campo, e ela só consegue mostrar ao TST o que vier em
++  // `{ error }` — mesma razão de `rondaPayloadTooLargeHandler`.
++  if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
++    res.status(413).json({
++      error: `Foto acima do limite de ${Math.round(RONDA_FOTO_MAX_BYTES / (1024 * 1024))} MB por arquivo.`,
++    });
++    return;
++  }
++
+   const message = error instanceof Error ? error.message : "Erro ao processar a solicitação do Convergia.";
+   res.status(400).json({ error: message });
+ });
+-- 
+2.43.0
+

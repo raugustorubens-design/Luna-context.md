@@ -1,0 +1,2561 @@
+From b9757353ea22e928f9cffd8e9f3585469da1befc Mon Sep 17 00:00:00 2001
+From: Rubens Ramos Rodrigues Jr <raugustorubens@gmail.com>
+Date: Sun, 16 Aug 2026 13:08:36 +0000
+Subject: [PATCH 1/5] fix(ronda): prende o Safety Walk na viewport e para de
+ perder a ronda
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Relatado em campo, durante uma ronda real (16/08/2026), em Android/Chrome
+pelo navegador: "o relatório está saindo da página ou subindo sozinho e eu
+tenho que reiniciar a todo momento".
+
+Causa medida (Pixel 7, 412x805, etapa B com 5 achados):
+
+  docScrollable: true   mainScrollable: false
+  footer.bottom: 4066px   (tela: 805px)
+  header.top após rolar 400px: -367px
+
+Ou seja: o `<main>` nunca rolava, quem rolava era o documento inteiro. Os
+botões Voltar/Avançar ficavam 3.2 mil pixels abaixo do fim da tela e o
+cabeçalho saía por cima. Literalmente "saindo da página".
+
+A raiz é `min-h-dvh` no shell: altura *mínima* não impõe limite nenhum ao
+filho `flex-1 overflow-y-auto`, e o `min-height: auto` que o flex dá de
+padrão ao filho deixa a `<main>` crescer junto com o conteúdo — o
+`overflow-y-auto` nunca chega a valer. Corrigido com `100svh` fixo no shell
++ `min-h-0` na `<main>` + `overflow: hidden` no html/body enquanto em
+/ronda. Mesma medição depois: documento não rola, `<main>` rola, cabeçalho
+fixo e rodapé sempre no fim da tela.
+
+`svh` e não `dvh` de propósito: `dvh` acompanha a barra de endereços do
+Chrome recolhendo durante a rolagem, então o shell mudava de altura no meio
+do gesto — o "sobe sozinho". Junto disso, `interactive-widget=
+resizes-content` no viewport, pro teclado do Android encolher a viewport em
+vez de cobrir o rodapé (o padrão `resizes-visual` fazia o Chrome arrastar o
+documento inteiro pra trazer o campo focado à vista).
+
+Também nesta correção, para iPhone (que não é o aparelho do relato, mas usa
+a mesma superfície): `env(safe-area-inset-*)` no topo e no rodapé, já que o
+layout declara `viewportFit: cover` + status bar translúcida e nada
+compensava o recorte; e fonte mínima de 16px nos campos, porque o WebKit
+amplia a página sozinho ao focar campo menor que isso. `maximumScale: 1`
+removido — não impedia esse zoom, só impedia desfazê-lo com a pinça, além
+de quebrar a acessibilidade de quem precisa ampliar pra ler.
+
+Por fim, o "tenho que reiniciar" custava a ronda inteira: o wizard mantinha
+tudo em memória React e só gravava em IndexedDB na conclusão. Novo store
+`draft` (DB_VERSION 2 -> 3), gravado a cada 600ms com debounce (IndexedDB e
+não localStorage: as fotos são base64 e estouram a cota de ~5MB),
+recuperado na montagem com aviso na tela e opção de começar do zero,
+apagado ao concluir.
+
+Verificado em emulação de Pixel 7 e iPhone 13. pnpm typecheck, build e os
+39 testes passando.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_017NbQ9WQsAwP5FDgH9yEnw9
+---
+ app/globals.css                    |  89 ++++++++++++++++++
+ app/ronda/layout.tsx               |  15 ++-
+ components/ronda/ronda-wizard.tsx  | 146 ++++++++++++++++++++++++-----
+ components/ronda/viewport-lock.tsx |  24 +++++
+ lib/ronda/db.ts                    |  74 ++++++++++++++-
+ 5 files changed, 322 insertions(+), 26 deletions(-)
+ create mode 100644 components/ronda/viewport-lock.tsx
+
+diff --git a/app/globals.css b/app/globals.css
+index 60e0d5a..dd0be1c 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -50,6 +50,95 @@ body {
+   @apply bg-white/5 backdrop-blur-xl border border-white/10;
+ }
+ 
++/* ---------------------------------------------------------------------------
++ * LUNA Safety Walk (/ronda) — regras da superfície de campo.
++ *
++ * Escopadas por `.ronda-locked` no `<html>` (ver `components/ronda/
++ * viewport-lock.tsx`) porque o Forge e o Modo Usuário dividem o mesmo
++ * `<body>` do layout raiz e não devem herdar nada disto.
++ *
++ * Achado de campo em 16/08/2026, durante uma ronda real: "o relatório está
++ * saindo da página ou subindo sozinho e eu tenho que reiniciar a todo
++ * momento".
++ * ------------------------------------------------------------------------ */
++
++/*
++ * Causa raiz do "sai da página / sobe sozinho". O iOS amplia a página
++ * sozinho sempre que o foco cai num campo com fonte menor que 16px — e os
++ * campos do wizard estavam todos em `text-sm` (14px). O zoom desloca a
++ * viewport, o cabeçalho e o rodapé saem do visível, e a rolagem passa a
++ * parecer que "subiu sozinha". 16px é o limiar exato do WebKit: em 16px o
++ * zoom simplesmente não dispara.
++ *
++ * Feito aqui, e não trocando `text-sm` por `text-base` campo a campo, para
++ * valer também pra todo campo novo que entrar no wizard depois — é uma
++ * regra da plataforma, não uma escolha de tipografia deste ou daquele
++ * formulário. O seletor `.ronda-locked input` (0,1,1) vence `.text-sm`
++ * (0,1,0) por especificidade, e a regra vem depois de `@tailwind
++ * utilities` na cascata.
++ */
++.ronda-locked input,
++.ronda-locked select,
++.ronda-locked textarea {
++  font-size: 16px;
++}
++
++/*
++ * Nenhuma rolagem no documento — quem rola é só a `<main>` do wizard. Antes
++ * o `<body>` também rolava (o shell usava `min-h-dvh`, altura *mínima*, que
++ * não limita o filho `flex-1 overflow-y-auto` a altura nenhuma): dois
++ * contêineres roláveis empilhados, cabeçalho e rodapé fugindo da tela e o
++ * dedo pegando um ou outro sem previsibilidade.
++ */
++.ronda-locked,
++.ronda-locked body {
++  height: 100%;
++  overflow: hidden;
++  /* Mata o "puxa e volta" elástico do iOS, que na prática levava a página
++     inteira junto quando a rolagem da `<main>` chegava ao fim. */
++  overscroll-behavior: none;
++}
++
++/* O degradê do Modo Usuário é caro de repintar a cada rolagem num celular
++   de campo, e some por baixo do shell opaco de qualquer jeito. */
++.ronda-locked body {
++  background-image: none;
++}
++
++/*
++ * Altura *fixa* da viewport, não mínima — é o que dá ao `<main>` interno um
++ * limite concreto pra rolar dentro dele.
++ *
++ * `svh` (small viewport height) e não `dvh`: `dvh` acompanha a barra de
++ * endereços do navegador aparecendo e sumindo, então o shell inteiro
++ * mudava de altura no meio da rolagem e a página dava um pulo — metade do
++ * "sobe sozinho" era isto. `svh` é a altura com a barra visível, e não
++ * muda nunca. `100vh` fica de fallback pra navegador sem suporte a `svh`.
++ */
++.ronda-shell {
++  height: 100vh;
++  height: 100svh;
++}
++
++/*
++ * Recortes da tela (notch, ilha dinâmica, risquinho do iPhone). O layout
++ * declara `viewportFit: "cover"` e `statusBarStyle: "black-translucent"`,
++ * ou seja, pede explicitamente pra desenhar por baixo da UI do sistema —
++ * sem estas margens, o cabeçalho ficava sob o relógio e os botões
++ * Voltar/Avançar sob o risquinho, intocáveis.
++ */
++.ronda-chrome-top {
++  padding-top: env(safe-area-inset-top);
++}
++
++.ronda-chrome-bottom {
++  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
++}
++
++.ronda-scroll-pad {
++  padding-bottom: calc(1rem + env(safe-area-inset-bottom));
++}
++
+ .scanline::before {
+   content: "";
+   position: absolute;
+diff --git a/app/ronda/layout.tsx b/app/ronda/layout.tsx
+index 5feab3b..da85dce 100644
+--- a/app/ronda/layout.tsx
++++ b/app/ronda/layout.tsx
+@@ -1,6 +1,7 @@
+ import type { Metadata, Viewport } from "next";
+ import { RegisterServiceWorker } from "@/components/ronda/register-service-worker";
+ import { RondaThemeProvider } from "@/components/ronda/theme-provider";
++import { ViewportLock } from "@/components/ronda/viewport-lock";
+ 
+ /**
+  * Superfície nova e separada do Forge (ADR-021, Decisão 1) — mobile-first,
+@@ -29,13 +30,25 @@ export const viewport: Viewport = {
+   themeColor: "#1E2761",
+   width: "device-width",
+   initialScale: 1,
+-  maximumScale: 1,
++  // `maximumScale: 1` foi removido (achado de campo, 16/08/2026). Ele não
++  // impede o zoom automático que o iOS dá ao focar um campo com fonte menor
++  // que 16px — só impede a pessoa de desfazer esse zoom com o gesto de
++  // pinça. O resultado em campo era a tela travada ampliada e deslocada,
++  // com cabeçalho e botões fora do visível, sem saída a não ser fechar e
++  // reabrir o app. A causa raiz (fonte < 16px nos campos) está corrigida em
++  // `globals.css`; travar a escala por cima disso só tirava a última
++  // válvula de escape — e, de quebra, quebrava a acessibilidade de quem
++  // precisa ampliar pra ler.
+   viewportFit: "cover",
++  // Teclado do Android passa a encolher a viewport em vez de cobrir o
++  // rodapé — sem isto, os botões Voltar/Avançar ficam por baixo do teclado.
++  interactiveWidget: "resizes-content",
+ };
+ 
+ export default function RondaLayout({ children }: { children: React.ReactNode }) {
+   return (
+     <RondaThemeProvider>
++      <ViewportLock />
+       <RegisterServiceWorker />
+       {children}
+     </RondaThemeProvider>
+diff --git a/components/ronda/ronda-wizard.tsx b/components/ronda/ronda-wizard.tsx
+index f54b75b..9d92bc9 100644
+--- a/components/ronda/ronda-wizard.tsx
++++ b/components/ronda/ronda-wizard.tsx
+@@ -20,7 +20,7 @@ import {
+   type SuggestionRecord,
+ } from "@/lib/ronda/types";
+ import { getFlags, getSugestoes, postCorrecaoSugestao, RondaSubmitError } from "@/lib/ronda/api-client";
+-import { enqueueRonda } from "@/lib/ronda/db";
++import { enqueueRonda, loadDraft, saveDraft, clearDraft } from "@/lib/ronda/db";
+ import { useRondaQueue } from "@/lib/ronda/use-ronda-queue";
+ import { QueueStatusBar } from "./queue-status-bar";
+ import { FindingCard } from "./finding-card";
+@@ -103,6 +103,39 @@ export function RondaWizard() {
+   /** Sugestão original (flag ou foto/Fase 4) que pré-preencheu cada achado — Decisão 3, comparado contra o valor salvo na hora de concluir. */
+   const [suggestionOrigins, setSuggestionOrigins] = useState<Record<string, SuggestionRecord>>({});
+ 
++  /** `false` até a tentativa de recuperar o rascunho terminar — trava o autosave pra ele não gravar o estado inicial vazio por cima de um rascunho bom. */
++  const [draftLoaded, setDraftLoaded] = useState(false);
++  /** Houve rascunho recuperado nesta montagem — vira um aviso na tela, pra pessoa saber por que os campos já vieram preenchidos. */
++  const [draftRecovered, setDraftRecovered] = useState(false);
++
++  // Recupera a ronda em andamento (ver `saveDraft` em `lib/ronda/db.ts`).
++  // Roda antes de qualquer digitação, na montagem — se a aba caiu no meio
++  // da ronda, a pessoa volta exatamente na etapa onde estava, com os
++  // achados e as fotos.
++  useEffect(() => {
++    let cancelled = false;
++    void loadDraft()
++      .then((draft) => {
++        if (cancelled || !draft) return;
++        setMetadata(draft.metadata);
++        setFindings(draft.findings);
++        setClosing(draft.closing);
++        setCheckedFlags(new Set(draft.checkedFlags));
++        setSuggestionOrigins(draft.suggestionOrigins);
++        // `done` nunca deveria estar gravado (a conclusão apaga o rascunho),
++        // mas um rascunho antigo/corrompido não pode devolver a pessoa a uma
++        // tela de sucesso que não aconteceu.
++        if (draft.step === "A" || draft.step === "B" || draft.step === "C") setStep(draft.step);
++        setDraftRecovered(true);
++      })
++      .finally(() => {
++        if (!cancelled) setDraftLoaded(true);
++      });
++    return () => {
++      cancelled = true;
++    };
++  }, []);
++
+   useEffect(() => {
+     let cancelled = false;
+     getFlags()
+@@ -120,6 +153,45 @@ export function RondaWizard() {
+   const pending = useMemo(() => pendingFindings(findings), [findings]);
+   const canConclude = pending.length === 0;
+ 
++  /**
++   * `data` fica de fora de propósito: `emptyMetadata()` já nasce com a data
++   * de hoje, então ela não distingue "ronda começada" de "tela recém-aberta"
++   * — considerá-la faria toda visita gravar um rascunho vazio e, na visita
++   * seguinte, anunciar uma recuperação que não recuperou nada.
++   */
++  const hasDraftContent = useMemo(
++    () =>
++      Boolean(metadata.titulo.trim() || metadata.local.trim() || metadata.responsavel.trim() || metadata.turno.trim()) ||
++      findings.length > 0 ||
++      checkedFlags.size > 0 ||
++      Boolean(closing.observacoesGerais?.trim()),
++    [metadata, findings, checkedFlags, closing],
++  );
++
++  // Autosave do rascunho. Debounce de 600ms porque a dependência inclui
++  // `findings` — que muda a cada tecla digitada num campo de achado — e
++  // gravar fotos em base64 no IndexedDB a cada tecla travaria a digitação
++  // num celular de campo. Sem rascunho ainda em branco: se a pessoa
++  // esvaziou tudo, o registro é apagado em vez de gravado vazio.
++  useEffect(() => {
++    if (!draftLoaded || step === "done") return;
++    const timer = setTimeout(() => {
++      if (!hasDraftContent) {
++        void clearDraft();
++        return;
++      }
++      void saveDraft({
++        step,
++        metadata,
++        findings,
++        closing,
++        checkedFlags: Array.from(checkedFlags),
++        suggestionOrigins,
++      });
++    }, 600);
++    return () => clearTimeout(timer);
++  }, [draftLoaded, hasDraftContent, step, metadata, findings, closing, checkedFlags, suggestionOrigins]);
++
+   function updateFinding(next: RondaFinding) {
+     setFindings((current) => current.map((f) => (f.id === next.id ? next : f)));
+   }
+@@ -179,6 +251,11 @@ export function RondaWizard() {
+   async function handleConclude() {
+     if (!canConclude) return;
+     const item = await enqueueRonda({ metadata, achados: findings, encerramento: closing });
++    // A ronda virou item de fila — o rascunho já cumpriu o papel dele e
++    // some, pra próxima abertura do app não oferecer "recuperar" uma ronda
++    // que já foi concluída.
++    void clearDraft();
++    setDraftRecovered(false);
+     setSavedLocally(true);
+     void syncNow(); // tenta enviar imediatamente se houver rede; se não, fica na fila e o evento 'online' cuida do resto.
+     setStep("done");
+@@ -210,32 +287,55 @@ export function RondaWizard() {
+     setSuggestionsByFlag({});
+     setSuggestionOrigins({});
+     setSavedLocally(false);
++    setDraftRecovered(false);
++    void clearDraft();
+     setStep("A");
+   }
+ 
+   return (
+-    <div className="flex min-h-dvh flex-col">
+-      <QueueStatusBar
+-        counts={counts}
+-        onSyncNow={() => void syncNow()}
+-        invalidItems={queueItems.filter((item) => item.status === "invalid")}
+-        onDiscardInvalid={(localId) => void discardInvalid(localId)}
+-      />
+-
+-      <header className="flex items-start justify-between gap-2 border-b border-black/10 px-4 py-3 dark:border-white/10">
+-        <div>
+-          <h1 className="text-base font-semibold text-slate-900 dark:text-slate-100">LUNA Safety Walk</h1>
+-          <p className="text-xs text-slate-600 dark:text-slate-400">
+-            {step === "A" && "Etapa 1 de 3 — Dados do LUNA Safety Walk"}
+-            {step === "B" && "Etapa 2 de 3 — Flags de risco e achados"}
+-            {step === "C" && "Etapa 3 de 3 — Encerramento"}
+-            {step === "done" && "LUNA Safety Walk registrado"}
+-          </p>
+-        </div>
+-        <ThemeToggle />
+-      </header>
++    <div className="ronda-shell flex flex-col overflow-hidden">
++      <div className="ronda-chrome-top shrink-0">
++        <QueueStatusBar
++          counts={counts}
++          onSyncNow={() => void syncNow()}
++          invalidItems={queueItems.filter((item) => item.status === "invalid")}
++          onDiscardInvalid={(localId) => void discardInvalid(localId)}
++        />
++
++        <header className="flex items-start justify-between gap-2 border-b border-black/10 px-4 py-3 dark:border-white/10">
++          <div>
++            <h1 className="text-base font-semibold text-slate-900 dark:text-slate-100">LUNA Safety Walk</h1>
++            <p className="text-xs text-slate-600 dark:text-slate-400">
++              {step === "A" && "Etapa 1 de 3 — Dados do LUNA Safety Walk"}
++              {step === "B" && "Etapa 2 de 3 — Flags de risco e achados"}
++              {step === "C" && "Etapa 3 de 3 — Encerramento"}
++              {step === "done" && "LUNA Safety Walk registrado"}
++            </p>
++          </div>
++          <ThemeToggle />
++        </header>
++      </div>
++
++      {/* `min-h-0` é o que transforma o `flex-1` numa altura de verdade:
++          sem ele, o `min-height: auto` que o flex dá de padrão ao filho
++          deixa a `<main>` crescer junto com o conteúdo, e o
++          `overflow-y-auto` nunca chega a valer — quem rolava era o
++          documento inteiro, levando cabeçalho e rodapé embora. */}
++      <main className="ronda-scroll-pad min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
++        {draftRecovered && step !== "done" && (
++          <div className="mb-3 flex items-start justify-between gap-3 rounded border border-cyan-500/40 bg-cyan-500/10 p-2.5 text-xs text-cyan-800 dark:text-cyan-300">
++            <p>
++              Ronda em andamento recuperada deste aparelho — nada do que você já tinha preenchido se perdeu.
++              <button type="button" onClick={startNewRonda} className="ml-2 underline">
++                Começar do zero
++              </button>
++            </p>
++            <button type="button" onClick={() => setDraftRecovered(false)} className="shrink-0 underline" aria-label="Dispensar aviso">
++              ok
++            </button>
++          </div>
++        )}
+ 
+-      <main className="flex-1 overflow-y-auto px-4 py-4">
+         {step === "A" && (
+           <div className="flex flex-col gap-3">
+             <label className="flex flex-col gap-1 text-xs text-slate-600 dark:text-slate-400">
+@@ -384,7 +484,7 @@ export function RondaWizard() {
+       </main>
+ 
+       {step !== "done" && (
+-        <footer className="flex items-center justify-between gap-2 border-t border-black/10 px-4 py-3 dark:border-white/10">
++        <footer className="ronda-chrome-bottom flex shrink-0 items-center justify-between gap-2 border-t border-black/10 px-4 py-3 dark:border-white/10">
+           <button
+             type="button"
+             disabled={step === "A"}
+diff --git a/components/ronda/viewport-lock.tsx b/components/ronda/viewport-lock.tsx
+new file mode 100644
+index 0000000..3c713fa
+--- /dev/null
++++ b/components/ronda/viewport-lock.tsx
+@@ -0,0 +1,24 @@
++"use client";
++
++import { useEffect } from "react";
++
++/**
++ * Marca `<html>` enquanto a pessoa está em `/ronda`, pra `globals.css`
++ * poder aplicar as regras da superfície de campo (rolagem travada na
++ * viewport, fonte mínima de 16px nos campos) sem vazar pro Forge nem pro
++ * Modo Usuário, que dividem o mesmo `<body>` do layout raiz.
++ *
++ * Uma classe num efeito, e não `body:has(.ronda-shell)`: `:has()` só existe
++ * a partir do Safari 15.4, e o parque de celulares que roda o Safety Walk
++ * em campo não é escolhido por nós. A classe funciona em qualquer
++ * navegador que rode React.
++ */
++export function ViewportLock() {
++  useEffect(() => {
++    const root = document.documentElement;
++    root.classList.add("ronda-locked");
++    return () => root.classList.remove("ronda-locked");
++  }, []);
++
++  return null;
++}
+diff --git a/lib/ronda/db.ts b/lib/ronda/db.ts
+index c1f27dd..f41a1d3 100644
+--- a/lib/ronda/db.ts
++++ b/lib/ronda/db.ts
+@@ -10,11 +10,24 @@
+  * a superfície usada aqui é pequena o bastante (dois stores, chave simples)
+  * para não justificar uma dependência nova só para isto.
+  */
+-import type { RondaSubmission } from "./types";
++import type { RondaSubmission, RondaMetadata, RondaFinding, RondaClosing, SuggestionRecord } from "./types";
+ 
+ const DB_NAME = "luna-ronda";
+-const DB_VERSION = 2;
++const DB_VERSION = 3;
+ const STORE = "queue";
++/**
++ * Rascunho da ronda em andamento (achado de campo, 16/08/2026): até aqui o
++ * wizard mantinha tudo só em memória React e só gravava algo em IndexedDB
++ * na conclusão — qualquer recarga da aba apagava a ronda inteira. E recarga
++ * não é hipótese remota em campo: o iOS descarta a aba de um PWA sob
++ * pressão de memória com facilidade, e abrir a câmera é justamente o
++ * momento de maior pressão. O rascunho é gravado continuamente aqui, com
++ * foto e tudo (por isso IndexedDB e não localStorage: as fotos são base64 e
++ * estouram a cota de ~5MB), e apagado na conclusão. Uma ronda em andamento
++ * por vez — chave fixa `current`.
++ */
++const DRAFT_STORE = "draft";
++const DRAFT_KEY = "current";
+ /**
+  * Foto original de campo, preservada localmente (Decisão 4 da revisão de
+  * arquitetura — `Luna-context.md`, `GENESIS/RESEARCH/
+@@ -75,6 +88,11 @@ function openDb(): Promise<IDBDatabase> {
+         const originalPhotos = db.createObjectStore(ORIGINAL_PHOTOS_STORE, { keyPath: "id" });
+         originalPhotos.createIndex("achadoId", "achadoId", { unique: false });
+       }
++      // Sem `keyPath` — o rascunho é um registro único, endereçado pela
++      // chave externa fixa `DRAFT_KEY`, não por um campo de dentro dele.
++      if (!db.objectStoreNames.contains(DRAFT_STORE)) {
++        db.createObjectStore(DRAFT_STORE);
++      }
+     };
+     request.onsuccess = () => resolve(request.result);
+     request.onerror = () => reject(request.error ?? new Error("Falha ao abrir o banco local (IndexedDB) da Ronda."));
+@@ -199,3 +217,55 @@ export async function getOriginalPhotosForFinding(achadoId: string): Promise<Ori
+   const all = await runTransaction<OriginalPhotoRecord[]>(ORIGINAL_PHOTOS_STORE, "readonly", (store) => store.getAll());
+   return all.filter((record) => record.achadoId === achadoId).sort((a, b) => a.index - b.index);
+ }
++
++/**
++ * Estado do wizard suficiente pra remontar a tela exatamente onde a pessoa
++ * parou. `checkedFlags` vira array porque `Set` não sobrevive ao
++ * structured clone do IndexedDB de forma útil pro resto do código; as
++ * sugestões carregadas por flag (`suggestionsByFlag`) ficam de fora de
++ * propósito — são cache de rede, rebuscáveis, não dado do usuário.
++ */
++export interface RondaDraft {
++  step: string;
++  metadata: RondaMetadata;
++  findings: RondaFinding[];
++  closing: RondaClosing;
++  checkedFlags: string[];
++  suggestionOrigins: Record<string, SuggestionRecord>;
++  updatedAt: string;
++}
++
++/**
++ * Grava o rascunho da ronda em andamento. Nunca lança: perder o rascunho é
++ * ruim, mas derrubar o preenchimento em campo por causa de uma cota cheia
++ * de IndexedDB seria pior — a falha é registrada e o wizard segue com o
++ * estado em memória, que é o mesmo comportamento que existia antes.
++ */
++export async function saveDraft(draft: Omit<RondaDraft, "updatedAt">): Promise<void> {
++  const record: RondaDraft = { ...draft, updatedAt: new Date().toISOString() };
++  try {
++    await runTransaction(DRAFT_STORE, "readwrite", (store) => store.put(record, DRAFT_KEY));
++  } catch (error) {
++    console.warn("[ronda] falha ao salvar o rascunho local", error);
++  }
++}
++
++/** Lê o rascunho da ronda em andamento, ou `null` se não houver (ou se a leitura falhar — nunca lança, mesmo motivo de `saveDraft`). */
++export async function loadDraft(): Promise<RondaDraft | null> {
++  try {
++    const record = await runTransaction<RondaDraft | undefined>(DRAFT_STORE, "readonly", (store) => store.get(DRAFT_KEY));
++    return record ?? null;
++  } catch (error) {
++    console.warn("[ronda] falha ao ler o rascunho local", error);
++    return null;
++  }
++}
++
++/** Apaga o rascunho — chamado quando a ronda é concluída (já virou item de fila) ou descartada explicitamente pelo usuário. */
++export async function clearDraft(): Promise<void> {
++  try {
++    await runTransaction(DRAFT_STORE, "readwrite", (store) => store.delete(DRAFT_KEY));
++  } catch (error) {
++    console.warn("[ronda] falha ao apagar o rascunho local", error);
++  }
++}
+-- 
+2.43.0
+
+
+From 25f78a9598663afad1a8cc1d84a9a16964439074 Mon Sep 17 00:00:00 2001
+From: Rubens Ramos Rodrigues Jr <raugustorubens@gmail.com>
+Date: Sun, 16 Aug 2026 14:13:23 +0000
+Subject: [PATCH 2/5] =?UTF-8?q?fix(ronda):=20destrava=20ronda=20presa=20em?=
+ =?UTF-8?q?=20"enviando=E2=80=A6"=20para=20sempre=20na=20fila?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Achado de campo em 16/08/2026, na sequência do bug de viewport: a barra de
+status mostrava "0 pendentes / 1 enviando… / 1 confirmada no servidor", e o
+"1 enviando…" não saía dali nunca — com uma ronda inteira dentro.
+
+`trySyncPendingRondas` grava `status: "syncing"` no IndexedDB *antes* de
+disparar a requisição, e o filtro de reenvio só considerava
+"pending"/"error". Se a aba morre entre uma coisa e outra — Chrome
+descartando aba em segundo plano, app fechado, rede pendurada — o item fica
+gravado como "syncing" permanentemente:
+
+  - nenhum gatilho de retry o alcança (nem o evento `online`, nem a
+    reabertura do app, nem o "Sincronizar agora" da barra de status, que
+    chamam todos a mesma função);
+  - `discardInvalidQueueItem` só atende status "invalid", então nem
+    descartar pela interface dava;
+  - a ronda continua íntegra em IndexedDB, mas inalcançável.
+
+Ou seja: o dado não se perdia, mas nunca mais subia e não havia como
+destravar sem DevTools — inviável em campo.
+
+`reclaimStaleSyncing` roda no início de `trySyncPendingRondas`, logo depois
+do guarda `if (syncing) return`: nesse ponto sabidamente não há envio em
+curso nesta aba, então todo "syncing" no banco é herança de uma sessão que
+não existe mais, e volta pra "pending".
+
+Troca assumida conscientemente: se a requisição chegou a completar no
+servidor e só o registro local do sucesso se perdeu, o reenvio gera uma
+ronda duplicada. Duplicata é visível no histórico e descartável; ronda
+perdida em campo não volta. O caminho correto é o backend aceitar `localId`
+como chave de idempotência — pendência a levar pra luna-core, anotada no
+comentário da função.
+
+3 testes novos sobre a parte pura (42 no total, todos passando). typecheck
+e build ok.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_017NbQ9WQsAwP5FDgH9yEnw9
+---
+ lib/ronda/__tests__/queue.test.ts | 41 +++++++++++++++++++++++++++-
+ lib/ronda/queue.ts                | 44 +++++++++++++++++++++++++++++--
+ 2 files changed, 82 insertions(+), 3 deletions(-)
+
+diff --git a/lib/ronda/__tests__/queue.test.ts b/lib/ronda/__tests__/queue.test.ts
+index 04346b8..16b39a5 100644
+--- a/lib/ronda/__tests__/queue.test.ts
++++ b/lib/ronda/__tests__/queue.test.ts
+@@ -1,6 +1,7 @@
+ import assert from "node:assert/strict";
+ import test from "node:test";
+-import { isPermanentRejection } from "../queue";
++import { isPermanentRejection, reclaimStaleSyncingItems } from "../queue";
++import type { QueueItem } from "../db";
+ import { RondaSubmitError } from "../api-client";
+ 
+ test("isPermanentRejection is true for a 422 validation rejection", () => {
+@@ -12,3 +13,41 @@ test("isPermanentRejection is false for a network/5xx failure", () => {
+   assert.equal(isPermanentRejection(new TypeError("Failed to fetch")), false);
+   assert.equal(isPermanentRejection(new RondaSubmitError("sem status")), false);
+ });
++
++/**
++ * Achado de campo 16/08/2026: a barra de status mostrava "1 enviando…"
++ * indefinidamente e o item nunca mais era reenviado — `trySyncPendingRondas`
++ * só olhava "pending"/"error", então uma aba que morreu no meio do envio
++ * deixava a ronda presa em "syncing" pra sempre.
++ */
++function queued(status: QueueItem["status"], localId: string): QueueItem {
++  return {
++    localId,
++    submission: { metadata: { titulo: "x", data: "2026-08-16", local: "x", responsavel: "x", turno: "x" }, achados: [], encerramento: { incluirGraficoResumo: false } },
++    status,
++    createdAt: "2026-08-16T14:00:00.000Z",
++    attempts: 0,
++  };
++}
++
++test("reclaimStaleSyncingItems devolve item preso em 'syncing' para a fila de envio", () => {
++  const reclaimed = reclaimStaleSyncingItems([queued("syncing", "presa")]);
++  assert.equal(reclaimed[0].status, "pending");
++  assert.equal(reclaimed[0].localId, "presa");
++  // O que importa de fato: depois da recuperação o item volta a ser elegível
++  // pro mesmo filtro que `trySyncPendingRondas` aplica.
++  assert.equal(reclaimed.filter((i) => i.status === "pending" || i.status === "error").length, 1);
++});
++
++test("reclaimStaleSyncingItems não mexe nos outros status", () => {
++  const original = [queued("pending", "a"), queued("synced", "b"), queued("error", "c"), queued("invalid", "d")];
++  assert.deepEqual(
++    reclaimStaleSyncingItems(original).map((i) => i.status),
++    ["pending", "synced", "error", "invalid"],
++  );
++});
++
++test("reclaimStaleSyncingItems limpa o erro herdado da tentativa interrompida", () => {
++  const stale: QueueItem = { ...queued("syncing", "presa"), lastError: "Falha ao enviar ronda (HTTP 500)." };
++  assert.equal(reclaimStaleSyncingItems([stale])[0].lastError, undefined);
++});
+diff --git a/lib/ronda/queue.ts b/lib/ronda/queue.ts
+index 5c3c419..7b93f6f 100644
+--- a/lib/ronda/queue.ts
++++ b/lib/ronda/queue.ts
+@@ -19,14 +19,54 @@ export function isPermanentRejection(error: unknown): boolean {
+   return error instanceof RondaSubmitError && error.status === 422;
+ }
+ 
+-/** Tenta enviar todo item "pending"/"error" da fila, um de cada vez (evita disparar N requisições simultâneas de foto grande na primeira reconexão). */
++/**
++ * Devolve à fila os itens presos em "syncing" — achado de campo em
++ * 16/08/2026 (barra de status mostrando "1 enviando…" indefinidamente, com
++ * uma ronda inteira dentro).
++ *
++ * `trySyncPendingRondas` grava "syncing" *antes* de disparar a requisição.
++ * Se a aba morre no meio (Chrome descartando aba em segundo plano, app
++ * fechado, rede pendurada), o item fica gravado como "syncing" pra sempre —
++ * e o filtro de reenvio só pegava "pending"/"error". Resultado: ronda
++ * íntegra no IndexedDB, invisível pra todo mecanismo de retry, sem nenhuma
++ * forma de destravar pela interface.
++ *
++ * Só é chamada de dentro de `trySyncPendingRondas`, logo depois do guarda
++ * `if (syncing) return` — ou seja, num momento em que sabidamente não há
++ * envio em curso *nesta* aba. Todo "syncing" que sobrou no banco é,
++ * portanto, herança de uma sessão que não existe mais.
++ *
++ * Risco assumido conscientemente: se a requisição chegou a completar no
++ * servidor e só o registro local do sucesso se perdeu, o reenvio cria uma
++ * ronda duplicada. Duplicata é visível e descartável pelo histórico; ronda
++ * perdida em campo não se recupera de jeito nenhum. Enquanto o backend não
++ * aceitar `localId` como chave de idempotência (pendência a levar pra
++ * luna-core), essa é a troca certa. Mesma ressalva pro caso raro de duas
++ * abas abertas: a segunda pode reclamar um envio ainda em curso na primeira.
++ */
++/** Parte pura da recuperação (testável sem IndexedDB): "syncing" vira "pending", o resto passa intacto. */
++export function reclaimStaleSyncingItems(items: QueueItem[]): QueueItem[] {
++  return items.map((item) => (item.status === "syncing" ? { ...item, status: "pending", lastError: undefined } : item));
++}
++
++async function reclaimStaleSyncing(items: QueueItem[], onProgress?: (item: QueueItem) => void): Promise<QueueItem[]> {
++  const reclaimed = reclaimStaleSyncingItems(items);
++  for (const [index, item] of items.entries()) {
++    if (item.status !== "syncing") continue;
++    await updateQueueItem(item.localId, { status: "pending", lastError: undefined });
++    onProgress?.(reclaimed[index]);
++  }
++  return reclaimed;
++}
++
++/** Tenta enviar todo item "pending"/"error" da fila, um de cada vez (evita disparar N requisições simultâneas de foto grande na primeira reconexão). Itens órfãos em "syncing" voltam pra "pending" antes — ver `reclaimStaleSyncing`. */
+ export async function trySyncPendingRondas(onProgress?: (item: QueueItem) => void): Promise<void> {
+   if (syncing) return; // evita corridas: evento 'online' + chamada manual ao mesmo tempo
+   if (typeof navigator !== "undefined" && !navigator.onLine) return;
+ 
+   syncing = true;
+   try {
+-    const items = await listQueue();
++    const items = await reclaimStaleSyncing(await listQueue(), onProgress);
+     const toSend = items.filter((item) => item.status === "pending" || item.status === "error");
+ 
+     for (const item of toSend) {
+-- 
+2.43.0
+
+
+From 1c8da0959bfa99321fecf881f0bb1eddba7ed012 Mon Sep 17 00:00:00 2001
+From: Rubens Ramos Rodrigues Jr <raugustorubens@gmail.com>
+Date: Sun, 16 Aug 2026 14:56:24 +0000
+Subject: [PATCH 3/5] =?UTF-8?q?feat(ronda):=20fila=20local=20vis=C3=ADvel?=
+ =?UTF-8?q?=20e=20edit=C3=A1vel=20em=20"Ver=20rondas=20anteriores"?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Pedido de campo em 16/08/2026, depois de uma ronda sumir de vista: "quero
+poder editar rondas anteriores clicando em ver rondas anteriores... preciso
+debugar e evitar que essa situação recorra".
+
+O problema não era a ronda específica, era a cegueira. A tela listava só o
+que o servidor havia confirmado (`GET /convergia/ronda`); a fila local
+existia apenas como *contagem* na barra de status. Uma ronda pendente,
+travada ou rejeitada não dava pra abrir, nem pra ver o que tinha dentro,
+nem pra saber por que não subiu. Não havia tela nenhuma capaz de responder
+"cadê minha ronda" — e o único registro do erro (`lastError`) só era
+exibido para itens "invalid".
+
+O que muda:
+
+- `lib/ronda/list-view.ts` (novo): funde servidor + fila numa lista só,
+  ordenada por data da ronda. Função pura, testável sem IndexedDB nem rede.
+  `server === null` (inalcançável) é tratado diferente de `[]` (respondeu
+  vazio): sem servidor, itens já sincronizados continuam listados, pra tela
+  não ficar vazia justamente em campo; com servidor, são omitidos porque o
+  registro dele é o canônico. `countIdentified` espelha a contagem do
+  backend — número que muda sozinho ao sincronizar faz a pessoa desconfiar
+  de perda de dado.
+
+- `RondaList`: etiqueta de estado por item (no servidor / aguardando envio /
+  enviando / falhou / rejeitada), `lastError` à mostra, e falha do servidor
+  deixa de esvaziar a tela — vira um aviso com "tentar de novo" acima dos
+  itens locais.
+
+- `RondaEditor`: passa a atender as duas origens (`server` | `queue`).
+  Ronda local abre em `/ronda/fila/[localId]` com os mesmos `FindingCard`,
+  fotos inclusive; salvar grava no IndexedDB, devolve o item pra "pending" e
+  dispara o envio — que é o que fecha o ciclo pra uma ronda rejeitada por
+  formato: corrigir e reenviar, em vez de refazer do zero.
+
+- Remover achado passa a existir **só** no modo `queue`, e a assimetria é
+  proposital: `PATCH /convergia/ronda/:id` faz upsert por `id` e não tem
+  como dizer "este achado saiu", então um "×" no modo servidor removeria o
+  card, salvaria com sucesso e o achado voltaria no próximo carregamento —
+  falha silenciosa. Local, o registro é substituído inteiro e a remoção é
+  real. Descartar o item local também só existe aqui, pelo mesmo motivo de
+  origem: esse registro só vive no aparelho.
+
+- Correção de viewport (commit b975735) estendida à lista e ao editor, que
+  também usavam `min-h-dvh` + `flex-1 overflow-y-auto` e portanto também
+  rolavam o documento inteiro.
+
+Verificado em Pixel 7 emulado, com o backend fora do ar de propósito (que é
+o cenário de campo): ronda concluída aparece na lista com o estado e o erro
+reais, abre com os dois achados e a observação, edição persiste após
+reload, remoção de achado persiste, descarte esvazia a lista, e o documento
+não rola em nenhuma das telas. 7 testes novos (49 no total), typecheck e
+build ok.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_017NbQ9WQsAwP5FDgH9yEnw9
+---
+ app/ronda/fila/[localId]/page.tsx     |  13 ++
+ components/ronda/ronda-editor.tsx     | 194 ++++++++++++++++++--------
+ components/ronda/ronda-list.tsx       | 136 +++++++++++++-----
+ lib/ronda/__tests__/list-view.test.ts |  81 +++++++++++
+ lib/ronda/db.ts                       |  23 +++
+ lib/ronda/list-view.ts                | 107 ++++++++++++++
+ 6 files changed, 460 insertions(+), 94 deletions(-)
+ create mode 100644 app/ronda/fila/[localId]/page.tsx
+ create mode 100644 lib/ronda/__tests__/list-view.test.ts
+ create mode 100644 lib/ronda/list-view.ts
+
+diff --git a/app/ronda/fila/[localId]/page.tsx b/app/ronda/fila/[localId]/page.tsx
+new file mode 100644
+index 0000000..3230287
+--- /dev/null
++++ b/app/ronda/fila/[localId]/page.tsx
+@@ -0,0 +1,13 @@
++import { RondaQueueEditor } from "@/components/ronda/ronda-editor";
++
++/**
++ * Ronda que ainda está neste aparelho (fila offline). Rota própria, e não o
++ * mesmo `/ronda/historico/[id]` do servidor, de propósito: os dois ids vêm
++ * de espaços diferentes (`ronda_<uuid>` do servidor, `localId` da fila) e
++ * decidir qual é qual por formato do id seria uma adivinhação silenciosa —
++ * a rota diz de onde o registro vem, sem depender de heurística.
++ */
++export default async function RondaFilaPage({ params }: { params: Promise<{ localId: string }> }) {
++  const { localId } = await params;
++  return <RondaQueueEditor localId={localId} />;
++}
+diff --git a/components/ronda/ronda-editor.tsx b/components/ronda/ronda-editor.tsx
+index f35f389..196b2d0 100644
+--- a/components/ronda/ronda-editor.tsx
++++ b/components/ronda/ronda-editor.tsx
+@@ -1,64 +1,110 @@
+ "use client";
+ 
+-import { useEffect, useState } from "react";
++import { useCallback, useEffect, useState } from "react";
+ import { useRouter } from "next/navigation";
+-import { getRonda, patchRonda, RondaSubmitError, type RondaDetail } from "@/lib/ronda/api-client";
+-import { duplicateFinding, type RondaFinding } from "@/lib/ronda/types";
++import { getRonda, patchRonda, RondaSubmitError } from "@/lib/ronda/api-client";
++import { deleteQueueItem, getQueueItem, updateQueueSubmission, type QueueStatus } from "@/lib/ronda/db";
++import { trySyncPendingRondas } from "@/lib/ronda/queue";
++import { duplicateFinding, type RondaFinding, type RondaMetadata } from "@/lib/ronda/types";
++import { ENTRY_STATUS_LABEL } from "@/lib/ronda/list-view";
+ import { FindingCard } from "./finding-card";
+ 
+ /**
+- * Edição de uma ronda já enviada (extensão da Fase 1, CONV-013 —
+- * `PATCH /convergia/ronda/:id`). Reaproveita `FindingCard`, o mesmo
+- * componente de achado do wizard original — nenhuma UI nova de achado só
+- * para edição, achado endereçado por `id` (achado dinâmico, não mais por
+- * `categoria` fixa). Só permite adicionar/editar/duplicar achado e a
+- * observação geral; excluir a ronda inteira não faz parte desta tela
+- * (decisão destrutiva separada, fora de escopo aqui).
++ * Edição de uma ronda, das duas origens que a lista agora mostra:
++ *
++ * - `server` — ronda já confirmada (`GET`/`PATCH /convergia/ronda/:id`,
++ *   extensão da Fase 1, CONV-013);
++ * - `queue`  — ronda que ainda está neste aparelho, em qualquer estado da
++ *   fila offline (achado de campo 16/08/2026: uma ronda que não subiu era
++ *   invisível e inalcançável, ver `lib/ronda/list-view.ts`).
++ *
++ * Reaproveita `FindingCard`, o mesmo componente de achado do wizard —
++ * nenhuma UI nova de achado só para edição. Excluir a ronda do servidor não
++ * faz parte desta tela (decisão destrutiva separada, fora de escopo);
++ * descartar um item da fila local, sim — esse registro só existe aqui e
++ * ficar preso sem saída foi justamente o problema que originou a tela.
+  */
++type EditorSource = { kind: "server"; rondaId: string } | { kind: "queue"; localId: string };
++
+ export function RondaEditor({ rondaId }: { rondaId: string }) {
++  return <Editor source={{ kind: "server", rondaId }} />;
++}
++
++export function RondaQueueEditor({ localId }: { localId: string }) {
++  return <Editor source={{ kind: "queue", localId }} />;
++}
++
++function Editor({ source }: { source: EditorSource }) {
+   const router = useRouter();
+-  const [ronda, setRonda] = useState<RondaDetail | null>(null);
++  const [metadata, setMetadata] = useState<RondaMetadata | null>(null);
+   const [findings, setFindings] = useState<RondaFinding[]>([]);
+   const [observacoesGerais, setObservacoesGerais] = useState("");
++  const [incluirGraficoResumo, setIncluirGraficoResumo] = useState(false);
++  const [queueStatus, setQueueStatus] = useState<QueueStatus | null>(null);
++  const [queueError, setQueueError] = useState<string | undefined>(undefined);
+   const [loadError, setLoadError] = useState<string | null>(null);
+   const [saveError, setSaveError] = useState<string | null>(null);
+   const [saving, setSaving] = useState(false);
+   const [saved, setSaved] = useState(false);
+ 
++  const isQueue = source.kind === "queue";
++
++  const load = useCallback(async () => {
++    if (source.kind === "server") {
++      const detail = await getRonda(source.rondaId);
++      setMetadata(detail.metadata);
++      setFindings(detail.achados);
++      setObservacoesGerais(detail.encerramento.observacoesGerais ?? "");
++      setIncluirGraficoResumo(detail.encerramento.incluirGraficoResumo);
++      return;
++    }
++    const item = await getQueueItem(source.localId);
++    if (!item) throw new RondaSubmitError("Esta ronda não está mais neste aparelho — provavelmente já foi enviada e confirmada.");
++    setMetadata(item.submission.metadata);
++    setFindings(item.submission.achados);
++    setObservacoesGerais(item.submission.encerramento.observacoesGerais ?? "");
++    setIncluirGraficoResumo(item.submission.encerramento.incluirGraficoResumo);
++    setQueueStatus(item.status);
++    setQueueError(item.lastError);
++  }, [source]);
++
+   useEffect(() => {
+     let cancelled = false;
+-    getRonda(rondaId)
+-      .then((detail) => {
+-        if (cancelled) return;
+-        setRonda(detail);
+-        setFindings(detail.achados);
+-        setObservacoesGerais(detail.encerramento.observacoesGerais ?? "");
+-      })
+-      .catch((err: unknown) => {
+-        if (cancelled) return;
+-        setLoadError(err instanceof RondaSubmitError ? err.message : "Falha ao carregar a ronda.");
+-      });
++    load().catch((err: unknown) => {
++      if (cancelled) return;
++      setLoadError(err instanceof RondaSubmitError ? err.message : "Falha ao carregar a ronda.");
++    });
+     return () => {
+       cancelled = true;
+     };
+-  }, [rondaId]);
++  }, [load]);
+ 
+   function updateFinding(next: RondaFinding) {
+     setFindings((current) => current.map((f) => (f.id === next.id ? next : f)));
+   }
+ 
+   async function handleSave() {
++    if (!metadata) return;
+     setSaving(true);
+     setSaveError(null);
+     setSaved(false);
+     try {
+-      const summary = await patchRonda(rondaId, {
+-        achados: findings,
+-        encerramento: { observacoesGerais },
+-      });
+-      setRonda((current) => (current ? { ...current, achados: findings, encerramento: { ...current.encerramento, observacoesGerais } } : current));
++      if (source.kind === "server") {
++        await patchRonda(source.rondaId, { achados: findings, encerramento: { observacoesGerais } });
++      } else {
++        await updateQueueSubmission(source.localId, {
++          metadata,
++          achados: findings,
++          encerramento: { observacoesGerais, incluirGraficoResumo },
++        });
++        setQueueStatus("pending");
++        setQueueError(undefined);
++        // Salvar aqui devolveu o item pra fila; tentar enviar na sequência é
++        // o que fecha o ciclo — sem isto, a pessoa corrige uma ronda
++        // rejeitada e ela fica parada até o próximo evento de rede.
++        void trySyncPendingRondas();
++      }
+       setSaved(true);
+-      void summary;
+     } catch (err) {
+       setSaveError(err instanceof RondaSubmitError ? err.message : "Falha ao salvar a edição.");
+     } finally {
+@@ -66,45 +112,68 @@ export function RondaEditor({ rondaId }: { rondaId: string }) {
+     }
+   }
+ 
++  async function handleDiscard() {
++    if (source.kind !== "queue") return;
++    if (!window.confirm("Descartar esta ronda deste aparelho? Ela ainda não foi enviada, então não há como recuperá-la depois.")) return;
++    await deleteQueueItem(source.localId);
++    router.push("/ronda/historico");
++  }
++
+   if (loadError) {
+     return <p className="p-4 text-sm text-red-400">{loadError}</p>;
+   }
+ 
+-  if (!ronda) {
++  if (!metadata) {
+     return <p className="p-4 text-sm text-slate-500 dark:text-slate-400">Carregando…</p>;
+   }
+ 
+   return (
+-    <div className="flex min-h-dvh flex-col">
+-      <header className="flex items-start justify-between gap-2 border-b border-black/10 px-4 py-3 dark:border-white/10">
+-        <div>
+-          <h1 className="text-base font-semibold text-slate-900 dark:text-slate-100">Editar LUNA Safety Walk</h1>
+-          <p className="text-xs text-slate-600 dark:text-slate-400">
+-            {ronda.metadata.titulo} — {ronda.metadata.local} — {ronda.metadata.data}
+-          </p>
++    <div className="ronda-shell flex flex-col overflow-hidden">
++      <header className="ronda-chrome-top shrink-0 border-b border-black/10 px-4 py-3 dark:border-white/10">
++        <div className="flex items-start justify-between gap-2">
++          <div>
++            <h1 className="text-base font-semibold text-slate-900 dark:text-slate-100">Editar LUNA Safety Walk</h1>
++            <p className="text-xs text-slate-600 dark:text-slate-400">
++              {metadata.titulo} — {metadata.local} — {metadata.data}
++            </p>
++          </div>
++          <button
++            type="button"
++            onClick={() => router.push("/ronda/historico")}
++            className="shrink-0 rounded border border-black/15 px-3 py-1.5 text-xs text-slate-700 dark:border-white/15 dark:text-slate-300"
++          >
++            Voltar à lista
++          </button>
+         </div>
+-        <button
+-          type="button"
+-          onClick={() => router.push("/ronda/historico")}
+-          className="shrink-0 rounded border border-black/15 px-3 py-1.5 text-xs text-slate-700 dark:border-white/15 dark:text-slate-300"
+-        >
+-          Voltar à lista
+-        </button>
++        <p className="mt-1 text-[11px] text-slate-500 dark:text-slate-400">
++          {isQueue ? `Ainda neste aparelho — ${ENTRY_STATUS_LABEL[queueStatus ?? "pending"]}` : ENTRY_STATUS_LABEL.server}
++        </p>
+       </header>
+ 
+-      <main className="flex-1 overflow-y-auto px-4 py-4">
++      <main className="ronda-scroll-pad min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
+         <div className="flex flex-col gap-3">
++          {isQueue && queueError && (
++            <div className="rounded border border-orange-500/40 bg-orange-500/10 p-2.5 text-xs text-orange-800 dark:text-orange-300">
++              <p className="font-medium">O servidor recusou esta ronda:</p>
++              <p className="mt-1">{queueError}</p>
++              <p className="mt-1">Corrija o que estiver faltando abaixo e salve — ela volta pra fila e é reenviada.</p>
++            </div>
++          )}
++
++          {findings.length === 0 && <p className="text-xs text-slate-500 dark:text-slate-400">Esta ronda não tem nenhum achado registrado.</p>}
++
+           {/*
+-            `onRemove` (o "×" do `FindingCard`) está deliberadamente ausente
+-            aqui — não é esquecimento, e passar a prop não faria funcionar.
+-            `PATCH /convergia/ronda/:id` faz **upsert por `id`** (`luna-core`,
+-            `src/convergia/ronda/ronda-store.ts`): `id` conhecido substitui
+-            aquele achado, `id` novo entra na lista — não existe forma de o
+-            patch dizer "este achado saiu". Um "×" nesta tela removeria o
+-            card, salvaria com sucesso e o achado voltaria no próximo
+-            carregamento: falha silenciosa. Habilitar remoção aqui depende de
+-            o contrato ganhar semântica de remoção em `luna-core` primeiro,
+-            o que é decisão do Architect, não ajuste de frontend.
++            `onRemove` só existe no modo `queue`, e a diferença não é
++            arbitrária. `PATCH /convergia/ronda/:id` faz **upsert por `id`**
++            (`luna-core`, `src/convergia/ronda/ronda-store.ts`): `id`
++            conhecido substitui aquele achado, `id` novo entra na lista — não
++            existe forma de o patch dizer "este achado saiu". Um "×" no modo
++            `server` removeria o card, salvaria com sucesso e o achado
++            voltaria no próximo carregamento: falha silenciosa. No modo
++            `queue` o registro é local e é substituído inteiro, então remover
++            funciona de verdade. Habilitar remoção no servidor depende de o
++            contrato ganhar semântica de remoção em `luna-core` primeiro, o
++            que é decisão do Architect, não ajuste de frontend.
+           */}
+           {findings.map((finding) => (
+             <FindingCard
+@@ -112,6 +181,7 @@ export function RondaEditor({ rondaId }: { rondaId: string }) {
+               finding={finding}
+               onChange={updateFinding}
+               onDuplicate={(f) => setFindings((current) => [...current, duplicateFinding(f)])}
++              onRemove={isQueue ? (findingId) => setFindings((current) => current.filter((f) => f.id !== findingId)) : undefined}
+             />
+           ))}
+ 
+@@ -126,18 +196,26 @@ export function RondaEditor({ rondaId }: { rondaId: string }) {
+           </label>
+ 
+           {saveError && <p className="text-xs text-red-400">{saveError}</p>}
+-          {saved && <p className="text-xs text-emerald-500">Alterações salvas.</p>}
++          {saved && (
++            <p className="text-xs text-emerald-500">{isQueue ? "Salvo neste aparelho e recolocado na fila de envio." : "Alterações salvas."}</p>
++          )}
++
++          {isQueue && (
++            <button type="button" onClick={() => void handleDiscard()} className="self-start text-xs text-red-500 underline dark:text-red-400">
++              Descartar esta ronda do aparelho
++            </button>
++          )}
+         </div>
+       </main>
+ 
+-      <footer className="border-t border-black/10 px-4 py-3 dark:border-white/10">
++      <footer className="ronda-chrome-bottom shrink-0 border-t border-black/10 px-4 py-3 dark:border-white/10">
+         <button
+           type="button"
+           disabled={saving}
+           onClick={() => void handleSave()}
+           className="w-full rounded bg-emerald-500 px-4 py-2 text-sm font-medium text-black disabled:opacity-40"
+         >
+-          {saving ? "Salvando…" : "Salvar alterações"}
++          {saving ? "Salvando…" : isQueue ? "Salvar e enviar" : "Salvar alterações"}
+         </button>
+       </footer>
+     </div>
+diff --git a/components/ronda/ronda-list.tsx b/components/ronda/ronda-list.tsx
+index 13733ee..1f28408 100644
+--- a/components/ronda/ronda-list.tsx
++++ b/components/ronda/ronda-list.tsx
+@@ -1,65 +1,129 @@
+ "use client";
+ 
+-import { useEffect, useState } from "react";
++import { useCallback, useEffect, useState } from "react";
+ import Link from "next/link";
+ import { listRondas, RondaSubmitError, type RondaSubmitResult } from "@/lib/ronda/api-client";
++import { buildRondaList, ENTRY_STATUS_LABEL, type RondaListEntry } from "@/lib/ronda/list-view";
++import { useRondaQueue } from "@/lib/ronda/use-ronda-queue";
+ 
+ /**
+- * Lista mínima de rondas já enviadas (extensão da Fase 1, CONV-013 —
+- * `GET /convergia/ronda`). Deliberadamente sem dashboard/filtro/gráfico —
+- * isso é o painel de gestão completo, decisão maior ainda pendente (P3 do
+- * documento de extensão do ADR-021). Só data, local e quantidade de
+- * achados, o bastante para escolher qual ronda abrir para editar.
++ * Lista de rondas — do servidor e do aparelho, numa lista só (achado de
++ * campo 16/08/2026, ver `lib/ronda/list-view.ts`). Continua sem
++ * dashboard/filtro/gráfico: isso é o painel de gestão completo, decisão
++ * maior ainda pendente (P3 do documento de extensão do ADR-021). O que
++ * mudou não foi a ambição da tela, foi o conjunto que ela enxerga.
+  */
++
++/** Cores por estado. Classes estáticas, não template dinâmico — o JIT do Tailwind precisa ver a string inteira no código pra gerar a classe. */
++const STATUS_CLASS: Record<string, string> = {
++  server: "border-emerald-500/40 text-emerald-700 dark:text-emerald-300",
++  pending: "border-amber-500/40 text-amber-700 dark:text-amber-300",
++  syncing: "border-cyan-500/40 text-cyan-700 dark:text-cyan-300",
++  synced: "border-emerald-500/40 text-emerald-700 dark:text-emerald-300",
++  error: "border-red-500/40 text-red-700 dark:text-red-300",
++  invalid: "border-orange-500/40 text-orange-700 dark:text-orange-300",
++};
++
++function StatusTag({ entry }: { entry: RondaListEntry }) {
++  const key = entry.kind === "server" ? "server" : entry.status;
++  return (
++    <span className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] ${STATUS_CLASS[key] ?? STATUS_CLASS.pending}`}>
++      {ENTRY_STATUS_LABEL[key as keyof typeof ENTRY_STATUS_LABEL]}
++    </span>
++  );
++}
++
+ export function RondaList() {
+-  const [rondas, setRondas] = useState<RondaSubmitResult[] | null>(null);
+-  const [error, setError] = useState<string | null>(null);
++  const { items: queueItems, counts, syncNow } = useRondaQueue();
++  /** `null` = ainda carregando ou servidor inalcançável; `[]` = servidor respondeu vazio. `buildRondaList` trata os dois casos de forma diferente. */
++  const [server, setServer] = useState<RondaSubmitResult[] | null>(null);
++  const [serverError, setServerError] = useState<string | null>(null);
++  const [loading, setLoading] = useState(true);
+ 
+-  useEffect(() => {
+-    let cancelled = false;
+-    listRondas()
+-      .then((result) => {
+-        if (!cancelled) setRondas(result);
+-      })
+-      .catch((err: unknown) => {
+-        if (cancelled) return;
+-        setError(err instanceof RondaSubmitError ? err.message : "Falha ao carregar as rondas enviadas.");
+-      });
+-    return () => {
+-      cancelled = true;
+-    };
++  const loadServer = useCallback(async () => {
++    setLoading(true);
++    try {
++      setServer(await listRondas());
++      setServerError(null);
++    } catch (err: unknown) {
++      // Falha do servidor não esvazia mais a tela: os itens do aparelho
++      // continuam listados abaixo do aviso. Em campo, sem rede, esta era
++      // justamente a tela que aparecia vazia bem quando mais importava.
++      setServer(null);
++      setServerError(err instanceof RondaSubmitError ? err.message : "Sem conexão com o servidor — mostrando só o que está neste aparelho.");
++    } finally {
++      setLoading(false);
++    }
+   }, []);
+ 
++  useEffect(() => {
++    void loadServer();
++  }, [loadServer]);
++
++  const entries = buildRondaList(server, queueItems);
++  const localCount = entries.filter((entry) => entry.kind === "queue").length;
++
+   return (
+-    <div className="flex min-h-dvh flex-col">
+-      <header className="border-b border-black/10 px-4 py-3 dark:border-white/10">
+-        <h1 className="text-base font-semibold text-slate-900 dark:text-slate-100">LUNA Safety Walk — rondas anteriores</h1>
+-        <p className="text-xs text-slate-600 dark:text-slate-400">Toque numa ronda para editar achados ou a observação geral.</p>
++    <div className="ronda-shell flex flex-col overflow-hidden">
++      <header className="ronda-chrome-top shrink-0 border-b border-black/10 px-4 py-3 dark:border-white/10">
++        <h1 className="text-base font-semibold text-slate-900 dark:text-slate-100">LUNA Safety Walk — rondas</h1>
++        <p className="text-xs text-slate-600 dark:text-slate-400">
++          Toque numa ronda para editar achados ou a observação geral.
++          {localCount > 0 && ` ${localCount} ainda ${localCount === 1 ? "está" : "estão"} neste aparelho.`}
++        </p>
+       </header>
+ 
+-      <main className="flex-1 overflow-y-auto px-4 py-4">
+-        {error && <p className="text-sm text-red-400">{error}</p>}
+-        {!error && rondas === null && <p className="text-sm text-slate-500 dark:text-slate-400">Carregando…</p>}
+-        {rondas !== null && rondas.length === 0 && (
+-          <p className="text-sm text-slate-500 dark:text-slate-400">Nenhuma ronda enviada ainda.</p>
++      <main className="ronda-scroll-pad min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4">
++        {serverError && (
++          <div className="mb-3 rounded border border-amber-500/40 bg-amber-500/10 p-2.5 text-xs text-amber-800 dark:text-amber-300">
++            <p>{serverError}</p>
++            <button type="button" onClick={() => void loadServer()} className="mt-1 underline">
++              Tentar de novo
++            </button>
++          </div>
+         )}
+ 
++        {loading && server === null && !serverError && <p className="text-sm text-slate-500 dark:text-slate-400">Carregando…</p>}
++
++        {!loading && entries.length === 0 && <p className="text-sm text-slate-500 dark:text-slate-400">Nenhuma ronda ainda.</p>}
++
+         <ul className="flex flex-col gap-2">
+-          {rondas?.map((ronda) => (
+-            <li key={ronda.rondaId}>
++          {entries.map((entry) => (
++            <li key={`${entry.kind}:${entry.id}`}>
+               <Link
+-                href={`/ronda/historico/${ronda.rondaId}`}
+-                className="flex flex-col rounded-lg border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-white/[0.03]"
++                href={entry.kind === "server" ? `/ronda/historico/${entry.id}` : `/ronda/fila/${entry.id}`}
++                className="flex flex-col gap-1 rounded-lg border border-black/10 bg-black/[0.03] p-3 dark:border-white/10 dark:bg-white/[0.03]"
+               >
+-                <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{ronda.titulo}</span>
++                <div className="flex items-start justify-between gap-2">
++                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{entry.titulo || "(sem título)"}</span>
++                  <StatusTag entry={entry} />
++                </div>
+                 <span className="text-xs text-slate-600 dark:text-slate-400">
+-                  {ronda.data} — {ronda.local} — {ronda.achadosCount} achado{ronda.achadosCount === 1 ? "" : "s"}
++                  {entry.data} — {entry.local} — {entry.achadosCount} achado{entry.achadosCount === 1 ? "" : "s"}
+                 </span>
++                {entry.kind === "queue" && entry.lastError && <span className="text-xs text-red-500 dark:text-red-400">{entry.lastError}</span>}
+               </Link>
+             </li>
+           ))}
+         </ul>
+       </main>
++
++      <footer className="ronda-chrome-bottom flex shrink-0 items-center justify-between gap-2 border-t border-black/10 px-4 py-3 dark:border-white/10">
++        <Link href="/ronda" className="rounded border border-black/15 px-4 py-2 text-sm text-slate-700 dark:border-white/15 dark:text-slate-300">
++          Nova ronda
++        </Link>
++        {counts.pending + counts.error + counts.syncing > 0 && (
++          <button
++            type="button"
++            onClick={() => {
++              void syncNow().then(() => loadServer());
++            }}
++            className="rounded bg-cyan-500 px-4 py-2 text-sm font-medium text-black"
++          >
++            Enviar pendentes
++          </button>
++        )}
++      </footer>
+     </div>
+   );
+ }
+diff --git a/lib/ronda/__tests__/list-view.test.ts b/lib/ronda/__tests__/list-view.test.ts
+new file mode 100644
+index 0000000..7f120a4
+--- /dev/null
++++ b/lib/ronda/__tests__/list-view.test.ts
+@@ -0,0 +1,81 @@
++import assert from "node:assert/strict";
++import test from "node:test";
++import { buildRondaList, countIdentified, ENTRY_STATUS_LABEL } from "../list-view";
++import type { QueueItem } from "../db";
++import type { RondaSubmitResult } from "../api-client";
++import type { RondaFinding } from "../types";
++
++function finding(estado: RondaFinding["estado"]): RondaFinding {
++  return { id: `f-${estado}-${Math.random()}`, estado };
++}
++
++function queued(overrides: Partial<QueueItem> & { localId: string; status: QueueItem["status"] }): QueueItem {
++  return {
++    submission: {
++      metadata: { titulo: "Local", data: "2026-08-16", local: "UT", responsavel: "R", turno: "A" },
++      achados: [],
++      encerramento: { incluirGraficoResumo: false },
++    },
++    createdAt: "2026-08-16T10:00:00.000Z",
++    attempts: 0,
++    ...overrides,
++  };
++}
++
++function serverRonda(overrides: Partial<RondaSubmitResult> = {}): RondaSubmitResult {
++  return { rondaId: "ronda_1", titulo: "Servidor", data: "2026-08-11", local: "UT", achadosCount: 0, createdAt: "2026-08-11T10:00:00.000Z", ...overrides };
++}
++
++test("buildRondaList junta servidor e fila local numa lista só", () => {
++  const entries = buildRondaList([serverRonda()], [queued({ localId: "a", status: "pending" })]);
++  assert.deepEqual(
++    entries.map((e) => `${e.kind}:${e.id}`),
++    ["queue:a", "server:ronda_1"], // 16/08 antes de 11/08
++  );
++});
++
++test("buildRondaList ordena por data da ronda, mais recente primeiro, desempatando por createdAt", () => {
++  const entries = buildRondaList(
++    [serverRonda({ rondaId: "antiga", data: "2026-08-01" }), serverRonda({ rondaId: "recente", data: "2026-08-20" })],
++    [
++      queued({ localId: "mesmo-dia-cedo", status: "pending", createdAt: "2026-08-20T08:00:00.000Z" }),
++      queued({ localId: "mesmo-dia-tarde", status: "pending", createdAt: "2026-08-20T18:00:00.000Z" }),
++    ].map((i) => ({ ...i, submission: { ...i.submission, metadata: { ...i.submission.metadata, data: "2026-08-20" } } })),
++  );
++  assert.deepEqual(entries.map((e) => e.id), ["mesmo-dia-tarde", "mesmo-dia-cedo", "recente", "antiga"]);
++});
++
++/**
++ * A distinção entre `null` e `[]` é o comportamento offline da tela: sem
++ * servidor, o que já subiu continua listado (senão a tela fica vazia
++ * justamente em campo); com servidor, o registro dele é o canônico e o
++ * espelho local seria duplicata.
++ */
++test("item já sincronizado é omitido quando o servidor respondeu", () => {
++  const entries = buildRondaList([serverRonda()], [queued({ localId: "espelho", status: "synced" })]);
++  assert.deepEqual(entries.map((e) => e.id), ["ronda_1"]);
++});
++
++test("item já sincronizado aparece quando o servidor está inalcançável", () => {
++  const entries = buildRondaList(null, [queued({ localId: "espelho", status: "synced" })]);
++  assert.deepEqual(entries.map((e) => e.id), ["espelho"]);
++});
++
++test("todo estado da fila tem rótulo, inclusive o que trava a ronda", () => {
++  for (const status of ["pending", "syncing", "synced", "error", "invalid"] as const) {
++    assert.ok(ENTRY_STATUS_LABEL[status], `sem rótulo para ${status}`);
++  }
++  assert.ok(ENTRY_STATUS_LABEL.server);
++});
++
++test("erro do servidor viaja junto do item, pra tela poder mostrar o motivo", () => {
++  const entries = buildRondaList([], [queued({ localId: "rejeitada", status: "invalid", lastError: "achados.0.id: Required" })]);
++  assert.equal(entries[0].kind === "queue" && entries[0].lastError, "achados.0.id: Required");
++});
++
++/** Mesma regra do backend (`ronda-store.ts`): número que muda sozinho ao sincronizar faz a pessoa desconfiar de perda de dado. */
++test("countIdentified conta só achado identificado, igual ao servidor", () => {
++  const item = queued({ localId: "x", status: "pending" });
++  item.submission.achados = [finding("identificado"), finding("identificado"), finding("nao_avaliado"), finding("inexistente")];
++  assert.equal(countIdentified(item), 2);
++});
+diff --git a/lib/ronda/db.ts b/lib/ronda/db.ts
+index f41a1d3..fccdfd5 100644
+--- a/lib/ronda/db.ts
++++ b/lib/ronda/db.ts
+@@ -180,6 +180,29 @@ export async function deleteQueueItem(localId: string): Promise<void> {
+   await runTransaction(STORE, "readwrite", (store) => store.delete(localId));
+ }
+ 
++/** Um item da fila pelo `localId`, ou `null` — usado pela tela de edição de ronda que ainda não subiu (`/ronda/fila/[localId]`). */
++export async function getQueueItem(localId: string): Promise<QueueItem | null> {
++  const item = await runTransaction<QueueItem | undefined>(STORE, "readonly", (store) => store.get(localId));
++  return item ?? null;
++}
++
++/**
++ * Substitui a ronda de um item da fila e o devolve para `pending`.
++ *
++ * Diferente de `PATCH /convergia/ronda/:id`, que faz upsert por `id` de
++ * achado e por isso não sabe remover nada: aqui o registro é local e
++ * inteiro, então a lista de achados é substituída de verdade — remover um
++ * achado nesta tela funciona, e é a única tela onde funciona.
++ *
++ * Voltar para `pending` é o ponto do método: editar um item que o servidor
++ * rejeitou (`invalid`) só tem sentido se a edição o recolocar na fila de
++ * reenvio. `lastError` é limpo junto — o erro descrevia o payload antigo,
++ * mantê-lo faria a tela acusar um problema que a edição pode ter resolvido.
++ */
++export async function updateQueueSubmission(localId: string, submission: RondaSubmission): Promise<void> {
++  await updateQueueItem(localId, { submission, status: "pending", lastError: undefined });
++}
++
+ function fileToBase64(file: File): Promise<string> {
+   return new Promise((resolve, reject) => {
+     const reader = new FileReader();
+diff --git a/lib/ronda/list-view.ts b/lib/ronda/list-view.ts
+new file mode 100644
+index 0000000..d59a55c
+--- /dev/null
++++ b/lib/ronda/list-view.ts
+@@ -0,0 +1,107 @@
++/**
++ * Modelo de exibição único para "Ver rondas anteriores".
++ *
++ * Achado de campo em 16/08/2026: a tela listava só o que o servidor havia
++ * confirmado (`GET /convergia/ronda`), e a fila local aparecia apenas como
++ * *contagem* na barra de status. Uma ronda pendente, travada ou rejeitada
++ * era, na prática, invisível — não dava para abrir, ver o que tinha dentro,
++ * nem saber por que não subiu. Quando uma sumiu de vista em campo, não
++ * havia tela nenhuma capaz de responder "cadê minha ronda".
++ *
++ * Aqui as duas origens viram uma lista só, cada item carregando de onde
++ * veio. Função pura de propósito: é o que permite testar a fusão e a ordem
++ * sem IndexedDB nem rede.
++ */
++import type { RondaSubmitResult } from "./api-client";
++import type { QueueItem, QueueStatus } from "./db";
++
++export type RondaListEntry =
++  | {
++      kind: "server";
++      /** `ronda_<uuid>` — id do servidor, rota `/ronda/historico/[id]`. */
++      id: string;
++      titulo: string;
++      data: string;
++      local: string;
++      achadosCount: number;
++      createdAt: string;
++    }
++  | {
++      kind: "queue";
++      /** `localId` do item na fila, rota `/ronda/fila/[localId]`. */
++      id: string;
++      titulo: string;
++      data: string;
++      local: string;
++      achadosCount: number;
++      createdAt: string;
++      status: QueueStatus;
++      lastError?: string;
++    };
++
++/** Rótulo e cor por estado, para a etiqueta ao lado de cada item. `synced` só aparece quando o servidor está fora do ar (ver `buildRondaList`). */
++export const ENTRY_STATUS_LABEL: Record<QueueStatus | "server", string> = {
++  server: "No servidor",
++  pending: "Aguardando envio",
++  syncing: "Enviando…",
++  synced: "Confirmada",
++  error: "Falhou — vai tentar de novo",
++  invalid: "Rejeitada pelo servidor",
++};
++
++/**
++ * Mesma regra de contagem do backend (`ronda-store.ts`): só achado
++ * `identificado` conta. Espelhado aqui para um item que ainda não subiu
++ * exibir o mesmo número que vai exibir depois de subir — número que muda
++ * sozinho ao sincronizar é exatamente o tipo de coisa que faz a pessoa
++ * desconfiar de perda de dado.
++ */
++export function countIdentified(item: QueueItem): number {
++  return item.submission.achados.filter((finding) => finding.estado === "identificado").length;
++}
++
++/**
++ * Funde as duas origens numa lista só, mais recente primeiro.
++ *
++ * `server === null` significa "não deu para falar com o servidor" (offline,
++ * que é o caso comum em campo) — diferente de `[]`, que é "o servidor
++ * respondeu e não há nada lá". A distinção importa: com o servidor fora, os
++ * itens já sincronizados da fila local continuam listados, para a tela
++ * nunca ficar vazia só porque não há rede. Com o servidor no ar, esses
++ * mesmos itens são omitidos — o registro do servidor é a versão canônica e
++ * mostrar os dois seria uma duplicata confusa.
++ */
++export function buildRondaList(server: RondaSubmitResult[] | null, queue: QueueItem[]): RondaListEntry[] {
++  const entries: RondaListEntry[] = [];
++
++  for (const ronda of server ?? []) {
++    entries.push({
++      kind: "server",
++      id: ronda.rondaId,
++      titulo: ronda.titulo,
++      data: ronda.data,
++      local: ronda.local,
++      achadosCount: ronda.achadosCount,
++      createdAt: ronda.createdAt,
++    });
++  }
++
++  for (const item of queue) {
++    if (item.status === "synced" && server !== null) continue;
++    entries.push({
++      kind: "queue",
++      id: item.localId,
++      titulo: item.submission.metadata.titulo,
++      data: item.submission.metadata.data,
++      local: item.submission.metadata.local,
++      achadosCount: countIdentified(item),
++      createdAt: item.createdAt,
++      status: item.status,
++      lastError: item.lastError,
++    });
++  }
++
++  // `data` é o dia da ronda (o que a pessoa procura); `createdAt` desempata
++  // duas rondas do mesmo dia pela ordem em que foram registradas.
++  return entries.sort((a, b) => b.data.localeCompare(a.data) || b.createdAt.localeCompare(a.createdAt));
++}
+-- 
+2.43.0
+
+
+From 3d9e97ed12ad28896bcd129990c29bae80bc2472 Mon Sep 17 00:00:00 2001
+From: Rubens Ramos Rodrigues Jr <raugustorubens@gmail.com>
+Date: Sun, 16 Aug 2026 15:29:39 +0000
+Subject: [PATCH 4/5] =?UTF-8?q?perf(ronda):=20para=20de=20acumular=20no=20?=
+ =?UTF-8?q?aparelho=20o=20que=20j=C3=A1=20est=C3=A1=20no=20servidor?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Relato de campo em 16/08/2026: "reduzir espaço no dispositivo, que acho que
+é o problema aqui". Está certo, e a causa não é o momento do upload — é que
+nada nunca era apagado.
+
+Três acúmulos permanentes, medidos:
+
+1. `saveOriginalPhoto` gravava a foto em resolução cheia, em base64, a cada
+   clique — e `getOriginalPhotosForFinding` não tinha **um único chamador**
+   no código. Armazenamento write-only, guardado para uma Fase 2 que ainda
+   não existe.
+2. Nada apagava essas originais, nunca.
+3. O item da fila não era removido depois de confirmado no servidor:
+   `deleteQueueItem` só era chamado por `discardInvalidQueueItem`. A ronda
+   inteira, com as fotos comprimidas, ficava no aparelho para sempre.
+
+Medição de uma foto de 12MP (script sobre a mesma cadeia de `compressPhoto`,
+1280px/JPEG q0.7): a versão que o relatório usa ocupa 0,13 MB em base64; a
+original guardada junto ocupa 9,27 MB. **98,6% do que o app gravava por foto
+era dado que nenhuma linha de código lia.** Vinte fotos numa ronda passavam
+de 180 MB — e não saíam de lá. É a explicação mais provável para o Chrome
+descartar a aba em campo: não é a ronda que é pesada, é o rastro dela.
+
+O que muda:
+
+- Original guardada como `Blob`, não base64 (o IndexedDB guarda binário
+  nativamente; base64 só é necessário no fio). −27% sobre o maior arquivo do
+  sistema, e sem o custo de CPU/memória do FileReader a cada foto.
+- `saveOriginalPhoto` deixa de lançar: guardar a original é um "seria bom
+  ter", e estourar a cota nela não pode interromper o preenchimento em
+  campo. Antes, uma quota cheia virava erro visível no card da foto.
+- `discardRondaLocalCopies`: ao confirmar no servidor, apaga o item da fila
+  e as originais dos achados daquela ronda.
+- Novo store `history` (DB_VERSION 3 -> 4) com o resumo de ~1 KB por ronda
+  confirmada. Sem ele, economizar espaço custaria o histórico offline: a
+  lista de rondas anteriores ficaria vazia sem rede. `RondaList` também
+  espelha nele o que o servidor devolve.
+- Migração v4 limpa o store de originais. Seguro de afirmar que não se perde
+  nada: o store nunca teve leitor. Na prática é o que devolve de uma vez os
+  MB já acumulados no aparelho de quem usou o app em campo.
+
+Verificado em Pixel 7 emulado com o `POST` interceptado para exercitar o
+caminho de sucesso real no navegador, com uma foto de 5,6 MB: durante a
+ronda `originalPhotos=1`, depois da confirmação `queue=0, originalPhotos=0,
+draft=0, history=1`; a lista mostra a ronda como "No servidor" e continua
+mostrando com o servidor fora do ar. 4 testes novos (53 no total),
+typecheck e build ok.
+
+Próximo passo acordado (Camada 2, exige endpoint novo em luna-core): subir
+cada foto assim que é tirada, comprimida e original, guardando só o id no
+aparelho. É o que leva a original para o servidor de verdade — pelo payload
+do relatório ela não cabe, o limite é 25mb e uma única original ocupa 5-9 MB.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_017NbQ9WQsAwP5FDgH9yEnw9
+---
+ components/ronda/ronda-list.tsx       |  14 ++-
+ lib/ronda/__tests__/list-view.test.ts |  31 +++++
+ lib/ronda/db.ts                       | 158 +++++++++++++++++++++-----
+ lib/ronda/list-view.ts                |  35 ++++--
+ lib/ronda/queue.ts                    |  15 ++-
+ lib/ronda/use-ronda-queue.ts          |  13 ++-
+ 6 files changed, 221 insertions(+), 45 deletions(-)
+
+diff --git a/components/ronda/ronda-list.tsx b/components/ronda/ronda-list.tsx
+index 1f28408..e6a6b93 100644
+--- a/components/ronda/ronda-list.tsx
++++ b/components/ronda/ronda-list.tsx
+@@ -3,6 +3,7 @@
+ import { useCallback, useEffect, useState } from "react";
+ import Link from "next/link";
+ import { listRondas, RondaSubmitError, type RondaSubmitResult } from "@/lib/ronda/api-client";
++import { cacheHistory } from "@/lib/ronda/db";
+ import { buildRondaList, ENTRY_STATUS_LABEL, type RondaListEntry } from "@/lib/ronda/list-view";
+ import { useRondaQueue } from "@/lib/ronda/use-ronda-queue";
+ 
+@@ -34,7 +35,7 @@ function StatusTag({ entry }: { entry: RondaListEntry }) {
+ }
+ 
+ export function RondaList() {
+-  const { items: queueItems, counts, syncNow } = useRondaQueue();
++  const { items: queueItems, history, counts, refresh, syncNow } = useRondaQueue();
+   /** `null` = ainda carregando ou servidor inalcançável; `[]` = servidor respondeu vazio. `buildRondaList` trata os dois casos de forma diferente. */
+   const [server, setServer] = useState<RondaSubmitResult[] | null>(null);
+   const [serverError, setServerError] = useState<string | null>(null);
+@@ -43,8 +44,13 @@ export function RondaList() {
+   const loadServer = useCallback(async () => {
+     setLoading(true);
+     try {
+-      setServer(await listRondas());
++      const rondas = await listRondas();
++      setServer(rondas);
+       setServerError(null);
++      // Espelha o que o servidor devolveu no cache local — é o que mantém
++      // esta mesma tela útil da próxima vez que ela abrir sem rede.
++      await cacheHistory(rondas);
++      await refresh();
+     } catch (err: unknown) {
+       // Falha do servidor não esvazia mais a tela: os itens do aparelho
+       // continuam listados abaixo do aviso. Em campo, sem rede, esta era
+@@ -54,13 +60,13 @@ export function RondaList() {
+     } finally {
+       setLoading(false);
+     }
+-  }, []);
++  }, [refresh]);
+ 
+   useEffect(() => {
+     void loadServer();
+   }, [loadServer]);
+ 
+-  const entries = buildRondaList(server, queueItems);
++  const entries = buildRondaList(server, queueItems, history);
+   const localCount = entries.filter((entry) => entry.kind === "queue").length;
+ 
+   return (
+diff --git a/lib/ronda/__tests__/list-view.test.ts b/lib/ronda/__tests__/list-view.test.ts
+index 7f120a4..8a48175 100644
+--- a/lib/ronda/__tests__/list-view.test.ts
++++ b/lib/ronda/__tests__/list-view.test.ts
+@@ -79,3 +79,34 @@ test("countIdentified conta só achado identificado, igual ao servidor", () => {
+   item.submission.achados = [finding("identificado"), finding("identificado"), finding("nao_avaliado"), finding("inexistente")];
+   assert.equal(countIdentified(item), 2);
+ });
++
++/**
++ * Cache de histórico (16/08/2026): a ronda confirmada deixou de ficar
++ * guardada inteira no aparelho, então o que sustenta a lista sem rede
++ * passou a ser o resumo de ~1 KB por ronda — sem isso, economizar espaço
++ * teria custado o histórico offline.
++ */
++const historico = [{ rondaId: "ronda_hist", titulo: "Do cache", data: "2026-08-10", local: "UT", achadosCount: 3, createdAt: "2026-08-10T09:00:00.000Z" }];
++
++test("sem servidor, a lista é montada a partir do cache local", () => {
++  const entries = buildRondaList(null, [], historico);
++  assert.deepEqual(entries.map((e) => `${e.kind}:${e.id}`), ["server:ronda_hist"]);
++  assert.equal(entries[0].achadosCount, 3);
++});
++
++test("com servidor no ar, o cache é ignorado — o servidor é a fonte canônica", () => {
++  const entries = buildRondaList([serverRonda()], [], historico);
++  assert.deepEqual(entries.map((e) => e.id), ["ronda_1"]);
++});
++
++test("sem servidor, cache e fila local convivem na mesma lista", () => {
++  const entries = buildRondaList(null, [queued({ localId: "pendente", status: "pending" })], historico);
++  assert.deepEqual(entries.map((e) => `${e.kind}:${e.id}`), ["queue:pendente", "server:ronda_hist"]);
++});
++
++/** `discardRondaLocalCopies` normalmente apaga o item; se falhar, ele não pode virar duplicata do registro que já está listado. */
++test("item 'synced' que sobrou não duplica a ronda já confirmada", () => {
++  const sobra = queued({ localId: "sobra", status: "synced", serverRondaId: "ronda_hist" });
++  const entries = buildRondaList(null, [sobra], historico);
++  assert.deepEqual(entries.map((e) => `${e.kind}:${e.id}`), ["server:ronda_hist"]);
++});
+diff --git a/lib/ronda/db.ts b/lib/ronda/db.ts
+index fccdfd5..9352299 100644
+--- a/lib/ronda/db.ts
++++ b/lib/ronda/db.ts
+@@ -13,7 +13,7 @@
+ import type { RondaSubmission, RondaMetadata, RondaFinding, RondaClosing, SuggestionRecord } from "./types";
+ 
+ const DB_NAME = "luna-ronda";
+-const DB_VERSION = 3;
++const DB_VERSION = 4;
+ const STORE = "queue";
+ /**
+  * Rascunho da ronda em andamento (achado de campo, 16/08/2026): até aqui o
+@@ -33,13 +33,41 @@ const DRAFT_KEY = "current";
+  * arquitetura — `Luna-context.md`, `GENESIS/RESEARCH/
+  * revisao-arquitetura-achado-dinamico-flags-foto.md`): a versão comprimida
+  * (1280px/0.7, `lib/ronda/photo.ts`) é a única coisa que entra em `fotos[]`
+- * e é enviada pela fila; o arquivo original, maior/melhor qualidade, fica só
+- * aqui, associado ao achado por `achadoId`, pra uma futura "versão de
+- * apresentação" (Fase 2) poder trabalhar com qualidade melhor que o teto de
+- * 1280px que a compressão de campo já impõe. Nada aqui é enviado ao
+- * servidor nesta rodada — só preservado.
++ * e é enviada pela fila; o arquivo original fica aqui, associado ao achado
++ * por `achadoId`, pra uma futura "versão de apresentação" (Fase 2) poder
++ * trabalhar com qualidade melhor que o teto de 1280px da compressão de
++ * campo.
++ *
++ * Duas correções de 16/08/2026, depois de medir o custo real (relato de
++ * campo: "reduzir espaço no dispositivo"):
++ *
++ * 1. Guardado como `Blob`, não mais como string base64. IndexedDB aceita
++ *    `Blob` via structured clone; base64 só é necessário no *fio*, na hora
++ *    de enviar. A conversão custava +33% de disco em cima de um arquivo que
++ *    já é o maior do sistema.
++ * 2. Apagado quando a ronda é confirmada no servidor
++ *    (`discardRondaLocalCopies`). Antes nada apagava nunca: medido, cada
++ *    foto deixava ~9,3 MB de original permanente contra 0,13 MB da versão
++ *    que o relatório de fato usa — 98,6% do que o app gravava era dado que
++ *    nenhuma linha de código lia (`getOriginalPhotosForFinding` não tinha um
++ *    único chamador).
++ *
++ * Enquanto a Camada 2 (upload por foto, que leva a original pro servidor
++ * assim que ela é tirada) não existir, "apagar ao confirmar" é o
++ * comportamento certo: a original acompanha a ronda enquanto ela ainda pode
++ * precisar ser reenviada, e sai junto quando o servidor confirma.
+  */
+ const ORIGINAL_PHOTOS_STORE = "originalPhotos";
++/**
++ * Resumo das rondas já confirmadas — mesmo formato de `GET /convergia/ronda`.
++ *
++ * Existe porque a alternativa a manter o item inteiro na fila para sempre
++ * (com todas as fotos, ~2,7 a 5,1 MB por ronda, indefinidamente) não pode
++ * ser "esquecer que a ronda existiu": sem rede, a lista de rondas
++ * anteriores ficaria vazia. Guardar ~1 KB de resumo por ronda dá o mesmo
++ * histórico offline por um milésimo do espaço.
++ */
++const HISTORY_STORE = "history";
+ 
+ /**
+  * "invalid" (distinto de "error"): o servidor rejeitou o envio por
+@@ -69,17 +97,28 @@ export interface OriginalPhotoRecord {
+   id: string;
+   achadoId: string;
+   index: number;
+-  dataBase64: string;
++  /** O arquivo como veio da câmera. `Blob` e não base64: o IndexedDB guarda binário nativamente, e a conversão só faz sentido no fio (ver nota em `ORIGINAL_PHOTOS_STORE`). */
++  blob: Blob;
+   mimeType: string;
+-  /** Tamanho do arquivo original em bytes, sem base64 — visibilidade real de quanto a cota do IndexedDB está sendo gasta (fotos originais são bem maiores que a versão de campo comprimida). */
++  /** Tamanho do arquivo original em bytes — visibilidade real de quanto da cota do IndexedDB está sendo gasta. */
+   sizeBytes: number;
+   savedAt: string;
+ }
+ 
++/** Resumo de uma ronda confirmada, guardado localmente pra lista funcionar offline. Mesmo formato de `RondaSubmitResult` do api-client, redeclarado aqui pra `db.ts` não depender da camada de rede. */
++export interface HistoryEntry {
++  rondaId: string;
++  titulo: string;
++  data: string;
++  local: string;
++  achadosCount: number;
++  createdAt: string;
++}
++
+ function openDb(): Promise<IDBDatabase> {
+   return new Promise((resolve, reject) => {
+     const request = indexedDB.open(DB_NAME, DB_VERSION);
+-    request.onupgradeneeded = () => {
++    request.onupgradeneeded = (event) => {
+       const db = request.result;
+       if (!db.objectStoreNames.contains(STORE)) {
+         db.createObjectStore(STORE, { keyPath: "localId" });
+@@ -93,6 +132,19 @@ function openDb(): Promise<IDBDatabase> {
+       if (!db.objectStoreNames.contains(DRAFT_STORE)) {
+         db.createObjectStore(DRAFT_STORE);
+       }
++      if (!db.objectStoreNames.contains(HISTORY_STORE)) {
++        db.createObjectStore(HISTORY_STORE, { keyPath: "rondaId" });
++      }
++      // v4: as originais deixaram de ser base64 e passaram a ser `Blob`. Os
++      // registros antigos são descartados no lugar de convertidos, e isso é
++      // seguro de afirmar: o store nunca teve um leitor
++      // (`getOriginalPhotosForFinding` não era chamada em lugar nenhum), então
++      // nenhum recurso do app perde nada. Na prática esta linha é o que
++      // devolve, de uma vez, os ~9 MB por foto que se acumularam desde o
++      // início no aparelho de quem já usou o app em campo.
++      if (event.oldVersion > 0 && event.oldVersion < 4 && db.objectStoreNames.contains(ORIGINAL_PHOTOS_STORE)) {
++        request.transaction?.objectStore(ORIGINAL_PHOTOS_STORE).clear();
++      }
+     };
+     request.onsuccess = () => resolve(request.result);
+     request.onerror = () => reject(request.error ?? new Error("Falha ao abrir o banco local (IndexedDB) da Ronda."));
+@@ -203,37 +255,35 @@ export async function updateQueueSubmission(localId: string, submission: RondaSu
+   await updateQueueItem(localId, { submission, status: "pending", lastError: undefined });
+ }
+ 
+-function fileToBase64(file: File): Promise<string> {
+-  return new Promise((resolve, reject) => {
+-    const reader = new FileReader();
+-    reader.onload = () => {
+-      const result = reader.result as string;
+-      resolve(result.slice(result.indexOf(",") + 1));
+-    };
+-    reader.onerror = () => reject(reader.error ?? new Error("Não foi possível ler a foto original."));
+-    reader.readAsDataURL(file);
+-  });
+-}
+-
+ /**
+  * Preserva o arquivo original (sem a compressão de campo) associado a um
+  * achado — chamado a partir de `FindingCard`, além (não em vez) da versão
+- * comprimida que vai pra `finding.fotos[]`/fila offline. Nunca lançado
+- * envolvendo rede — puramente local.
++ * comprimida que vai pra `finding.fotos[]`/fila offline. Puramente local,
++ * nunca envolve rede.
++ *
++ * Nunca lança. Guardar a original é um "seria bom ter" (Decisão 4) e o
++ * arquivo é, de longe, o maior do sistema — é justamente ele que estoura a
++ * cota primeiro. Se estourar, o certo é o app seguir com a versão
++ * comprimida, que é a que o relatório usa, em vez de interromper o
++ * preenchimento em campo por causa de um arquivo de reserva.
+  */
+-export async function saveOriginalPhoto(achadoId: string, index: number, file: File): Promise<OriginalPhotoRecord> {
+-  const dataBase64 = await fileToBase64(file);
++export async function saveOriginalPhoto(achadoId: string, index: number, file: File): Promise<OriginalPhotoRecord | null> {
+   const record: OriginalPhotoRecord = {
+     id: `${achadoId}:${index}`,
+     achadoId,
+     index,
+-    dataBase64,
++    blob: file,
+     mimeType: file.type || "application/octet-stream",
+     sizeBytes: file.size,
+     savedAt: new Date().toISOString(),
+   };
+-  await runTransaction(ORIGINAL_PHOTOS_STORE, "readwrite", (store) => store.put(record));
+-  return record;
++  try {
++    await runTransaction(ORIGINAL_PHOTOS_STORE, "readwrite", (store) => store.put(record));
++    return record;
++  } catch (error) {
++    console.warn("[ronda] não foi possível guardar a foto original (a versão comprimida da ronda não é afetada)", error);
++    return null;
++  }
+ }
+ 
+ export async function getOriginalPhotosForFinding(achadoId: string): Promise<OriginalPhotoRecord[]> {
+@@ -241,6 +291,58 @@ export async function getOriginalPhotosForFinding(achadoId: string): Promise<Ori
+   return all.filter((record) => record.achadoId === achadoId).sort((a, b) => a.index - b.index);
+ }
+ 
++/**
++ * Libera tudo que uma ronda ocupava localmente depois de o servidor
++ * confirmá-la: o item da fila (com as fotos comprimidas embutidas) e as
++ * originais de todos os seus achados. No lugar fica só o resumo em
++ * `HISTORY_STORE`.
++ *
++ * É este método que corta o acúmulo permanente. Antes, uma ronda confirmada
++ * continuava inteira no aparelho para sempre — nada no código apagava
++ * item de fila sincronizado nem foto original, em nenhuma circunstância.
++ *
++ * Nunca lança: se a limpeza falhar, a ronda já está a salvo no servidor e
++ * derrubar o fluxo de sincronização por causa de uma faxina seria trocar um
++ * problema de espaço por um de confiabilidade.
++ */
++export async function discardRondaLocalCopies(item: QueueItem, summary: HistoryEntry): Promise<void> {
++  try {
++    await runTransaction(HISTORY_STORE, "readwrite", (store) => store.put(summary));
++    const originals = await runTransaction<OriginalPhotoRecord[]>(ORIGINAL_PHOTOS_STORE, "readonly", (store) => store.getAll());
++    const achadoIds = new Set(item.submission.achados.map((finding) => finding.id));
++    for (const original of originals) {
++      if (achadoIds.has(original.achadoId)) {
++        await runTransaction(ORIGINAL_PHOTOS_STORE, "readwrite", (store) => store.delete(original.id));
++      }
++    }
++    await deleteQueueItem(item.localId);
++  } catch (error) {
++    console.warn("[ronda] falha ao liberar as cópias locais de uma ronda já confirmada", error);
++  }
++}
++
++/** Resumos das rondas já confirmadas, mais recentes primeiro — é o que mantém "Ver rondas anteriores" útil sem rede. */
++export async function listHistory(): Promise<HistoryEntry[]> {
++  try {
++    const all = await runTransaction<HistoryEntry[]>(HISTORY_STORE, "readonly", (store) => store.getAll());
++    return all.sort((a, b) => b.data.localeCompare(a.data) || b.createdAt.localeCompare(a.createdAt));
++  } catch (error) {
++    console.warn("[ronda] falha ao ler o histórico local", error);
++    return [];
++  }
++}
++
++/** Reidrata o cache local com o que o servidor devolveu — mantém o histórico offline em dia sem depender de a ronda ter sido enviada por este aparelho. */
++export async function cacheHistory(entries: HistoryEntry[]): Promise<void> {
++  try {
++    for (const entry of entries) {
++      await runTransaction(HISTORY_STORE, "readwrite", (store) => store.put(entry));
++    }
++  } catch (error) {
++    console.warn("[ronda] falha ao atualizar o cache de histórico", error);
++  }
++}
++
+ /**
+  * Estado do wizard suficiente pra remontar a tela exatamente onde a pessoa
+  * parou. `checkedFlags` vira array porque `Set` não sobrevive ao
+diff --git a/lib/ronda/list-view.ts b/lib/ronda/list-view.ts
+index d59a55c..b7e0c58 100644
+--- a/lib/ronda/list-view.ts
++++ b/lib/ronda/list-view.ts
+@@ -13,7 +13,7 @@
+  * sem IndexedDB nem rede.
+  */
+ import type { RondaSubmitResult } from "./api-client";
+-import type { QueueItem, QueueStatus } from "./db";
++import type { HistoryEntry, QueueItem, QueueStatus } from "./db";
+ 
+ export type RondaListEntry =
+   | {
+@@ -65,16 +65,31 @@ export function countIdentified(item: QueueItem): number {
+  *
+  * `server === null` significa "não deu para falar com o servidor" (offline,
+  * que é o caso comum em campo) — diferente de `[]`, que é "o servidor
+- * respondeu e não há nada lá". A distinção importa: com o servidor fora, os
+- * itens já sincronizados da fila local continuam listados, para a tela
+- * nunca ficar vazia só porque não há rede. Com o servidor no ar, esses
+- * mesmos itens são omitidos — o registro do servidor é a versão canônica e
+- * mostrar os dois seria uma duplicata confusa.
++ * respondeu e não há nada lá". A distinção importa: com o servidor fora, a
++ * lista é montada a partir do cache local de resumos (`history`), para a
++ * tela nunca ficar vazia só porque não há rede. Com o servidor no ar, ele é
++ * a fonte canônica e o cache é ignorado.
++ *
++ * O cache existe porque a ronda confirmada deixou de ficar guardada inteira
++ * no aparelho (ver `discardRondaLocalCopies`) — sem ele, economizar espaço
++ * teria custado o histórico offline.
+  */
+-export function buildRondaList(server: RondaSubmitResult[] | null, queue: QueueItem[]): RondaListEntry[] {
++export function buildRondaList(server: RondaSubmitResult[] | null, queue: QueueItem[], history: HistoryEntry[] = []): RondaListEntry[] {
+   const entries: RondaListEntry[] = [];
+ 
+-  for (const ronda of server ?? []) {
++  const confirmed: HistoryEntry[] =
++    server !== null
++      ? server.map((ronda) => ({
++          rondaId: ronda.rondaId,
++          titulo: ronda.titulo,
++          data: ronda.data,
++          local: ronda.local,
++          achadosCount: ronda.achadosCount,
++          createdAt: ronda.createdAt,
++        }))
++      : history;
++
++  for (const ronda of confirmed) {
+     entries.push({
+       kind: "server",
+       id: ronda.rondaId,
+@@ -87,6 +102,10 @@ export function buildRondaList(server: RondaSubmitResult[] | null, queue: QueueI
+   }
+ 
+   for (const item of queue) {
++    // Item "synced" na fila só sobrevive se `discardRondaLocalCopies` falhou
++    // — o caminho normal apaga. Omitido quando o registro canônico já está
++    // na lista, pra não virar duplicata.
++    if (item.status === "synced" && confirmed.some((ronda) => ronda.rondaId === item.serverRondaId)) continue;
+     if (item.status === "synced" && server !== null) continue;
+     entries.push({
+       kind: "queue",
+diff --git a/lib/ronda/queue.ts b/lib/ronda/queue.ts
+index 7b93f6f..f6cefdb 100644
+--- a/lib/ronda/queue.ts
++++ b/lib/ronda/queue.ts
+@@ -4,7 +4,7 @@
+  * o app, tenta reenviar o que estiver pendente." Nenhuma ação manual do
+  * usuário além de reconectar.
+  */
+-import { listQueue, updateQueueItem, deleteQueueItem, type QueueItem } from "./db";
++import { listQueue, updateQueueItem, deleteQueueItem, discardRondaLocalCopies, type QueueItem } from "./db";
+ import { submitRonda, RondaSubmitError } from "./api-client";
+ 
+ let syncing = false;
+@@ -76,6 +76,19 @@ export async function trySyncPendingRondas(onProgress?: (item: QueueItem) => voi
+         const result = await submitRonda(item.submission);
+         await updateQueueItem(item.localId, { status: "synced", syncedAt: new Date().toISOString(), serverRondaId: result.rondaId, lastError: undefined });
+         onProgress?.({ ...item, status: "synced", serverRondaId: result.rondaId });
++        // Confirmada no servidor — as cópias locais (item da fila com as
++        // fotos comprimidas embutidas, e as originais dos achados) perdem a
++        // razão de existir e dão lugar a um resumo de ~1 KB. Antes desta
++        // linha nada apagava nada: medido em 16/08/2026, ~9,3 MB por foto
++        // ficavam no aparelho para sempre.
++        await discardRondaLocalCopies(item, {
++          rondaId: result.rondaId,
++          titulo: result.titulo,
++          data: result.data,
++          local: result.local,
++          achadosCount: result.achadosCount,
++          createdAt: result.createdAt,
++        });
+       } catch (error) {
+         const message = error instanceof RondaSubmitError ? error.message : error instanceof Error ? error.message : "Falha desconhecida ao enviar.";
+         // Achado real em produção: itens enfileirados antes da migração pra
+diff --git a/lib/ronda/use-ronda-queue.ts b/lib/ronda/use-ronda-queue.ts
+index 2c95348..644fe9f 100644
+--- a/lib/ronda/use-ronda-queue.ts
++++ b/lib/ronda/use-ronda-queue.ts
+@@ -1,17 +1,22 @@
+ "use client";
+ 
+ import { useCallback, useEffect, useState } from "react";
+-import { listQueue, summarizeQueue, type QueueItem, type QueueCounts } from "./db";
++import { listQueue, listHistory, summarizeQueue, type QueueItem, type QueueCounts, type HistoryEntry } from "./db";
+ import { registerAutoSync, trySyncPendingRondas, discardInvalidQueueItem } from "./queue";
+ 
+ /** Estado da fila offline, reativo — usado pela barra de status (pendente vs. confirmado no servidor) e para disparar reenvio automático (evento `online` + reabertura do app, ADR-021). */
+ export function useRondaQueue() {
+   const [items, setItems] = useState<QueueItem[]>([]);
++  const [history, setHistory] = useState<HistoryEntry[]>([]);
+   const [loaded, setLoaded] = useState(false);
+ 
+   const refresh = useCallback(async () => {
+-    const next = await listQueue();
++    // A ronda confirmada deixou de ficar guardada inteira na fila (ver
++    // `discardRondaLocalCopies`), então "quantas já subiram" passou a ser uma
++    // contagem do histórico, não mais do store da fila.
++    const [next, confirmed] = await Promise.all([listQueue(), listHistory()]);
+     setItems(next);
++    setHistory(confirmed);
+     setLoaded(true);
+   }, []);
+ 
+@@ -38,7 +43,7 @@ export function useRondaQueue() {
+     [refresh],
+   );
+ 
+-  const counts: QueueCounts = summarizeQueue(items);
++  const counts: QueueCounts = { ...summarizeQueue(items), synced: history.length };
+ 
+-  return { items, counts, loaded, refresh, syncNow, discardInvalid };
++  return { items, history, counts, loaded, refresh, syncNow, discardInvalid };
+ }
+-- 
+2.43.0
+
+
+From 8c75a4bd1aa8eaad2cb60058aaa23d73d8a99565 Mon Sep 17 00:00:00 2001
+From: Rubens Ramos Rodrigues Jr <raugustorubens@gmail.com>
+Date: Sun, 16 Aug 2026 16:35:14 +0000
+Subject: [PATCH 5/5] =?UTF-8?q?feat(ronda):=20foto=20sobe=20durante=20a=20?=
+ =?UTF-8?q?ronda,=20e=20n=C3=A3o=20mais=20dentro=20do=20relat=C3=B3rio?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Metade cliente da Camada 2 do ADR-021 (decidida em campo, 16/08/2026). Par
+do commit de mesmo nome em `luna-core`, que expõe
+`POST /convergia/ronda/foto` — sem ele publicado, este código cai sozinho no
+comportamento antigo, sem quebrar nada.
+
+O caminho normal passa a ser: a foto é comprimida, sobe na hora (comprimida
++ original, multipart) e o achado guarda só o `fotoId`. Com rede, os bytes
+nunca tocam o aparelho — nem a comprimida no payload, nem a original no
+IndexedDB. É o que resolve na raiz os ~9,3 MB por foto medidos hoje, e o que
+distribui a espera ao longo da caminhada em vez de concentrá-la no botão
+"Concluir".
+
+Sem rede, cai no caminho de sempre: comprimida embutida em `fotos[]`,
+original guardada localmente, e um ponto âmbar na miniatura — em campo,
+saber o que já está a salvo é a diferença entre confiar no app e conferir
+tudo de novo no fim. `promoteEmbeddedPhotos` tenta de novo ao concluir: cada
+foto promovida sai do payload e sai do armazenamento local, e é o único
+caminho pelo qual a original chega ao servidor.
+
+Detalhes que não são incidentais:
+
+- `compressPhoto` passa a devolver `Blob` (via `canvas.toBlob`) em vez de
+  base64. base64 infla 33% e agora só é pago no caminho de contingência,
+  derivado sob demanda por `photoToBase64` — antes era pago sempre, inclusive
+  quando a foto ia subir direto.
+- Uploads sequenciais, não paralelos: em rede de campo, N requisições de
+  vários MB ao mesmo tempo pioram o tempo total e a chance de sucesso —
+  mesmo princípio do envio um-a-um de `trySyncPendingRondas`.
+- Falha de upload é silenciosa por decisão: não pode existir caminho em que
+  a rede impeça alguém de registrar um achado.
+- `getOriginalPhotosForFinding` ganha, aqui, o primeiro chamador de sua
+  existência. Até esta camada o store de originais era gravado e nunca lido.
+- Remover uma foto já no servidor a tira do achado, não do servidor. Órfã é
+  consequência assumida de a foto subir antes de a ronda existir; apagar
+  daqui exigiria um DELETE sobre um id que outra ronda pode referenciar.
+
+Verificado com um servidor HTTP real recebendo o multipart (interceptação de
+navegador não materializa partes vindas de arquivo, o que mascarava o
+tamanho): corpo 5,69 MB, `campo` 0,06 MB, `original` 5,62 MB — a original
+chega inteira. No mesmo teste, em Pixel 7 emulado: com rede, miniatura vinda
+do servidor e zero originais no IndexedDB; sem rede, ponto âmbar e 1
+original guardada; rede de volta, o relatório sai com 2 `fotoIds`, nenhuma
+foto embutida e o IndexedDB zerado. 3 testes novos (56 no total), typecheck
+e build ok.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_017NbQ9WQsAwP5FDgH9yEnw9
+---
+ components/ronda/finding-card.tsx       | 98 +++++++++++++++++++++---
+ components/ronda/ronda-wizard.tsx       | 12 ++-
+ lib/ronda/__tests__/foto-upload.test.ts | 39 ++++++++++
+ lib/ronda/api-client.ts                 | 30 ++++++++
+ lib/ronda/db.ts                         |  9 +++
+ lib/ronda/foto-upload.ts                | 99 +++++++++++++++++++++++++
+ lib/ronda/photo.ts                      | 44 ++++++++++-
+ lib/ronda/types.ts                      |  3 +
+ 8 files changed, 316 insertions(+), 18 deletions(-)
+ create mode 100644 lib/ronda/__tests__/foto-upload.test.ts
+ create mode 100644 lib/ronda/foto-upload.ts
+
+diff --git a/components/ronda/finding-card.tsx b/components/ronda/finding-card.tsx
+index 000ff8e..6b70338 100644
+--- a/components/ronda/finding-card.tsx
++++ b/components/ronda/finding-card.tsx
+@@ -14,8 +14,9 @@ import {
+   type RiskState,
+   type FindingClassification,
+ } from "@/lib/ronda/types";
+-import { compressPhoto } from "@/lib/ronda/photo";
++import { compressPhoto, photoToBase64 } from "@/lib/ronda/photo";
+ import { saveOriginalPhoto } from "@/lib/ronda/db";
++import { uploadFoto, rondaFotoUrl } from "@/lib/ronda/api-client";
+ import { getFotoSugestao } from "@/lib/ronda/api-client";
+ 
+ /**
+@@ -95,6 +96,21 @@ export function FindingCard({
+     }
+   }
+ 
++  /**
++   * Camada 2 do ADR-021 (decisão de campo, 16/08/2026): a foto sobe sozinha,
++   * agora, e o achado guarda só o id dela.
++   *
++   * Com rede, os bytes nunca tocam o aparelho — nem a comprimida no payload
++   * do relatório, nem a original no IndexedDB. É o que resolve, na raiz, os
++   * ~9,3 MB por foto que ficavam acumulados (medido em 16/08) e o que
++   * distribui a espera ao longo da caminhada em vez de concentrá-la no
++   * "Concluir".
++   *
++   * Sem rede, cai no caminho de sempre: comprimida embutida em `fotos[]`,
++   * original guardada localmente. `promoteEmbeddedPhotos` tenta de novo na
++   * conclusão. Falhar em subir nunca pode impedir alguém de registrar um
++   * achado em campo — por isso a queda é silenciosa, não um erro na tela.
++   */
+   async function handlePhotoChange(event: React.ChangeEvent<HTMLInputElement>) {
+     const files = event.target.files;
+     if (!files || files.length === 0) return;
+@@ -103,17 +119,39 @@ export function FindingCard({
+     try {
+       const fileList = Array.from(files);
+       const compressed = await Promise.all(fileList.map(compressPhoto));
++
++      const novosIds: string[] = [];
++      const aindaLocais: RondaPhoto[] = [];
++      const originaisParaGuardar: File[] = [];
++
++      // Sequencial: em rede de campo, N uploads simultâneos de vários MB
++      // pioram o tempo total e a chance de sucesso.
++      for (const [i, foto] of compressed.entries()) {
++        try {
++          const { fotoId } = await uploadFoto(foto.blob, fileList[i], finding.id);
++          novosIds.push(fotoId);
++        } catch {
++          aindaLocais.push(await photoToBase64(foto));
++          originaisParaGuardar.push(fileList[i]);
++        }
++      }
++
++      onChange({
++        ...finding,
++        ...(novosIds.length > 0 ? { fotoIds: [...(finding.fotoIds ?? []), ...novosIds] } : {}),
++        ...(aindaLocais.length > 0 ? { fotos: [...(finding.fotos ?? []), ...aindaLocais] } : {}),
++      });
++
++      // Original guardada só para o que não subiu — é ela que vai junto na
++      // segunda tentativa, em `promoteEmbeddedPhotos`.
+       const startIndex = (finding.fotos ?? []).length;
+-      onChange({ ...finding, fotos: [...(finding.fotos ?? []), ...compressed] });
+-      // Foto original (não comprimida) preservada só localmente — Decisão 4
+-      // da revisão de arquitetura, guardar a versão de maior resolução pra
+-      // uma futura "versão de apresentação" (Fase 2) poder trabalhar com
+-      // qualidade melhor que o teto de 1280px da versão de campo. Nunca faz
+-      // parte de `fotos` (que é o que a fila offline envia) — só um registro
+-      // paralelo em IndexedDB, associado ao mesmo achado por `id`.
+-      await Promise.all(fileList.map((file, i) => saveOriginalPhoto(finding.id, startIndex + i, file)));
+-
+-      void applyPhotoSuggestion(compressed[0]);
++      await Promise.all(originaisParaGuardar.map((file, i) => saveOriginalPhoto(finding.id, startIndex + i, file)));
++
++      // Sugestão por foto (Fase 4) precisa de base64; derivada só aqui, e
++      // sem bloquear — sugestão que falha não é erro de foto.
++      void photoToBase64(compressed[0])
++        .then((photo) => applyPhotoSuggestion(photo))
++        .catch(() => undefined);
+     } catch (error) {
+       setPhotoError(error instanceof Error ? error.message : "Falha ao processar a foto.");
+     } finally {
+@@ -163,6 +201,17 @@ export function FindingCard({
+     onChange({ ...finding, fotos: (finding.fotos ?? []).filter((_, i) => i !== index) });
+   }
+ 
++  /**
++   * Tira a foto do achado, não do servidor. A foto vira órfã lá — consequência
++   * assumida do desenho em que ela sobe antes de a ronda existir. A política
++   * de expiração de foto não referenciada é decisão de backend, anotada como
++   * pendência; apagar daqui exigiria um DELETE que ninguém pode autorizar em
++   * campo, sobre um id que outra ronda pode estar referenciando.
++   */
++  function removeFotoId(fotoId: string) {
++    onChange({ ...finding, fotoIds: (finding.fotoIds ?? []).filter((id) => id !== fotoId) });
++  }
++
+   // Comportamento padrão de radiogroup (WAI-ARIA APG): setas move o foco E a
+   // seleção (não só o foco) entre as opções, com wrap-around nas pontas —
+   // o clique sozinho (já existente) não dá isso de graça pra teclado/leitor
+@@ -274,10 +323,35 @@ export function FindingCard({
+           <div className="flex flex-col gap-1.5 text-xs text-slate-600 dark:text-slate-400">
+             <span>Foto (opcional — nunca é obrigatória para avançar)</span>
+             <div className="flex flex-wrap gap-2">
++              {/*
++                Duas origens na mesma faixa: foto já no servidor (por id) e
++                foto ainda no aparelho (bytes). O ponto âmbar marca a segunda —
++                em campo, saber o que já está a salvo é a diferença entre
++                confiar no app e conferir tudo de novo no fim.
++              */}
++              {(finding.fotoIds ?? []).map((fotoId) => (
++                <div key={fotoId} className="relative h-16 w-16 overflow-hidden rounded border border-black/15 dark:border-white/15">
++                  {/* eslint-disable-next-line @next/next/no-img-element */}
++                  <img src={rondaFotoUrl(fotoId)} alt="" className="h-full w-full object-cover" />
++                  <button
++                    type="button"
++                    onClick={() => removeFotoId(fotoId)}
++                    className="absolute right-0.5 top-0.5 rounded-full bg-black/70 px-1 text-[10px] text-white"
++                    aria-label="Remover foto"
++                  >
++                    ×
++                  </button>
++                </div>
++              ))}
+               {(finding.fotos ?? []).map((photo, index) => (
+-                <div key={index} className="relative h-16 w-16 overflow-hidden rounded border border-black/15 dark:border-white/15">
++                <div key={`local-${index}`} className="relative h-16 w-16 overflow-hidden rounded border border-black/15 dark:border-white/15">
+                   {/* eslint-disable-next-line @next/next/no-img-element */}
+                   <img src={`data:${photo.mimeType};base64,${photo.dataBase64}`} alt="" className="h-full w-full object-cover" />
++                  <span
++                    className="absolute bottom-0.5 left-0.5 h-2 w-2 rounded-full bg-amber-400 ring-1 ring-black/40"
++                    title="Ainda neste aparelho — sobe ao concluir a ronda"
++                    aria-label="Foto ainda não enviada"
++                  />
+                   <button
+                     type="button"
+                     onClick={() => removePhoto(index)}
+diff --git a/components/ronda/ronda-wizard.tsx b/components/ronda/ronda-wizard.tsx
+index 9d92bc9..26e371c 100644
+--- a/components/ronda/ronda-wizard.tsx
++++ b/components/ronda/ronda-wizard.tsx
+@@ -21,6 +21,7 @@ import {
+ } from "@/lib/ronda/types";
+ import { getFlags, getSugestoes, postCorrecaoSugestao, RondaSubmitError } from "@/lib/ronda/api-client";
+ import { enqueueRonda, loadDraft, saveDraft, clearDraft } from "@/lib/ronda/db";
++import { promoteEmbeddedPhotos } from "@/lib/ronda/foto-upload";
+ import { useRondaQueue } from "@/lib/ronda/use-ronda-queue";
+ import { QueueStatusBar } from "./queue-status-bar";
+ import { FindingCard } from "./finding-card";
+@@ -250,7 +251,14 @@ export function RondaWizard() {
+ 
+   async function handleConclude() {
+     if (!canConclude) return;
+-    const item = await enqueueRonda({ metadata, achados: findings, encerramento: closing });
++    // Camada 2: última tentativa de subir as fotos que ficaram no aparelho
++    // (sem rede no momento do clique). Cada uma que sobe sai do payload do
++    // relatório e sai do armazenamento local — e é o único caminho pelo qual
++    // a original chega ao servidor. Nunca lança: falhar aqui só significa
++    // que a ronda vai como sempre foi, com os bytes embutidos.
++    const achados = await promoteEmbeddedPhotos(findings);
++    if (achados !== findings) setFindings(achados);
++    const item = await enqueueRonda({ metadata, achados, encerramento: closing });
+     // A ronda virou item de fila — o rascunho já cumpriu o papel dele e
+     // some, pra próxima abertura do app não oferecer "recuperar" uma ronda
+     // que já foi concluída.
+@@ -264,7 +272,7 @@ export function RondaWizard() {
+     // bloqueia a conclusão nem depende da ronda já ter sincronizado com o
+     // servidor (`item.localId` identifica a ronda mesmo offline;
+     // `postCorrecaoSugestao` nunca lança, falha some em silêncio).
+-    for (const finding of findings) {
++    for (const finding of achados) {
+       const record = suggestionOrigins[finding.id];
+       if (!record) continue;
+       const camposCorrigidos = diffSuggestionFields(record, finding);
+diff --git a/lib/ronda/__tests__/foto-upload.test.ts b/lib/ronda/__tests__/foto-upload.test.ts
+new file mode 100644
+index 0000000..ea62646
+--- /dev/null
++++ b/lib/ronda/__tests__/foto-upload.test.ts
+@@ -0,0 +1,39 @@
++import assert from "node:assert/strict";
++import test from "node:test";
++import { countEmbeddedPhotos, photoToBlob } from "../foto-upload";
++import type { RondaFinding } from "../types";
++
++function achado(id: string, fotos: number, fotoIds: string[] = []): RondaFinding {
++  return {
++    id,
++    estado: "identificado",
++    ...(fotos > 0 ? { fotos: Array.from({ length: fotos }, () => ({ dataBase64: "AQID", mimeType: "image/jpeg" as const })) } : {}),
++    ...(fotoIds.length > 0 ? { fotoIds } : {}),
++  };
++}
++
++/**
++ * Camada 2: só a foto que **não** conseguiu subir na hora continua embutida
++ * no relatório. A contagem é o que decide se vale tentar a promoção antes de
++ * concluir — e é a medida direta de quanto payload ainda depende do teto de
++ * 25 MB do `POST /convergia/ronda`.
++ */
++test("countEmbeddedPhotos conta só o que ainda viaja dentro do relatório", () => {
++  assert.equal(countEmbeddedPhotos([achado("a", 2), achado("b", 0, ["rfoto_1"]), achado("c", 1, ["rfoto_2"])]), 3);
++});
++
++test("achado que já subiu tudo não pesa no payload", () => {
++  assert.equal(countEmbeddedPhotos([achado("a", 0, ["rfoto_1", "rfoto_2"])]), 0);
++  assert.equal(countEmbeddedPhotos([]), 0);
++});
++
++/** O upload é binário (multipart); base64 é só o formato de contingência guardado no aparelho. A conversão precisa devolver exatamente os mesmos bytes. */
++test("photoToBlob devolve os bytes originais, sem o inchaço do base64", async () => {
++  const bytes = new Uint8Array([0xff, 0xd8, 0xff, 0x00, 0x10, 0x7f]);
++  const dataBase64 = Buffer.from(bytes).toString("base64");
++  const blob = photoToBlob({ dataBase64, mimeType: "image/jpeg" });
++
++  assert.equal(blob.type, "image/jpeg");
++  assert.equal(blob.size, bytes.length, "o binário tem que ser menor que a string base64");
++  assert.deepEqual(new Uint8Array(await blob.arrayBuffer()), bytes);
++});
+diff --git a/lib/ronda/api-client.ts b/lib/ronda/api-client.ts
+index e45b9c0..1d400d0 100644
+--- a/lib/ronda/api-client.ts
++++ b/lib/ronda/api-client.ts
+@@ -167,3 +167,33 @@ export async function patchRonda(rondaId: string, patch: RondaPatch): Promise<Ro
+   const body = await response.json();
+   return body.ronda as RondaSubmitResult;
+ }
++
++/**
++ * `POST /convergia/ronda/foto` (Camada 2, decisão de campo 16/08/2026) — a
++ * foto sobe sozinha, no momento em que é tirada, e o relatório carrega só o
++ * id dela.
++ *
++ * Multipart, não JSON: base64 infla 33% no fio, e é justamente esse custo
++ * que impede a original de caber no payload de 25 MB do relatório. A
++ * original é opcional — em rede ruim, sobe só a versão de campo, que é a que
++ * o relatório usa, e nada se perde no documento final.
++ */
++export async function uploadFoto(campo: Blob, original?: Blob, achadoId?: string): Promise<{ fotoId: string }> {
++  const form = new FormData();
++  form.set("campo", campo, "campo.jpg");
++  if (original) form.set("original", original, "original.jpg");
++  if (achadoId) form.set("achadoId", achadoId);
++
++  const response = await fetch(`${LUNA_GATEWAY_BASE_URL}/convergia/ronda/foto`, { method: "POST", body: form });
++  if (!response.ok) {
++    const body = await response.json().catch(() => null);
++    throw new RondaSubmitError(body?.error ?? `Falha ao enviar a foto (HTTP ${response.status}).`, body?.issues, response.status);
++  }
++  const body = await response.json();
++  return { fotoId: body.fotoId as string };
++}
++
++/** URL de exibição de uma foto já no servidor. `versao: "original"` pede o arquivo como saiu da câmera; o default é a versão de campo, que é a que o relatório mostra. */
++export function rondaFotoUrl(fotoId: string, versao?: "original"): string {
++  return `${LUNA_GATEWAY_BASE_URL}/convergia/ronda/foto/${encodeURIComponent(fotoId)}${versao === "original" ? "?versao=original" : ""}`;
++}
+diff --git a/lib/ronda/db.ts b/lib/ronda/db.ts
+index 9352299..0e4dce9 100644
+--- a/lib/ronda/db.ts
++++ b/lib/ronda/db.ts
+@@ -286,6 +286,15 @@ export async function saveOriginalPhoto(achadoId: string, index: number, file: F
+   }
+ }
+ 
++/** Apaga uma original específica — chamada quando ela já chegou ao servidor pelo upload por foto (Camada 2). */
++export async function deleteOriginalPhoto(id: string): Promise<void> {
++  try {
++    await runTransaction(ORIGINAL_PHOTOS_STORE, "readwrite", (store) => store.delete(id));
++  } catch (error) {
++    console.warn("[ronda] falha ao apagar uma foto original já enviada", error);
++  }
++}
++
+ export async function getOriginalPhotosForFinding(achadoId: string): Promise<OriginalPhotoRecord[]> {
+   const all = await runTransaction<OriginalPhotoRecord[]>(ORIGINAL_PHOTOS_STORE, "readonly", (store) => store.getAll());
+   return all.filter((record) => record.achadoId === achadoId).sort((a, b) => a.index - b.index);
+diff --git a/lib/ronda/foto-upload.ts b/lib/ronda/foto-upload.ts
+new file mode 100644
+index 0000000..ffd0753
+--- /dev/null
++++ b/lib/ronda/foto-upload.ts
+@@ -0,0 +1,99 @@
++/**
++ * Promoção das fotos que ficaram no aparelho — Camada 2 do ADR-021 (decisão
++ * de campo, 16/08/2026).
++ *
++ * O caminho normal é a foto subir sozinha no momento em que é tirada
++ * (`FindingCard`), e o relatório carregar só o id. Sem rede naquele
++ * instante, ela cai no caminho de contingência: bytes em `fotos[]` e a
++ * original guardada localmente. Este módulo é a segunda chance — roda ao
++ * concluir a ronda e tenta subir o que ficou para trás.
++ *
++ * Cada foto promovida sai do payload do relatório e sai do aparelho. Isso
++ * importa por dois motivos concretos e medidos:
++ *
++ *  - o `POST /convergia/ronda` tem teto de 25 MB, e uma ronda com muitas
++ *    fotos embutidas chega perto dele;
++ *  - a original (~9,3 MB em base64 por foto de 12MP) só alcança o servidor
++ *    por aqui — pelo relatório ela nunca coube.
++ *
++ * Falha não é erro: a foto simplesmente continua embutida e a ronda é
++ * enviada como sempre foi. Nunca lança, porque nada aqui pode impedir uma
++ * ronda de ser concluída em campo.
++ */
++import { uploadFoto } from "./api-client";
++import { getOriginalPhotosForFinding, deleteOriginalPhoto } from "./db";
++import type { RondaFinding, RondaPhoto } from "./types";
++
++/** `RondaPhoto` guarda base64 sem o prefixo `data:`; o upload quer binário. */
++export function photoToBlob(photo: RondaPhoto): Blob {
++  const binary = atob(photo.dataBase64);
++  const bytes = new Uint8Array(binary.length);
++  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
++  return new Blob([bytes], { type: photo.mimeType });
++}
++
++/** Quantas fotos de uma ronda ainda estão embutidas no payload — usado para decidir se vale tentar a promoção antes de concluir. */
++export function countEmbeddedPhotos(findings: RondaFinding[]): number {
++  return findings.reduce((total, finding) => total + (finding.fotos?.length ?? 0), 0);
++}
++
++/**
++ * Tenta subir as fotos embutidas de um achado. Devolve o achado com as que
++ * subiram convertidas em `fotoIds` e só as que falharam ainda em `fotos`.
++ *
++ * A original correspondente vai junto quando existe localmente — é o único
++ * momento em que ela chega ao servidor. `getOriginalPhotosForFinding` passa
++ * a ter, aqui, o primeiro chamador de sua existência: até esta camada, o
++ * store de originais era gravado e nunca lido.
++ */
++async function promoteFinding(finding: RondaFinding): Promise<RondaFinding> {
++  const embedded = finding.fotos ?? [];
++  if (embedded.length === 0) return finding;
++
++  const originals = await getOriginalPhotosForFinding(finding.id).catch(() => []);
++  const promotedIds: string[] = [];
++  const stillEmbedded: RondaPhoto[] = [];
++
++  for (const [index, photo] of embedded.entries()) {
++    const original = originals.find((record) => record.index === index);
++    try {
++      const { fotoId } = await uploadFoto(photoToBlob(photo), original?.blob, finding.id);
++      promotedIds.push(fotoId);
++      // A original já está no servidor; a cópia local perdeu a razão de
++      // existir e é o maior arquivo do aparelho.
++      if (original) await deleteOriginalPhoto(original.id);
++    } catch {
++      stillEmbedded.push(photo);
++    }
++  }
++
++  if (promotedIds.length === 0) return finding;
++
++  return {
++    ...finding,
++    fotoIds: [...(finding.fotoIds ?? []), ...promotedIds],
++    // `fotos` some do achado quando esvazia — um array vazio no payload é
++    // ruído, e o backend trata ausente e vazio igual.
++    ...(stillEmbedded.length > 0 ? { fotos: stillEmbedded } : { fotos: undefined }),
++  };
++}
++
++/**
++ * Última tentativa antes de a ronda entrar na fila. Sequencial de propósito:
++ * em rede de campo, disparar N uploads de vários MB em paralelo piora o
++ * tempo total e a chance de sucesso — mesmo princípio do envio um-a-um em
++ * `trySyncPendingRondas`.
++ */
++export async function promoteEmbeddedPhotos(findings: RondaFinding[]): Promise<RondaFinding[]> {
++  if (typeof navigator !== "undefined" && !navigator.onLine) return findings;
++
++  const promoted: RondaFinding[] = [];
++  for (const finding of findings) {
++    try {
++      promoted.push(await promoteFinding(finding));
++    } catch {
++      promoted.push(finding);
++    }
++  }
++  return promoted;
++}
+diff --git a/lib/ronda/photo.ts b/lib/ronda/photo.ts
+index da1a3d7..ecaf8f8 100644
+--- a/lib/ronda/photo.ts
++++ b/lib/ronda/photo.ts
+@@ -1,5 +1,11 @@
+ import type { RondaPhoto } from "./types";
+ 
++/** Versão de campo recém-comprimida, ainda como binário. Vira `RondaPhoto` (base64) só se precisar ser guardada/enviada embutida no relatório. */
++export interface CompressedPhoto {
++  blob: Blob;
++  mimeType: string;
++}
++
+ const MAX_DIMENSION = 1280;
+ const JPEG_QUALITY = 0.7;
+ 
+@@ -12,7 +18,7 @@ const JPEG_QUALITY = 0.7;
+  * já assume do lado do servidor, aplicado aqui do lado do cliente, antes
+  * mesmo de a foto entrar na fila offline.
+  */
+-export function compressPhoto(file: File): Promise<RondaPhoto> {
++export function compressPhoto(file: File): Promise<CompressedPhoto> {
+   return new Promise((resolve, reject) => {
+     const img = new Image();
+     const objectUrl = URL.createObjectURL(file);
+@@ -32,9 +38,22 @@ export function compressPhoto(file: File): Promise<RondaPhoto> {
+       }
+       ctx.drawImage(img, 0, 0, width, height);
+ 
+-      const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+-      const dataBase64 = dataUrl.slice(dataUrl.indexOf(",") + 1);
+-      resolve({ dataBase64, mimeType: "image/jpeg" });
++      // `toBlob` e não `toDataURL`: a Camada 2 (16/08/2026) manda a foto
++      // pela rede como binário, e base64 infla 33%. O caminho offline ainda
++      // precisa da string — mas aí ela é derivada sob demanda
++      // (`photoToBase64`), em vez de ser sempre paga, inclusive quando a
++      // foto vai subir direto e os bytes nunca tocam o IndexedDB.
++      canvas.toBlob(
++        (blob) => {
++          if (!blob) {
++            reject(new Error("Não foi possível comprimir a foto neste navegador."));
++            return;
++          }
++          resolve({ blob, mimeType: "image/jpeg" });
++        },
++        "image/jpeg",
++        JPEG_QUALITY,
++      );
+     };
+     img.onerror = () => {
+       URL.revokeObjectURL(objectUrl);
+@@ -43,3 +62,20 @@ export function compressPhoto(file: File): Promise<RondaPhoto> {
+     img.src = objectUrl;
+   });
+ }
++
++/**
++ * Converte a versão de campo para o formato que viaja embutido no relatório.
++ * Só é chamada no caminho de contingência — foto que não conseguiu subir na
++ * hora e vai ter que esperar dentro do payload da ronda.
++ */
++export function photoToBase64(photo: CompressedPhoto): Promise<RondaPhoto> {
++  return new Promise((resolve, reject) => {
++    const reader = new FileReader();
++    reader.onload = () => {
++      const result = reader.result as string;
++      resolve({ dataBase64: result.slice(result.indexOf(",") + 1), mimeType: photo.mimeType });
++    };
++    reader.onerror = () => reject(reader.error ?? new Error("Não foi possível ler a foto comprimida."));
++    reader.readAsDataURL(photo.blob);
++  });
++}
+diff --git a/lib/ronda/types.ts b/lib/ronda/types.ts
+index c01709d..2913e34 100644
+--- a/lib/ronda/types.ts
++++ b/lib/ronda/types.ts
+@@ -82,7 +82,10 @@ export interface RondaFinding {
+   flagId?: string | null;
+   estado: RiskState;
+   departamento?: string;
++  /** Fotos embutidas no relatório, em base64 — caminho de contingência desde a Camada 2: só carrega bytes a foto que não conseguiu subir sozinha durante a ronda. */
+   fotos?: RondaPhoto[];
++  /** Fotos já armazenadas no servidor (`POST /convergia/ronda/foto`), referenciadas por id. Caminho normal com rede: mantém o relatório em texto puro e tira os bytes do aparelho na hora em que a foto é tirada. */
++  fotoIds?: string[];
+   classificacao?: FindingClassification;
+   gravidade?: FindingSeverity;
+   descricao?: string;
+-- 
+2.43.0
+
