@@ -46,3 +46,22 @@ Antes de abrir qualquer frente nova, revisar esta lista — prioridade
 sugerida: ENG-027 primeiro (afeta a confiabilidade de todo o resto do
 processo — já decidido, ver acima), depois ENG-022 (mais barato, resolve
 algo visivelmente quebrado).
+
+## Atualização 2026-08-19 — fila de pacotes substitui este arquivo como fonte do dia a dia
+
+A partir de 19/08, o estado corrente do trabalho vive em `GENESIS/pacotes/FILA.md`
+(itens `pronto`/`em execução`/`bloqueado`/`concluído`, atualizado pelo Builder a cada
+item) e `GENESIS/pacotes/PENDENTE.md` (o que só o Arquiteto pode verificar em campo ou
+produção). `GENESIS/pacotes/COMO-FUNCIONA.md` documenta o ciclo. Esta tabela continua
+válida para o histórico anterior a 19/08 e para itens sem pacote ainda escrito; não foi
+reescrita.
+
+**`luna-core` — vetores faltantes na memória (item 1 de `PLANO_o-resto.md`):**
+concluído, PRs `#44` e `#47`. `count(*) - count(embedding)` = 0 (46/46). Ficou uma
+pendência de design, não técnica: busca semântica por "correção de sugestão" não traz
+essas 3 linhas no topo (ranqueiam 10ª/13ª/24ª de 46) — o texto usado para gerar o
+embedding (`construirTextoParaEmbedding`) embute o `conteudo` inteiro e dilui o sinal do
+título. Registrado como dúvida em
+[`luna-core#48`](https://github.com/raugustorubens-design/luna-core/issues/48),
+recomendação registrada de aceitar o comportamento atual por ora (retrieval ainda não
+usa busca vetorial de qualquer forma — `retrieveMemory` segue em `lexicalSimilarity`).
