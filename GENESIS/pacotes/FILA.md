@@ -31,6 +31,18 @@ leitura por IA na demonstração (ver o próprio pacote).
 `Luna-context.md#41`/`#42` (que na verdade eram os PRs `luna-frontend`, ver histórico);
 fica como registro, sem trabalho pendente do Builder.
 
+**Itens 1-3 mergeados nesta sessão:** `exif-colunas` (`luna-core#55`), `pptx-layout`
+(diagnóstico só — hipótese B confirmada, sem código a mudar) e `paleta-em-tudo`
+(`luna-frontend#47`). Faltam os itens 4-6 e o `ronda-demo` bloqueado.
+
+**`2026-08-20-canal-de-pacotes.md`** — desenho do Arquiteto para um quadro de trabalho no
+Supabase (estado ao vivo por item — `novo`/`em_desenvolvimento`/`em_revisao`/`aprovado`/
+`mergeado`/`verificado`/`asbuilt` — substituindo a reivindicação por Issue do item 6 acima).
+**Bloqueado por gatilho** — não executar até a fila ficar sem item `pronto`, ou o Arquiteto
+carregar dois pacotes novos no mesmo dia, ou ele mandar. Nenhuma dessas três condições
+estava presente quando o pacote chegou (ainda havia itens `pronto` na fila), então só
+commitado como registro nesta rodada — nada migrado, nenhuma tabela criada.
+
 **Nota de nomenclatura:** o pacote de retorno de login/imagem da LUNA/Forge no celular se
 autodeclara `GENESIS/pacotes/2026-08-20-tres-correcoes.md` no próprio cabeçalho — é esse o
 nome usado aqui e no arquivo commitado, ainda que uma lista de commit anterior o tenha
