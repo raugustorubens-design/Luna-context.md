@@ -24,15 +24,22 @@ verificação entre aqui.**
 
 ## Em aberto
 
-### Relatório da ronda em três formatos, página configurável — `luna-core` PR `#53`, `luna-frontend` PR `#44`, abertos 20/08 (ainda não mergeados)
+### Relatório da ronda em três formatos, página configurável — `luna-core` PR `#53`, `luna-frontend` PR `#44`, mergeados 20/08
 
-`GENESIS/pacotes/2026-08-19-saida-formato-e-pagina.md`. Gerar a mesma ronda nos três
-formatos (PPTX, XLSX, DOCX) e conferir em cada um:
+`GENESIS/pacotes/2026-08-19-saida-formato-e-pagina.md`. `#53` mergeou já com os três
+ajustes da revisão (`GENESIS/pacotes/ARQUIVO/2026-08-20-revisao-pr53.md`): quebra por
+palavra dentro de um campo sozinho que estoura o slide, texto que termina onde a foto
+começa em vez de sobrepor, e largura real de coluna na estimativa de altura do xlsx.
+`#44` mergeou depois, na ordem certa. Gerar a mesma ronda nos três formatos (PPTX, XLSX,
+DOCX) e conferir em cada um:
 
 - Nenhum texto cortado — inclusive o achado de descrição mais longa
 - Editável sem pedir senha
 - Tamanho de página nas propriedades do arquivo bate com o escolhido
 - Rodapé traz ronda, data e versão do template
+- **Novo, por causa do ajuste 1:** gerar com um achado de descrição bem longa e conferir
+  que nenhum slide do PPTX corta texto nem escreve por cima da foto — era exatamente o
+  caso que a revisão bloqueou antes do merge
 
 **Portão do Arquiteto:** imprimir um em Ofício e conferir que nada foi cortado na margem —
 é onde o erro de milímetro aparece. Limitação conhecida: XLSX não tem código de papel exato

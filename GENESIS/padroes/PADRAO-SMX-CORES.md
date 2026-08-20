@@ -228,6 +228,13 @@ mudança pequena a olho e grande de coerência, mas mexe em PWA instalado e em
 papel já impresso. **Decisão do Arquiteto, em ADR próprio, nunca como efeito
 colateral de outra tarefa.**
 
+**Emenda — 19/08/2026:** o texto acima descreve o estado até então. **Deixou de ser
+verdade.** `/ronda` migrou para a paleta deste padrão em `luna-frontend#38`, decisão
+aprovada pelo Arquiteto em 19/08 — não foi efeito colateral de outra tarefa, foi a
+decisão que este mesmo parágrafo pedia. Registrado aqui como decisão, sem apagar o
+texto anterior: é o histórico de por que `/ronda` teve valores próprios por um tempo, e
+quando isso mudou.
+
 ---
 
 ## 8. Regras de uso

@@ -4,6 +4,10 @@
 **Atualizado por:** o Builder, ao concluir cada item
 **Estados:** `pronto` · `em execução` · `bloqueado` · `concluído`
 
+> **Atualização 2026-08-20:** `GENESIS/pacotes/PLANO-DE-PRODUCAO.md` passa a ser o mapa —
+> quatro marcos, com tarefas dimensionadas para caber numa sessão. Este arquivo fica como
+> visão do que vem a seguir, não reescrito.
+
 ---
 
 ## Agora
