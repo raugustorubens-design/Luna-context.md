@@ -20,6 +20,59 @@ parar, e como perguntar.
 
 ---
 
+## Emenda — `GENESIS/pacotes/2026-08-20-canal-de-pacotes.md`, 20/08/2026
+
+O ciclo acima continua valendo como descrição geral — mas o **estado ao vivo** de cada
+item deixa de morar item a item na `FILA.md` e passa a morar na tabela
+`genesis_pacote_fila`, no Supabase (`jdbzhrtovpoaafpytgza`), criada por
+`luna-core/supabase/migrations/20260820_genesis_pacote_fila.sql`. `FILA.md` continua
+existindo, mas volta a fazer só o que sempre fez bem: ordem e prioridade — não mais o
+lugar onde o estado de cada item é registrado.
+
+**Colunas:** `pacote` (caminho do arquivo), `repositorio`, `estado`, `pr_url`, `dono`,
+`notas`, `criado_em`, `atualizado_em`. Sete estados possíveis (`CHECK` na coluna):
+`novo` → `em_desenvolvimento` → `em_revisao` → `aprovado` → `mergeado` → `verificado` →
+`asbuilt`.
+
+| Estado | Quem move | O que significa |
+|---|---|---|
+| `novo` | Engenheiro | Escrito. Ninguém pegou |
+| `em_desenvolvimento` | **Builder** | Reivindicado — impede duas sessões pegarem o mesmo |
+| `em_revisao` | **Builder** | PR aberto. Pede conferência |
+| `aprovado` | Engenheiro | Revisado. Pode mergear |
+| `mergeado` | Engenheiro | Confirmado **no repositório**, não no relatório |
+| `verificado` | Arquiteto | Funciona no mundo real |
+| `asbuilt` | Engenheiro | Registrado o que ficou, e onde diferiu — o item então sai da tabela |
+
+### Passo zero — antes do passo 1 de sempre
+
+1. Ler a tabela `genesis_pacote_fila`. Para cada linha em `novo`: commitar o texto do
+   pacote em `GENESIS/pacotes/` (PR documental próprio) e marcar essa linha
+   `em_revisao` — o commit em si é o que pede conferência do Arquiteto, não a execução.
+2. Entre as linhas **sem dono** (nenhuma marcada `em_desenvolvimento`), pegar a
+   primeira — e marcar `em_desenvolvimento` **antes de escrever qualquer linha de
+   código**. É o que substitui a reivindicação de Issue do pacote
+   `2026-08-19-trabalho-no-github.md` para itens que vierem por esta tabela.
+3. Executar, como sempre — um PR por etapa (passo 3 do ciclo original).
+
+### Passo de saída — além do passo 4 de sempre
+
+Ao abrir o PR do que foi executado: marcar a linha `em_revisao`, com o `pr_url`
+preenchido. Depois do merge (confirmado no repositório, não relatado), quem revisa move
+para `mergeado`. Quando o Arquiteto confirmar em campo, a linha vai para `verificado`, e
+o Engenheiro escreve o as-built — o que o pacote pedia, o que foi entregue, onde
+diferiu e por quê, o que foi conferido em campo e quando — em
+`GENESIS/pacotes/ARQUIVO/`. Só então a linha sai da tabela (`asbuilt` é terminal, o
+registro passa a viver no git).
+
+**Trava permanente:** o Builder nunca deposita pacote na tabela (só o Engenheiro
+escreve `novo`) e nunca executa um pacote que ele mesmo acabou de commitar antes de o
+PR do commit ser mergeado — commitar não é executar; a janela de revisão do Arquiteto é
+o PR. O Engenheiro nunca move `em_desenvolvimento` — só o Builder, e só antes de
+codar.
+
+---
+
 ## Quando parar e perguntar
 
 Pare **apenas** nestes casos:
