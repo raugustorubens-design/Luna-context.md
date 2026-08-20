@@ -83,6 +83,42 @@ testado contra o Guardian de produção real nem clicado em produção — e a p
 depois dela. Registrado aqui agora para não se perder — mover pra "Verificado" só depois
 do portão completo (ver `FILA.md` item 2, "Pronto quando").
 
+### Colunas de EXIF em `convergia_ronda_fotos` — `luna-core#55`, mergeado 20/08
+
+`GENESIS/pacotes/2026-08-20-exif-colunas.md`, continuação do `#54`. `luna-core#52` (lado
+servidor do EXIF, mergeado antes) estava gravando em colunas que não existiam — corrigido
+com uma migração aditiva (`ALTER TABLE ... ADD COLUMN`, seis colunas nuláveis, nenhuma
+existente tocada). Verificado nesta sessão: as 51 fotos anteriores continuam íntegras, e um
+upload sintético de teste (imagem 1×1px + EXIF preenchido) confirmou gravação ponta a ponta
+contra produção real — linha de teste removida depois.
+
+**Portão do Arquiteto:** tirar uma foto pelo `/ronda`, com GPS ligado, e conferir no
+Supabase que **data e hora reais da captura** chegaram (`exif_captured_at`,
+`exif_gps_lat`/`exif_gps_lng`). Depois, uma foto vinda da galeria — que costuma vir sem
+EXIF nenhum — e confirmar que ela anexa normalmente, com as seis colunas de EXIF nulas.
+
+### Roxo do `body` e inversão de paleta no Forge v1 — `luna-frontend#47`, mergeado 20/08
+
+`GENESIS/pacotes/2026-08-19-paleta-em-tudo.md`. Etapa 1: os três degradês do `body`
+(`#7C3AED`/`#A78BFA`, atrás de toda superfície exceto `/ronda`) trocados por azul/dourado
+dentro do portão de matiz. Etapa 2: `--background`/`--muted`/`--secondary`/`--border`/
+`--foreground`/`--primary`/`--ring`/`--luna-cyan` do shadcn (lidos pelo Forge v1, que nunca
+tinha recebido o segundo estágio da inversão do ADR-022) religados para os mesmos valores
+que `/v2`/Forge v2 já usam. Etapa 3: `--luna-violet` marcado como legado.
+
+**Achado, não corrigido:** o portão de matiz (`constitution-check.mjs` + `hue-gate.mjs`)
+nunca varre `app/globals.css` (só `components/site/**` e os `*-v2` do Forge) e só reconhece
+hex literal, não `rgba()` — o roxo do `body` nunca teria sido pego pelo teste automático.
+Detalhe completo no `BUILDER.md` de `luna-frontend`.
+
+**Portão do Arquiteto**, no aparelho real, nos dois temas onde fizer sentido:
+
+- `/forge` e `/forge?tab=convergia` — fundo quase preto, painéis destacando dele, sem
+  mancha violeta
+- `/` — sem mancha violeta atrás do conteúdo
+- **`/ronda` sem nenhuma mudança de aparência** — é a trava do pacote; se algo lá mudou de
+  cor, a inversão passou do escopo
+
 ### Portão do ADR-022 — nunca foi feito
 
 O `#28` foi mergeado em 18/08 sem o portão de produção. Continua em aberto:
