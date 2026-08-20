@@ -97,6 +97,46 @@ Supabase que **data e hora reais da captura** chegaram (`exif_captured_at`,
 `exif_gps_lat`/`exif_gps_lng`). Depois, uma foto vinda da galeria — que costuma vir sem
 EXIF nenhum — e confirmar que ela anexa normalmente, com as seis colunas de EXIF nulas.
 
+### Hero do `/v2` — LUNA no espaço — `luna-frontend#48`, mergeado 20/08
+
+`GENESIS/pacotes/2026-08-20-hero-luna-espaco.md`, `referencia_hero-luna-espaco.html`
+(aprovado pelo Arquiteto) reproduzido: LUNA centralizada e inteira, máscara elíptica,
+sem quadriculado, estrelas com densidade crescente pra baixo, sinapses no crânio + disco
+pulsante nos valores "50% mais forte". `LunaCore` do `#45` não usado mais no hero (segue
+no repositório).
+
+**Duas decisões tomadas sem perguntar, conforme as próprias condições de parada do
+pacote — registradas aqui, não escondidas:**
+
+- **Tema claro:** a cena ficou **sempre escura**, nos dois temas (hex literais, ignora
+  `[data-theme="light"]`). O pacote listava duas opções e mandava, na ausência de
+  decisão do Arquiteto, "reportar e seguir com o escuro" — foi o que aconteceu.
+  **Se a decisão for a outra opção** (imagem em duotone azul sobre fundo claro), é
+  pacote novo.
+- **Quebra do título em telas largas:** o `h1` quebra uma palavra por linha em desktop
+  (`max-width:24ch` em `.copy` resolve contra o font-size herdado do corpo, não o do
+  `h1`). **Confirmado que não é erro de portagem** — o próprio
+  `referencia_hero-luna-espaco.html`, renderizado localmente no mesmo viewport, faz
+  exatamente a mesma coisa. O pacote só definia portão no celular; desktop não tinha
+  critério explícito.
+
+**Terceira divergência, menor:** o parágrafo abaixo do título ficou com o texto **já em
+produção** (nomeia as três frentes de trabalho), não o texto mais curto do protótipo —
+o pacote descreve estrutura da seção "4 · A frase, abaixo", não pediu trocar as
+palavras.
+
+**Portão do Arquiteto** — no celular, que é onde o próprio pacote diz que o defeito
+original aparecia:
+
+1. A LUNA aparece **inteira e centralizada** na primeira tela, sem cortar a cabeça
+2. A frase abaixo dela, legível sem rolar
+3. Sem quadriculado; estrelas adensando pra baixo; sinapses e disco animando
+4. Sem cursor (é o caso do celular), ela deriva sozinha
+
+E as duas decisões acima: confirmar se a cena sempre escura serve, ou se entra pacote
+próprio para o duotone; e se a quebra do título em desktop precisa de correção (fora do
+escopo original, mas visível caso o Arquiteto abra em tela larga).
+
 ### Roxo do `body` e inversão de paleta no Forge v1 — `luna-frontend#47`, mergeado 20/08
 
 `GENESIS/pacotes/2026-08-19-paleta-em-tudo.md`. Etapa 1: os três degradês do `body`
