@@ -24,6 +24,21 @@ verificação entre aqui.**
 
 ## Em aberto
 
+### Relatório da ronda em três formatos, página configurável — `luna-core` PR `#53`, `luna-frontend` PR `#44`, abertos 20/08 (ainda não mergeados)
+
+`GENESIS/pacotes/2026-08-19-saida-formato-e-pagina.md`. Gerar a mesma ronda nos três
+formatos (PPTX, XLSX, DOCX) e conferir em cada um:
+
+- Nenhum texto cortado — inclusive o achado de descrição mais longa
+- Editável sem pedir senha
+- Tamanho de página nas propriedades do arquivo bate com o escolhido
+- Rodapé traz ronda, data e versão do template
+
+**Portão do Arquiteto:** imprimir um em Ofício e conferir que nada foi cortado na margem —
+é onde o erro de milímetro aparece. Limitação conhecida: XLSX não tem código de papel exato
+para Ofício (`exceljs` só aceita tamanhos enumerados); a geração reporta isso como aviso
+não-fatal em vez de mentir um tamanho errado — DOCX e PPTX suportam Ofício com exatidão.
+
 ### `/ronda` mudou de cor — PR `#38`, mergeado 19/08
 
 O Safety Walk passou para a paleta nova. É o único item recente que tocou a ferramenta
