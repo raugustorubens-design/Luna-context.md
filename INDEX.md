@@ -19,6 +19,7 @@ Este documento aponta onde cada tipo de informação deve viver.
 - `CHECKPOINTS/` — marcos de evolução do organismo.
 - `GENESIS/padroes/` — normas de design e cor da SMX (`PADRAO-SMX-DESIGN.md`, `PADRAO-SMX-CORES.md`).
 - `GENESIS/pacotes/` — fila de pacotes de instrução para o Builder, commitados em vez de anexados por chat (ver `GENESIS/pacotes/README.md`).
+- `GENESIS/pacotes/ARQUIVO/` — registros de revisão e de decisões já resolvidas dentro de um pacote, preservados como histórico em vez de descartados.
 - `GENESIS/achados-campo/` — defeitos descobertos em campo, com a medição que levou ao diagnóstico. Registro histórico — não reescrever para "atualizar".
 - `GENESIS/decisoes/` — decisões operacionais tomadas em campo ou fora do ciclo formal de ADR, com a motivação registrada.
 - `GENESIS/pendencias/` — o que ficou pendente ao fim de uma sessão/etapa, para a próxima retomar sem perder contexto.
@@ -74,5 +75,17 @@ Este documento aponta onde cada tipo de informação deve viver.
 | ADR-025 (proposta) Leitura de foto acumulativa, com pergunta ao técnico — contexto por achado acumulado no cliente sem reenviar imagem já lida, pergunta opcional (nunca bloqueia) da LUNA ao técnico, par pergunta-resposta como dado de aprendizado (**Proposto — aguardando ratificação do Arquiteto**; emenda ADR-021 Decisões 6 e 9) | `ADR/ADR-025-Leitura-Acumulativa-de-Foto.md` |
 | ADR-026 (proposta) LUNA Sense — órgão de observabilidade dentro do `Luna-reporter`: contrato de sinal único, núcleo determinístico com IA só na borda, observa mudança (não estado), propõe mas nunca grava direto, canal por urgência (painel/e-mail/WhatsApp conforme faixa de prazo, ratificada em 19/08); escopo inicial de um sinal só (prazo normativo vencendo) (**Proposto — aguardando ratificação do Arquiteto**) | `ADR/ADR-026-LUNA-Sense.md` |
 | Canais e a idade da fonte — os três canais do LUNA Sense (e-mail formaliza, WhatsApp agiliza, painel divulga), por que idade absoluta de fonte é sinal fraco (só 3 casos legítimos: prazo normativo, idade relativa entre docs acoplados, divergência contra observação), e as faixas de prazo por tempo-de-ação (ratificado em 19/08) | `GENESIS/RESEARCH/canais-e-idade-da-fonte.md` |
+| Plano de Produção — quatro marcos (ronda entrega documento, LUNA lembra, sistema se observa, ronda ensina), tarefas dimensionadas por sessão, critério de pronto em cada uma; substitui `FILA.md` como mapa do dia a dia | `GENESIS/pacotes/PLANO-DE-PRODUCAO.md` |
+| Acesso público — Dev Mode oculto sem sessão, tela de acesso negado com saída, fechar `/ronda` fora de sessão (etapas 1 e 2 já mergeadas, `Luna-context.md#41`/`#42`) | `GENESIS/pacotes/2026-08-19-acesso-publico.md` |
+| Paleta em tudo — o roxo literal no `body` e a inversão de tema alcançando Forge e Convergia (pronto, não iniciado) | `GENESIS/pacotes/2026-08-19-paleta-em-tudo.md` |
+| Saída em três formatos, papel e orientação configuráveis — PPTX/XLSX/DOCX, não truncar, sem senha, nunca vazio (implementado, `luna-core#53` + `luna-frontend#44`, mergeados 20/08) | `GENESIS/pacotes/2026-08-19-saida-formato-e-pagina.md` |
+| Trabalho no GitHub — Issues como unidade de trabalho, reivindicar antes de começar (pronto, não iniciado) | `GENESIS/pacotes/2026-08-19-trabalho-no-github.md` |
+| Demonstração pública da ronda com isolamento real de dado (pronto, depende de decisão do Arquiteto) | `GENESIS/pacotes/2026-08-19-ronda-demo.md` |
+| Promover `/v2` e Forge v2 a padrão, refazer o painel do Convergia (substitui `2026-08-19-promover-v2.md`, que nunca foi commitado) | `GENESIS/pacotes/2026-08-20-tudo-novo.md` |
+| Revisão de `luna-core#53` — os três achados de truncamento (texto estourando slide, texto sobre foto, largura de coluna errada na estimativa), todos corrigidos antes do merge | `GENESIS/pacotes/ARQUIVO/2026-08-20-revisao-pr53.md` |
+| Status de saída da ronda — a divergência entre xlsx e docx e como foi resolvida | `GENESIS/pacotes/ARQUIVO/2026-08-19-status-saida-da-ronda.md` |
+| Leitura de imagem sem modelo (Python) — o que dá para extrair sem IA, e por que o OCR de etiqueta é o primeiro sinal do Sense que já funciona hoje | `GENESIS/RESEARCH/2026-08-19-leitura-imagem-python.md` |
+| Três saídas e o XLS — por que planilha não é resquício, e o que o XLS da Manserv revela sobre ingestão de APR | `GENESIS/RESEARCH/2026-08-19-tres-saidas-e-o-xls.md` |
+| Demo para nível gratuito — o dado de terceiro sob guarda, e por que não construir cobrança só para descobrir se alguém paga | `GENESIS/RESEARCH/2026-08-19-demo-para-nivel-gratuito.md` |
 
 **Nota:** `CHANGELOG.md`, `ORGANS/` e `CHECKPOINTS/` estão listados abaixo (seção "Diretórios") mas não existem neste repositório — divergência identificada e registrada em `LUNA_CONTEXT.md` ("Divergência estrutural adicional — Luna-context.md"), não corrigida aqui (decisão de produto: criar as pastas ou remover as referências).

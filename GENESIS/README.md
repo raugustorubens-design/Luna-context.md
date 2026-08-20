@@ -44,7 +44,10 @@ It is operational memory, not permanent memory.
 - HISTORY.md
 - RESEARCH/ (Research Hypotheses — ver ARCH-001)
 - padroes/ (PADRAO-SMX-DESIGN.md, PADRAO-SMX-CORES.md — normas de design e cor da SMX, ver ADR-023/ADR-024)
-- pacotes/ (fila de pacotes de instrução para o Builder, ver pacotes/README.md)
+- pacotes/ (fila de pacotes de instrução para o Builder, ver pacotes/README.md; inclui
+  `PLANO-DE-PRODUCAO.md`, o mapa por marcos que substitui `FILA.md` como fonte do dia a
+  dia, e `pacotes/ARQUIVO/` — registros de revisão e de decisões já resolvidas, preservados
+  em vez de descartados)
 - achados-campo/ (defeitos descobertos em campo, com a medição — registro histórico)
 - decisoes/ (decisões operacionais tomadas em campo ou fora do ciclo formal de ADR)
 - pendencias/ (o que ficou pendente ao fim de uma sessão/etapa)

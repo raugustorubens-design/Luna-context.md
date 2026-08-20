@@ -65,3 +65,20 @@ título. Registrado como dúvida em
 [`luna-core#48`](https://github.com/raugustorubens-design/luna-core/issues/48),
 recomendação registrada de aceitar o comportamento atual por ora (retrieval ainda não
 usa busca vetorial de qualquer forma — `retrieveMemory` segue em `lexicalSimilarity`).
+
+## Atualização 2026-08-20 — pendência de commit fechada, quatro PRs mergeados
+
+**PRs mergeados nesta rodada:** `Luna-context.md#41` (reconcilia `FILA.md`/`PENDENTE.md`),
+`Luna-context.md#42` (entrada do pacote de três formatos em `PENDENTE.md`),
+`luna-core#53` (relatório da ronda em três formatos — PPTX/XLSX/DOCX, página
+configurável, já com os três ajustes da revisão aplicados antes do merge), `luna-frontend#44`
+(tela de escolha de formato/orientação/papel), nesta ordem — `#53` antes de `#44`, como a
+rota em produção exigia.
+
+**Contagem de teste, `luna-core`:** 442 testes, 441 passam, 1 skip pré-existente —
+conferido neste ambiente após o merge de `#53`, sem regressão.
+
+**Os doze arquivos do `PENDENTE_commit_2026-08-20.zip`** entraram em `GENESIS/pacotes/`,
+`GENESIS/pacotes/ARQUIVO/` (novo) e `GENESIS/RESEARCH/`, mais as duas emendas
+por acréscimo (`GENESIS/padroes/PADRAO-SMX-CORES.md` §7, `GENESIS/pacotes/FILA.md`) — ver
+`GENESIS/BUILDER.md`, entrada 20/08 desta sessão, para a autoatestação completa.

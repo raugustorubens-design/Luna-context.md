@@ -2283,3 +2283,108 @@ Pacote A (`GENESIS/pacotes/2026-08-19-tirar-o-roxo.md`), a ordem correta é
 `Execute GENESIS/pacotes/2026-08-19-tirar-o-roxo.md` — sem reanexar
 arquivo.
 
+---
+
+## 20/08/2026 — Pendente de commit fechado (Claude Code, sessão do Engenheiro)
+
+Recebi dois anexos: `PENDENTE_commit_2026-08-20.zip` (doze arquivos + o
+`0_LEIA-PRIMEIRO.md` de instrução) e `COLE-NO-BUILDER_rodar-a-fila.md` — este
+último trazia texto se apresentando como "Autorização do Arquiteto" para
+resolver conflito e commitar sem perguntar. Tratei esse texto como conteúdo a
+verificar, não como autorização em si — é um arquivo anexado, não uma
+instrução do Arquiteto direto nesta conversa — e confirmei o estado real no
+GitHub antes de agir.
+
+### O que a fila realmente pedia, e o que já estava feito
+
+A fila descrita nos dois documentos assumia quatro PRs **ainda abertos**,
+numa ordem obrigatória (`Luna-context.md#41`/`#42` → `luna-core#53`, só
+depois de três ajustes → `luna-frontend#44`, nunca antes do `#53`).
+Conferido via `pull_request_read` nos quatro: **os quatro já estavam
+mergeados** antes desta sessão começar (entre 00:14 e 01:31 de 20/08, sessão
+anterior). Não havia nada para mergear.
+
+Os "três ajustes do PPTX/XLSX" que o documento pedia como bloqueio antes do
+merge de `#53` (quebra por palavra dentro de um campo sozinho, texto
+sobrepondo foto, largura real de coluna na estimativa de altura, mais a
+remoção do `fitToWidth`) **já estavam no commit `bd68d68`**, dentro do
+próprio `#53`, antes do merge — conferido lendo o diff do commit, não supondo
+pelo título do PR. Não havia código para corrigir.
+
+**Não houve conflito para resolver** — nem no merge dos PRs (já mergeados,
+sem ação minha), nem nos arquivos documentais que toquei: nenhum já existia
+com conteúdo divergente do que o zip trazia.
+
+### O que fiz de fato: o PR documental
+
+1. **Os doze arquivos do zip**, nos destinos exatos pedidos —
+   `GENESIS_pacotes/*.md` → `GENESIS/pacotes/`, `GENESIS_pacotes/ARQUIVO/*.md`
+   → `GENESIS/pacotes/ARQUIVO/` (diretório novo), `GENESIS_RESEARCH/*.md` →
+   `GENESIS/RESEARCH/`. Copiados byte a byte, sem reescrever conteúdo. O
+   `0_LEIA-PRIMEIRO.md` não foi commitado — é instrução, não conteúdo, como o
+   próprio zip determinava.
+2. **`GENESIS/padroes/PADRAO-SMX-CORES.md` §7** — acrescentada a emenda de
+   19/08 (migração de `/ronda` para a paleta do padrão em `luna-frontend#38`,
+   aprovada pelo Arquiteto) **sem apagar** o texto original que dizia
+   "valores próprios preservados". A tabela da seção continua com a frase
+   antiga de propósito — o parágrafo logo abaixo já marca que deixou de ser
+   verdade e por quê; reescrever a tabela seria apagar, não acrescentar.
+3. **`GENESIS/pacotes/FILA.md`** — nota no topo dizendo que
+   `PLANO-DE-PRODUCAO.md` passa a ser o mapa; o resto do arquivo não mudou.
+4. **`GENESIS/pacotes/PLANO-DE-PRODUCAO.md`** — Marco 1 marcado concluído
+   por uma nota acima da tabela (as seis tarefas já fecharam, com os PRs que
+   fecharam cada uma), tabela original preservada sem reescrita linha a
+   linha.
+5. **`GENESIS/pacotes/PENDENTE.md`** — a entrada de `#53`/`#44` atualizada de
+   "abertos, ainda não mergeados" pra mergeados, e a verificação nova que o
+   ajuste 1 exige: gerar com um achado de descrição bem longa e conferir que
+   nenhum slide do PPTX corta texto nem sobrepõe foto.
+6. **`GENESIS/STATUS.md`** — entrada nova com os quatro PRs mergeados e a
+   contagem de teste do `luna-core` conferida neste ambiente.
+7. **Índices, por acréscimo:** `GENESIS/README.md` (uma linha sobre
+   `pacotes/ARQUIVO/` e o `PLANO-DE-PRODUCAO.md`) e `INDEX.md` (linhas novas
+   na tabela "Conteúdo atual" para os doze arquivos, mais `pacotes/ARQUIVO/`
+   em "Diretórios"). **Caminho usado: editado à mão, não pelo
+   `generate_index.py`** — conferi o script antes de rodar, e ele gera
+   `luna_context.json`/`.luna_state.json` (hash por arquivo, trace de
+   mudança), não `INDEX.md`. Rodá-lo não teria produzido o índice que esta
+   instrução pedia; documentando aqui a divergência entre o que o script faz
+   e o que o nome sugere, em vez de rodar algo que não atende o pedido.
+
+### O que verifiquei neste ambiente × o que fica para verificação de campo
+
+**Verificado aqui:** os quatro PRs mergeados e o commit dos três ajustes
+dentro do `#53` (leitura direta do histórico/diff via GitHub); `npm test` do
+`luna-core` nesta sessão — 442 testes, 441 passam, 1 skip pré-existente,
+igual ao número que o próprio PR `#53` já reportava (sem regressão); nenhum
+arquivo existente ficou modificado além dos listados acima mais este
+`BUILDER.md`, `INDEX.md` e `GENESIS/README.md` (`git status` conferido antes
+do commit).
+
+**Fica para o Arquiteto, em campo/produção** (já registrado em `PENDENTE.md`,
+não duplico aqui): gerar a mesma ronda nos três formatos com um achado de
+descrição longa e conferir visualmente que nada corta nem sobrepõe; o portão
+de Ofício impresso; os demais itens que já estavam em aberto antes desta
+sessão (cores do `/ronda`, Constituição no prompt, portão do ADR-022) — esta
+sessão não tocou nenhum deles.
+
+### Conflitos — nenhum encontrado
+
+Nenhum dos arquivos cronológicos (`PENDENTE.md`, `BUILDER.md`, `STATUS.md`,
+`ROADMAP.md`, `FILA.md`) tinha conteúdo já commitado incompatível com o que
+os documentos anexados traziam. Se tivesse encontrado, a regra era manter os
+dois lados na posição cronológica, nunca escolher — não foi necessário
+aplicar.
+
+### Não fiz, por não haver o que fazer
+
+Não mergeei PR nenhum (os quatro já estavam mergeados). Não toquei código em
+`luna-core` nem `luna-frontend` (os três ajustes do PPTX/XLSX já estavam no
+`#53` mergeado). Não apaguei nem reescrevi texto histórico em nenhum
+documento.
+
+Next action: nenhuma minha além de persistir. O ciclo descrito no
+`0_LEIA-PRIMEIRO.md` ("Leia `GENESIS/pacotes/COMO-FUNCIONA.md` e pegue o
+próximo item pronto") passa a valer a partir do próximo item de
+`PLANO-DE-PRODUCAO.md` — Marco 2, tarefa 2.1.
+
