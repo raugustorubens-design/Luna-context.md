@@ -10,6 +10,34 @@
 
 ---
 
+## Fila de 20/08 (tarde) — pacotes soltos, fora do Plano de Produção
+
+Seis pacotes chegaram por anexo em vez de já estarem na `main` — commitados agora junto com
+esta atualização. Ordem de execução, do `0_LEIA-PRIMEIRO.md` do lote:
+
+| # | Pacote | Repositório | Por quê nesta posição |
+|---|---|---|---|
+| 1 | `2026-08-20-exif-colunas.md` | `luna-core` | **Urgente** — `luna-core#52` já mergeado grava em colunas que não existem; gravação falhando em produção agora |
+| 2 | `2026-08-20-pptx-layout.md` | `luna-core` | O relatório em PPTX é o portão do Marco 1 |
+| 3 | `2026-08-19-paleta-em-tudo.md` | `luna-frontend` | O roxo literal ainda está no `body` |
+| 4 | `2026-08-20-tudo-novo.md` | `luna-frontend` | Promove `/` e `/forge`, refaz o painel do Convergia |
+| 5 | `2026-08-20-tres-correcoes.md` | `luna-frontend` | Retorno do login errado, imagem da LUNA disputando o texto, Forge quebrando no celular |
+| 6 | `2026-08-19-trabalho-no-github.md` | `luna-core` + `luna-frontend` + `Luna-context.md` | Issues como unidade de trabalho, reivindicar antes de começar |
+
+`2026-08-19-ronda-demo.md` fica **bloqueado** — depende da decisão do Arquiteto sobre a
+leitura por IA na demonstração (ver o próprio pacote).
+
+`2026-08-19-acesso-publico.md` está **concluído** — etapas 1 e 2 mergeadas via
+`Luna-context.md#41`/`#42` (que na verdade eram os PRs `luna-frontend`, ver histórico);
+fica como registro, sem trabalho pendente do Builder.
+
+**Nota de nomenclatura:** o pacote de retorno de login/imagem da LUNA/Forge no celular se
+autodeclara `GENESIS/pacotes/2026-08-20-tres-correcoes.md` no próprio cabeçalho — é esse o
+nome usado aqui e no arquivo commitado, ainda que uma lista de commit anterior o tenha
+chamado de `2026-08-20-imagem-e-mobile.md`.
+
+---
+
 ## Agora
 
 | # | Item | Repositório | Estado | Pacote |
