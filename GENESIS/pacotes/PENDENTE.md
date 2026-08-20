@@ -43,6 +43,24 @@ Conferir no celular:
 Conferir nos dois temas. No claro, os feixes de luz não aparecem — é o comportamento
 correto: luz sobre papel não existe.
 
+### Constituição chegando ao prompt — mergeado em `luna-core`, sem PR numerado
+
+Item 3 da fila (`FILA.md`). O adaptador do Groq passou a montar o contexto com
+`LUNA_CONSTITUTION.md` de verdade, em vez de descartá-lo. Verificação de produção:
+
+- Perguntar à LUNA algo que só está na Constituição — ex.: por que foto nunca é
+  obrigatória no Safety Walk
+- Ela precisa responder certo, citando ou parafraseando a regra real, não inventando
+
+### Relatório da ronda (backend) — `luna-core#50`, mergeado 19/08
+
+Item 2 da fila, parte `luna-core`. Adaptador, XLSX e curadoria (editar/excluir) prontos,
+verificados só com Guardian falso + geração real fora da suíte (script descartável). Não
+testado contra o Guardian de produção real nem clicado em produção — e a peça de
+`luna-frontend` (botão + tela de curadoria) ainda não existe, então este portão só fecha
+depois dela. Registrado aqui agora para não se perder — mover pra "Verificado" só depois
+do portão completo (ver `FILA.md` item 2, "Pronto quando").
+
 ### Portão do ADR-022 — nunca foi feito
 
 O `#28` foi mergeado em 18/08 sem o portão de produção. Continua em aberto:
