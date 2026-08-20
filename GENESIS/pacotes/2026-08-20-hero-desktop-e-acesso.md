@@ -55,9 +55,27 @@ Não mexa em nenhuma outra tipografia da página.
 
 Entre a linha "SISTEMA COGNITIVO PERSISTENTE" e o título, entra **LUNA**.
 
-Como assinatura, não como segundo título: espaçamento de letra largo, corpo menor que o
-título e maior que a linha de cima, na cor de acento. Ela nomeia quem está na imagem logo
-acima.
+**Variante F, aprovada pelo Arquiteto em 20/08** a partir da prévia. Como assinatura, não
+como segundo título — ela nomeia quem está na imagem logo acima e sai do caminho.
+
+| | |
+|---|---|
+| Fonte | **monospace** — a mesma da linha de sistema, `IBM Plex Mono` |
+| Peso | 500 |
+| Corpo | `1.05rem` no celular; pode subir proporcionalmente em tela grande |
+| Espaçamento de letra | `.62em` — e `text-indent` do mesmo valor, senão o nome sai deslocado à esquerda pelo espaço final |
+| Cor | **dourado `#E4B448`** |
+| Margem | `1rem` acima, `.6rem` abaixo |
+
+**Sobre o dourado — decisão consciente do Arquiteto.** No sistema, o dourado é a cor da
+memória corroborada. Usá-lo no nome mistura dois significados que foram separados de
+propósito. **Ele optou por F sabendo disso**, e a escolha vale. Registre assim no PR, para
+que daqui a seis meses ninguém "conserte" achando que foi engano.
+
+**Continua dentro do portão de matiz** — `#E4B448` está em 43°, na faixa 17°–55°. E o
+corpo é pequeno, então não pesa no orçamento de luz.
+
+**Referência visual:** `previa-nome-luna.html`, variante F.
 
 ## 4 · Migrar o que o site antigo faz
 
